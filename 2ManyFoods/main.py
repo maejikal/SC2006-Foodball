@@ -1,10 +1,19 @@
 from flask import *
+import controllers.auth as auth_controller
 
 app = Flask(__name__)
 
 @app.route('/')
 def root():
-    return render_template()
+    return "placeholder"
+
+@app.route('/signup',methods=['POST'])
+def signup_route():
+    return auth_controller.signup()
+
+@app.route('/login', methods=['POST'])
+def login_route():
+    return auth_controller.login()
 
 if __name__ == "__main__":
     app.run()
