@@ -93,6 +93,54 @@ class Eatery:
     def __init__(self):
         self.EateryID = None
         
+class Review:
+    def __init__(self, User:User, Eatery:Eatery, Rating:int, Comment:str, Date:datetime, Photo:str):
+        self.ReviewID = None #autoincrement
+        self.User = None
+        self.Eatery = None
+        self.Rating = None #1-5
+        self.Comment = None
+        self.Date = None
+        self.Photo = None #filename/path?
+    
+    def getReviewID(self):
+        return self.ReviewID
+    
+    def getUser(self):
+        return self.User
+    
+    def getEatery(self):
+        return self.Eatery
+    
+    def getRating(self):
+        return self.Rating
+    
+    def getComment(self):
+        return self.Comment
+    
+    def getDate(self):
+        return self.Date
+    
+    def getPhoto(self):
+        return self.Photo
+    
+    def setUser(self, user:User):
+        self.User = user
+
+    def setEatery(self, eatery:Eatery):
+        self.Eatery = eatery
+
+    def setRating(self, rating:int):
+        self.Rating = rating
+    
+    def setComment(self, comment:str):
+        self.Comment = comment
+
+    def setDate(self, date:datetime):
+        self.Date = date
+
+    def setPhoto(self, photo:str):
+        self.Photo = photo
 
 
         

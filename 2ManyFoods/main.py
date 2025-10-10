@@ -1,5 +1,5 @@
 from flask import *
-import controllers.auth as auth_controller
+from __init__ import *
 
 app = Flask(__name__)
 
