@@ -83,10 +83,15 @@ class Group:
         self.GroupID = md5(str(datetime.now()).encode())[randomisation:randomisation+6]
         self.Preferences = {}
 
+class Location:
+    def __init__(self):
+        self.langitude = None
+        self.longitude = None
+    pass
 
-
-
-
+class Eatery:
+    def __init__(self):
+        self.EateryID = None
         
 
 
