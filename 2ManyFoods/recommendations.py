@@ -48,11 +48,21 @@ class RecommendationController:
             lat_lng={'lat': location.latitude, 'lng': location.longitude},
             radius=radius, types=['restuarant'])
         results = [Eatery(i) for i in query_result]
-        # TODO
-        # filter further based on hunger levels and preferences, then look in the 'types' field in each result
+        weights = [user.getHunger() for user in self.group.Users]
+        preferences = self.group.Preferences
+        groupPreferences = dict.fromkeys(preferences[0].keys())
+        for key in groupPreferences.keys():
+            groupPreferences[key] = sum(preferences[i][key]*weights[i] for i in range(len(preferences)))
+        groupPreferences = list(reversed(sorted(groupPreferences, key=groupPreferences.get)))
+        out = []
+        for category in groupPreferences:
+            for eatery in results:
+                if category in eatery.types:
+                    out.append(eatery)
+                    results.remove(eatery)
         # https://developers.google.com/maps/documentation/places/web-service/reference/rest/v1/places
         # https://developers.google.com/maps/documentation/places/web-service/place-types
-        return results
+        return out
 
     def GroupVoting(self, group: Group) -> int:
         votes = {i: 0 for i in self.recommendations}
