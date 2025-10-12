@@ -78,30 +78,146 @@ class Group:
         self.GroupName = GroupName
         self.Users = [User]
         self.GroupPhoto = ""
-        self.NoOfUsers = len(self.Users)
+        self.NoOfUsers = 1
         randomisation = randint(0,122)
         self.GroupID = md5(str(datetime.now()).encode())[randomisation:randomisation+6]
         self.Preferences = {}
 
+    def getGroupName(self):
+        return self.GroupName
+    
+    def getGroupID(self):
+        return self.GroupID
+    
+    def getUsers(self):
+        return self.Users
+    
+    def getGroupPhoto(self):
+        return self.GroupPhoto
+    
+    def getNoOfUsers(self):
+        return self.NoOfUsers
+    
+    def getPreferences(self):
+        return self.Preferences
+    
+    def updateGroupName(self, groupname: str):
+        self.GroupName = groupname
+
+    def addUser(self, user: User):
+        self.Users.append(user)
+        self.NoOfUsers += 1
+
+    def updateGroupPhoto(self, photo:str):
+        self.GroupPhoto = photo
+
+
 class Location:
-    def __init__(self):
-        self.langitude = None
-        self.longitude = None
-    pass
+    def __init__(self, langitude: float, longitude: float):
+        self.langitude = langitude
+        self.longitude = longitude
+    
+    def getlangitude(self):
+        return self.langitude
+    
+    def getlongitude(self):
+        return self.longitude
+    
+    def setlangitude(self, langitude: float):
+        self.langitude = langitude
+
+    def setlongitude(self, longitude: float):
+        self.longitude = longitude
 
 class Eatery:
-    def __init__(self):
-        self.EateryID = None
+    def __init__(self, Name: str, DietaryRequirements: dict, Cuisine: dict, PriceRange: tuple, Location: Location, OpeningHours: datetime):
+        self.EateryID = None # autoincrement
+        self.Name = Name 
+        self.DietaryRequirements = DietaryRequirements  # halal, vegetarian, peanut, shellfish, milk, eggs(idk add more if there are more prevalent ones)
+        self.Cuisine = Cuisine  # western, italian, chinese, malay, indian, japanese, korean
+        self.PriceRange = PriceRange
+        self.Location = Location
+        self.OpeningHours = OpeningHours
+        self.Reviews = []
+        self.AverageRating = 0.0
+
+    def getEateryID(self):
+        return self.EateryID
+    
+    def getName(self):
+        return self.Name
+    
+    def getDietaryRequirements(self):
+        return self.DietaryRequirements
+    
+    def getCuisine(self):
+        return self.Cuisine
+    
+    def getPriceRange(self):
+        return self.PriceRange
+    
+    def getLocation(self):
+        return self.Location
+    
+    def getOpeningHours(self):
+        return self.OpeningHours
+
+    def getReviews(self):
+        return self.Reviews
+    
+    def getAverageRating(self):
+        return self.AverageRating
+    
+    def setName(self, Name: str):
+        self.Name = Name
+    
+    def setDietaryRequirements(self, update: dict):
+        for key in self.DietaryRequirements.keys():
+            if update[key] != None:
+                self.DietaryRequirements[key] = update[key]
+    
+    def setCuisine(self, update: dict):
+        for key in self.Cuisine.keys():
+            if update[key] != None:
+                self.DietaryRequirements[key] = update[key]
+    
+    def setPriceRange(self, LowerRange = 0, UpperRange = float("inf") ):
+        if LowerRange != 0:
+            self.PriceRange = (LowerRange, self.PriceRange[1])
+
+        if UpperRange != float("inf"):
+            self.PriceRange = (self.PriceRange[0], UpperRange)
+    
+    def setLocation(self, Location):
+        self.Location = Location
+    
+    def setOpeningHours(self, OpeningHours):
+        self.OpeningHours = OpeningHours
+
+    def updateReviews(self, newReview: list):
+        for i in newReview:
+            self.Reviews.append(i)
+    
+    def getAverageRating(self):
+        total = 0
+        for i in self.Reviews:
+            total += i.getRating()
+        return round(total/len(self.Reviews), 2)
+    
+
+
+
+
         
 class Review:
     def __init__(self, User:User, Eatery:Eatery, Rating:int, Comment:str, Date:datetime, Photo:str):
         self.ReviewID = None #autoincrement
-        self.User = None
-        self.Eatery = None
-        self.Rating = None #1-5
-        self.Comment = None
-        self.Date = None
-        self.Photo = None #filename/path?
+        self.User = User
+        self.Eatery = Eatery
+        self.Rating = Rating #1-5
+        self.Comment = Comment
+        self.Date = Date
+        self.Photo = Photo #filename/path?
     
     def getReviewID(self):
         return self.ReviewID
