@@ -39,7 +39,7 @@ def nearby_search(lat_lng=None, radius=3200, type='restaurant'):
 
 class RecommendationController:
     def __init__(self, group: Group, location: Location, radius: int = 500):
-        self.group = group
+        self._group = group
         self.location = location
         self.recommendations = self.FilterRecommendations(location, radius)
 
@@ -48,8 +48,8 @@ class RecommendationController:
             lat_lng={'lat': location.latitude, 'lng': location.longitude},
             radius=radius, types=['restuarant'])
         results = [Eatery(i) for i in query_result]
-        weights = [user.getHunger() for user in self.group.Users]
-        preferences = self.group.Preferences
+        weights = [user.getHunger() for user in self._group.Users]
+        preferences = self._group.Preferences
         groupPreferences = dict.fromkeys(preferences[0].keys())
         for key in groupPreferences.keys():
             groupPreferences[key] = sum(preferences[i][key]*weights[i] for i in range(len(preferences)))
@@ -64,18 +64,28 @@ class RecommendationController:
         # https://developers.google.com/maps/documentation/places/web-service/place-types
         return out
 
-    def GroupVoting(self, group: Group) -> int:
+    def GroupVoting(self, votes) -> int:
         votes = {i: 0 for i in self.recommendations}
-        for user in group:
-            vote = user.vote(self.recommendations)
-            votes[vote[0]] += vote[1]
         highest = max(votes.values())
         return random.choice([i for i in votes if votes[i] == highest]).EateryID
 
+    def getGroup(self):
+        return self._group
 
 class RecommendationInterface:
-    def GenerateRecommendation():
-        pass
+    def __init__(self, con: RecommendationController):
+        self._con = con
 
-    def VoteAndDisplay():
-        pass
+    def GenerateRecommendation(self):
+        return self._con.FilterRecommendations()
+
+    def VoteAndDisplay(self) -> int:
+        votes = {}
+        for user in self._con.getGroup():
+            vote = user.getVote()
+            for i, j in vote.items():
+                if i in votes.keys():
+                    votes[i] += j
+                else:
+                    votes[i] = j
+        return self._con.GroupVoting(votes)
