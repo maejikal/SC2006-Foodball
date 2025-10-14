@@ -1,0 +1,23 @@
+:root {
+  /* Primary theme colors */
+  --color-bg-dark: #0d0c1d;
+  --color-bg-gradient-start: #0d0c1d;
+  --color-bg-gradient-end: #2c2a4a;
+
+  --color-accent1: #92f0e4;
+  --color-accent2: #9278f0;
+
+  --color-primary: #7d5fff;
+  --color-white: #ffffff;
+  --color-light-gray: #f0f0f0;
+  --color-text-light: #cfcfe8;
+  --color-text-medium: #9f9fb2;
+  --color-text-darkish: #6e6e7f;
+
+  --border-radius: 12px;
+  --border-radius-lg: 20px;
+
+  --transition-fast: 0.2s ease-in-out;
+
+  --font-base: 'Poppins', sans-serif;
+}

@@ -1,0 +1,82 @@
+.resultsPage {
+  background: linear-gradient(135deg, #1a2332 0%, #2d3e52 100%);
+  min-height: 100vh;
+  color: white;
+  font-family: 'Poppins', sans-serif;
+  display: flex;
+  flex-direction: column;
+}
+
+.resultsContent {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 2rem;
+  text-align: center;
+}
+
+.resultsContent h1 {
+  font-size: 2.5rem;
+  margin-bottom: 2rem;
+  text-transform: capitalize;
+}
+
+.resultCard {
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  max-width: 500px;
+  width: 100%;
+  margin-bottom: 2rem;
+}
+
+.resultCard img {
+  width: 100%;
+  height: auto;
+  max-height: 200px;
+  object-fit: cover;
+  border-radius: 12px;
+  margin-bottom: 1.5rem;
+}
+
+.resultDetails h2 {
+  font-size: 1.8rem;
+  margin-bottom: 1rem;
+}
+
+.membersVotes {
+  display: flex;
+  justify-content: center;
+  gap: 0.8rem;
+  flex-wrap: wrap;
+}
+
+.memberAvatar {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  border: 2px solid white;
+  object-fit: cover;
+}
+
+.resultsContent button {
+  background-color: #9d7dff;
+  color: white;
+  font-weight: bold;
+  border: none;
+  border-radius: 30px;
+  padding: 0.8rem 2rem;
+  font-size: 1rem;
+  cursor: pointer;
+  text-transform: lowercase;
+  transition: background 0.2s ease;
+}
+
+.resultsContent button:hover {
+  background-color: #b89aff;
+}

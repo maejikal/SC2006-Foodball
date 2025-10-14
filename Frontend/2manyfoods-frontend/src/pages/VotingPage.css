@@ -1,0 +1,52 @@
+.votingPage {
+  background: linear-gradient(135deg, #1a2332 0%, #2d3e52 100%);
+  color: white;
+  font-family: 'Poppins', sans-serif;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.votingContent {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 3rem;
+  text-align: center;
+}
+
+.votingContent h1 {
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+  text-transform: capitalize;
+}
+
+.votingContent p {
+  color: #ccc;
+  margin-bottom: 2.5rem;
+}
+
+.optionList {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  width: 100%;
+  max-width: 400px;
+}
+
+.optionCard {
+  background: rgba(255, 255, 255, 0.05);
+  padding: 1.25rem 1.75rem;
+  border-radius: 14px;
+  font-size: 1.25rem;
+  font-weight: bold;
+  color: white;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.optionCard:hover {
+  background: rgba(255, 255, 255, 0.1);
+  transform: scale(1.03);
+}

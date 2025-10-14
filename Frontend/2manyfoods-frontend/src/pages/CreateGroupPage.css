@@ -1,0 +1,100 @@
+.createGroupPage {
+  background: linear-gradient(135deg, #1a2332 0%, #2d3e52 100%);
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  color: white;
+  font-family: 'Poppins', sans-serif;
+}
+
+.createGroupContainer {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 2rem;
+}
+
+.createGroupContainer h1 {
+  color: white;
+  font-size: 2rem;
+  margin-bottom: 3rem;
+  text-transform: capitalize;
+  font-weight: 600;
+}
+
+.createGroupContainer form {
+  width: 100%;
+  max-width: 480px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.groupPicUpload {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  background: #c5c5c5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1rem;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+
+.groupPicUpload svg {
+  width: 60px;
+  height: 60px;
+  fill: #888;
+}
+
+.groupPicUpload input[type="file"] {
+  display: none;
+}
+
+.uploadText {
+  font-size: 0.9rem;
+  color: #ddd;
+  margin-bottom: 2rem;
+  text-transform: capitalize;
+}
+
+.createGroupContainer input[type="text"] {
+  width: 100%;
+  padding: 0.9rem 1.2rem;
+  border: none;
+  border-radius: 8px;
+  background: white;
+  color: #333;
+  margin-bottom: 1rem;
+  font-family: 'Poppins', sans-serif;
+  font-size: 1rem;
+}
+
+.createGroupContainer input[type="text"]::placeholder {
+  color: #999;
+  text-transform: lowercase;
+}
+
+.createGroupContainer button[type="submit"] {
+  width: 100%;
+  padding: 0.9rem;
+  border: none;
+  border-radius: 8px;
+  background: #5b4a9f;
+  color: white;
+  font-family: 'Poppins', sans-serif;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  text-transform: lowercase;
+  transition: background 0.2s;
+}
+
+.createGroupContainer button[type="submit"]:hover {
+  background: #6b5aaf;
+}

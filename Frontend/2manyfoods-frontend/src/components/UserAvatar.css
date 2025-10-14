@@ -1,0 +1,5 @@
+.userAvatar {
+  border: 3px solid var(--color-accent1);
+  background-color: #333;
+  object-fit: cover;
+}

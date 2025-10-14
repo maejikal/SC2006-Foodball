@@ -1,0 +1,114 @@
+.groupDetailsPage {
+  background: linear-gradient(135deg, #1a2332 0%, #2d3e52 100%);
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  color: white;
+  font-family: 'Poppins', sans-serif;
+}
+
+.groupDetailContent {
+  flex: 1;
+  padding: 3rem 5rem;
+}
+
+.groupHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 3rem;
+}
+
+.groupTitleSection h1 {
+  color: white;
+  font-size: 2.5rem;
+  text-transform: lowercase;
+  margin: 0 0 1.5rem 0;
+  background: white;
+  color: black;
+  padding: 0.5rem 2rem;
+  border-radius: 50px;
+  display: inline-block;
+  font-weight: 600;
+}
+
+.groupActions {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.groupActions button {
+  padding: 0.7rem 1.5rem;
+  border: none;
+  border-radius: 25px;
+  font-family: 'Poppins', sans-serif;
+  font-size: 0.95rem;
+  cursor: pointer;
+  text-transform: lowercase;
+  font-weight: 500;
+  transition: opacity 0.2s;
+}
+
+.groupActions button:hover {
+  opacity: 0.9;
+}
+
+.copyInviteBtn {
+  background: #3d5a5a;
+  color: white;
+}
+
+.addMemberBtn {
+  background: #3d5a5a;
+  color: white;
+}
+
+.startFoodballBtn {
+  padding: 0.9rem 2.5rem !important;
+  border-radius: 30px !important;
+  background: transparent;
+  border: 2px solid white !important;
+  color: white;
+  font-size: 1rem !important;
+  margin-top: 1rem;
+}
+
+.membersSection h2 {
+  font-size: 1.5rem;
+  text-transform: lowercase;
+  margin-bottom: 2rem;
+  font-weight: 600;
+}
+
+.membersList {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.memberCard {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.memberCard img {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+}
+
+.memberInfo h3 {
+  font-size: 1.3rem;
+  margin: 0 0 0.5rem 0;
+  text-transform: capitalize;
+  font-weight: 600;
+}
+
+.memberInfo p {
+  font-size: 0.95rem;
+  color: #ddd;
+  margin: 0;
+  text-transform: lowercase;
+}

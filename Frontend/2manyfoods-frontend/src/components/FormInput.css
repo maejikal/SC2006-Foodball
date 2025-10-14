@@ -1,0 +1,26 @@
+.formInput {
+  margin-bottom: 1.5rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.formInput input {
+  padding: 0.75rem 1rem;
+  border: 1px solid #444;
+  border-radius: var(--border-radius);
+  background: white;
+  color: var(--color-white);
+  font-size: 1rem;
+  transition: border-color var(--transition-fast);
+}
+
+.formInput input:focus {
+  outline: none;
+  border-color: var(--color-primary);
+}
+
+.formInput .errorText {
+  color: #ff6b6b;
+  font-size: 0.85rem;
+  margin-top: 0.25rem;
+}
