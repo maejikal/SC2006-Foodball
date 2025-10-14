@@ -9,7 +9,7 @@ rec_cons = {}
 
 @app.route('/')
 def root():
-    return render_template('index.html')
+    return render_template('D:/NTU/SC2006/2006-SCSB-35/2ManyFoods/Frontend/2manyfoods-frontend/viindex.html')
 
 
 @app.route('/signup', methods=['POST', 'GET'])
@@ -57,5 +57,5 @@ async def group_voting(groupID):
     return render_template("voting.html", options=con.recommendations)
 
 if __name__ == "__main__":
-    app.run()
+    app.run(debug=True)
 

@@ -1,3 +1,5 @@
-# 2006-SCSB-35 
+## 2006-SCSB-35 
 
-test commit
+# SETUP
+npm install react-router-dom vite node
+pip install -r requirements.txt
