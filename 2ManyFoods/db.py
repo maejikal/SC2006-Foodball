@@ -1,4 +1,15 @@
 import pymongo
-client = pymongo.MongoClient("127.0.0.1", 27017)
-db = client.get_database("2ManyFoods_db")
-user_collection = db.get_collection("Users")
+import asyncio
+
+def mongoupdate():
+
+    client = asyncio.run(pymongo.AsyncMongoClient() )
+    db = client.get_database("2ManyFoods_db")
+    user_collection = db.get_collection("Users")
+    group_collection = db.get_collection("Group")
+    eatery_collection = db.get_collection("Eateries")
+    review_collection = db.get_collection("Reviews")
+
+
+
+    client.close()
