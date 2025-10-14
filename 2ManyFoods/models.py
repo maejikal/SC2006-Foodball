@@ -1,21 +1,24 @@
 from datetime import datetime
 from random import randint
 from hashlib import md5
-
+import db
 
 class User:
 
-    def __init__(self, Username: str, Password: str, Email: str, ProfilePhoto: str):
+    def __init__(self, Username: str, Password: str, Email: str, ProfilePhoto: str, 
+                 Verified: bool=False, FoodHistory: list=[], Review: list=[], DietaryRequirements: dict={}, 
+                 Budget: float=float('inf'), Hunger: int=1, preferences: dict={}):
         self.Username = Username
         self.Password = Password  # hash required
         self.Email = Email
-        self.verified = False
-        self.FoodHistory = []
-        self.Review = []
-        self.DietaryRequirements = {}
+        self.verified = Verified
+        self.FoodHistory = FoodHistory
+        self.Review = Review
+        self.DietaryRequirements = DietaryRequirements
         self.ProfilePhoto = ProfilePhoto
-        self.Budget = float("inf")
-        self.Hunger = 1
+        self.Budget = Budget
+        self.Hunger = Hunger
+        self.preferences = preferences
 
     def getUsername(self):
         return self.Username
@@ -76,14 +79,14 @@ class User:
 
 class Group:
 
-    def __init__(self, GroupName: str, user: User, GroupPhoto: str):
+    def __init__(self, GroupName: str, users: list, GroupPhoto: str, GroupID: int):
         self.GroupName = GroupName
-        self.Users = [user]
+        self.Users = users
         self.GroupPhoto = GroupPhoto
-        self.NoOfUsers = 1
-        randomisation = randint(0,122)
-        self.GroupID = md5(str(datetime.now()).encode())[randomisation:randomisation+6]
-        self.Preferences = {}
+        self.NoOfUsers = len(users)
+        self.GroupID = GroupID
+        # randomisation = randint(0,122)
+        # self.GroupID = md5(str(datetime.now()).encode())[randomisation:randomisation+6]
 
     def getGroupName(self):
         return self.GroupName
@@ -106,13 +109,19 @@ class Group:
     def updateGroupName(self, groupname: str):
         self.GroupName = groupname
 
-    def addUser(self, user: User):
+    def addUser(self, userID: int):
+        user = db.group_collection.add_user(userID)
         self.Users.append(user)
-        self.NoOfUsers += 1
+        self.NoOfUsers = len(self.Users)
 
     def updateGroupPhoto(self, photo:str):
         self.GroupPhoto = photo
 
+    def updateUsers(self):
+        pass
+
+    def getPreferences(self):
+        return [user.preferences for user in self.Users]
 
 class Location:
     def __init__(self, langitude: float, longitude: float):

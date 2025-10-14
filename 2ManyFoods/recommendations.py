@@ -42,14 +42,15 @@ class RecommendationController:
         self._group = group
         self.location = location
         self.recommendations = self.FilterRecommendations(location, radius)
+        self.radius = radius
 
-    def FilterRecommendations(self, location: Location, radius: int) -> list[Eatery]:
+    def FilterRecommendations(self, location: Location) -> list[Eatery]:
         query_result = nearby_search(
-            lat_lng={'lat': location.latitude, 'lng': location.longitude},
-            radius=radius, types=['restuarant'])
+            lat_lng={'lat': location.getlangitude, 'lng': location.getlongitude},
+            radius=self.radius, types=['restuarant'])
         results = [Eatery(i) for i in query_result]
         weights = [user.getHunger() for user in self._group.Users]
-        preferences = self._group.Preferences
+        preferences = self._group.getPreferences()
         groupPreferences = dict.fromkeys(preferences[0].keys())
         for key in groupPreferences.keys():
             groupPreferences[key] = sum(preferences[i][key]*weights[i] for i in range(len(preferences)))
@@ -70,8 +71,15 @@ class RecommendationController:
         return random.choice([i for i in votes if votes[i] == highest]).EateryID
 
     def getGroup(self):
-        return self._group
+        return self._group  
+    
+    def getRecommendations(self):
+        return self.recommendations
 
+    def setRadius(self, rad: int):
+        self.radius = rad
+        self.recommendations = self.FilterRecommendations(self.location)
+        
 class RecommendationInterface:
     def __init__(self, con: RecommendationController):
         self._con = con
