@@ -29,3 +29,23 @@ def login_user(email:str, password:str):
     if not user or not verify_password(password, user["Password"]):
         raise ValueError("Invalid Email or Password.")
     return user
+
+def store_past_dietary_requirements(email: str):
+    user = user_collection.find_one({"Email": email})
+    if not user:
+        raise ValueError("User not found.")
+
+    current_diet = user.get("DietaryRequirements", {})
+    if not current_diet:
+        print("No DietaryRequirements to store.")
+        return None
+        
+    dietary_history = user.get("DietaryHistory", [])
+    
+
+    user_collection.update_one(
+        {"Email": email},
+        {"$set": {"DietaryHistory": dietary_history}}
+    )
+
+    return dietary_history
