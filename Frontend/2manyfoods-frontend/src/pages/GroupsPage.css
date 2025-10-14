@@ -1,0 +1,124 @@
+.groupsPage {
+  background: linear-gradient(135deg, #1a2332 0%, #2d3e52 100%);
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  color: white;
+  font-family: 'Poppins', sans-serif;
+}
+
+.groupsContent {
+  flex: 1;
+  padding: 3rem 5rem;
+  position: relative;
+}
+
+.groupsContent h1 {
+  font-size: 3rem;
+  text-transform: lowercase;
+  margin-bottom: 1rem;
+}
+
+.groupsContent > p {
+  font-size: 1rem;
+  color: #eee;
+  margin-top: 0.5rem;
+}
+
+.groupList {
+  margin-top: 2rem;
+}
+
+.yourGroupsSection {
+  margin-top: 4rem;
+}
+
+.yourGroupsSection h2 {
+  font-size: 2rem;
+  margin-bottom: 1.5rem;
+  text-transform: lowercase;
+}
+
+.inviteSection {
+  margin-top: 4rem;
+}
+
+.inviteSection h2 {
+  font-size: 2rem;
+  text-transform: lowercase;
+  margin-bottom: 2rem;
+}
+
+.inviteCard {
+  display: flex;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  gap: 1rem;
+}
+
+.inviteCard img {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+}
+
+.inviteText {
+  flex: 1;
+  font-size: 1rem;
+}
+
+.inviteActions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.inviteActions button {
+  padding: 0.5rem 1.2rem;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  font-weight: bold;
+  border: none;
+  cursor: pointer;
+  text-transform: lowercase;
+  transition: opacity 0.2s;
+}
+
+.inviteActions button:hover {
+  opacity: 0.9;
+}
+
+.acceptBtn {
+  background-color: #38b44a;
+  color: white;
+}
+
+.rejectBtn {
+  background-color: #c14343;
+  color: white;
+}
+
+.createGroupBtn {
+  position: absolute;
+  right: 5rem;
+  top: 3.2rem;
+  font-size: 1rem;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  user-select: none;
+}
+
+.createGroupBtn button {
+  background: transparent;
+  border: none;
+  color: white;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  font-family: 'Poppins', sans-serif;
+}
+
+.createGroupBtn button:hover {
+  text-decoration: underline;
+}

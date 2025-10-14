@@ -1,0 +1,274 @@
+.searchPage {
+  background: linear-gradient(135deg, #1a2332 0%, #2d3e52 100%);
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  color: white;
+  font-family: 'Poppins', sans-serif;
+}
+
+.searchContent {
+  flex: 1;
+  padding: 3rem 5rem;
+}
+
+.searchTop {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 3rem;
+  margin-bottom: 2rem;
+}
+
+.mapContainer {
+  background: #1e2a3a;
+  border-radius: 20px;
+  height: 350px;
+  overflow: hidden;
+  position: relative;
+}
+
+.mapContainer img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.filtersSection {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.foodTypes {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.foodTypeBtn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  background: #f5d9b8;
+  border: 3px solid transparent;
+  border-radius: 15px;
+  padding: 0.8rem 1rem;
+  transition: all 0.2s;
+  min-width: 70px;
+}
+
+.foodTypeBtn:hover {
+  transform: translateY(-2px);
+}
+
+.foodTypeBtn.selected {
+  border-color: #d2542f;
+  background: #ffecd9;
+}
+
+.foodTypeBtn .icon {
+  font-size: 2rem;
+}
+
+.foodTypeBtn span {
+  font-size: 0.75rem;
+  text-transform: capitalize;
+  color: #5a3a1a;
+  font-weight: 600;
+}
+
+.cuisineTags {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.8rem;
+}
+
+.cuisineTag {
+  padding: 0.6rem 1rem;
+  border-radius: 25px;
+  border: none;
+  font-family: 'Poppins', sans-serif;
+  font-size: 0.9rem;
+  cursor: pointer;
+  text-transform: capitalize;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.cuisineTag.selected {
+  background: #d2542f;
+  color: white;
+}
+
+.cuisineTag:not(.selected) {
+  background: #f5d9b8;
+  color: #5a3a1a;
+}
+
+.cuisineTag:hover {
+  opacity: 0.9;
+}
+
+.priceSliderSection {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.slider {
+  width: 100%;
+  height: 6px;
+  border-radius: 5px;
+  background: #3d4a5a;
+  outline: none;
+}
+
+.slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #d2542f;
+  cursor: pointer;
+}
+
+.slider::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #d2542f;
+  cursor: pointer;
+  border: none;
+}
+
+.priceLabels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.85rem;
+  color: #bbb;
+  margin-top: 0.5rem;
+}
+
+.searchBarContainer {
+  margin-bottom: 2rem;
+}
+
+.searchBar {
+  width: 100%;
+  background: white;
+  border-radius: 50px;
+  padding: 1rem 2rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.searchBar input {
+  flex: 1;
+  border: none;
+  outline: none;
+  font-family: 'Poppins', sans-serif;
+  font-size: 1rem;
+  color: #101010;
+}
+
+.searchBar input::placeholder {
+  color: #999;
+}
+
+.searchIcon {
+  width: 24px;
+  height: 24px;
+  color: #333;
+}
+
+.restaurantList {
+  background: rgba(100, 120, 140, 0.3);
+  border-radius: 30px;
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  max-height: 600px;
+  overflow-y: auto;
+}
+
+.restaurantCard {
+  display: flex;
+  gap: 2rem;
+  align-items: flex-start;
+}
+
+.restaurantImage {
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.restaurantInfo {
+  flex: 1;
+}
+
+.restaurantInfo h3 {
+  font-size: 1.5rem;
+  margin: 0 0 0.5rem 0;
+  font-weight: 600;
+  text-decoration: underline;
+}
+
+.restaurantInfo .address {
+  font-size: 1rem;
+  color: #bbb;
+  margin: 0 0 0.5rem 0;
+}
+
+.restaurantInfo .price {
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin: 0 0 1rem 0;
+}
+
+.restaurantInfo .price.low {
+  color: #90ee90;
+}
+
+.restaurantInfo .price.medium {
+  color: #f4a460;
+}
+
+.restaurantInfo .price.high {
+  color: #ff6347;
+}
+
+.restaurantInfo .status {
+  font-size: 1rem;
+  color: #87ceeb;
+}
+
+.restaurantInfo .status.visited {
+  color: #ffd700;
+}
+
+/* Scrollbar styling */
+.restaurantList::-webkit-scrollbar {
+  width: 8px;
+}
+
+.restaurantList::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+}
+
+.restaurantList::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 10px;
+}
+
+.restaurantList::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.5);
+}

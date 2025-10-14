@@ -1,0 +1,64 @@
+.accountPage {
+  background: linear-gradient(135deg, #1a2332 0%, #2d3e52 100%);
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  color: white;
+  font-family: 'Poppins', sans-serif;
+}
+
+
+.accountContent {
+  flex: 1;
+  padding: 2rem 3rem;
+  text-align: center;
+}
+
+.accountContent h2 {
+  margin-top: 1rem;
+  font-size: 1.5rem;
+  color: var(--color-white);
+}
+
+.accountContent p {
+  margin: 0.5rem 0 2rem;
+  font-size: 0.9rem;
+  color: #aaa;
+}
+
+.settingsList {
+  margin-top: 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.settingItem {
+  background: rgba(255, 255, 255, 0.05);
+  padding: 0.75rem 1.25rem;
+  border-radius: 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  max-width: 380px;
+  color: white;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+
+.settingItem:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.settingItem p {
+  margin: 0;
+  color: var(--color-white);
+}
+
+.settingItem span {
+  color: var(--color-text-medium);
+  font-size: 1.2rem;
+}

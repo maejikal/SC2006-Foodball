@@ -1,0 +1,278 @@
+.inProgressPage {
+  background: linear-gradient(135deg, #1a2332 0%, #2d3e52 100%);
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  color: white;
+  font-family: 'Poppins', sans-serif;
+}
+
+.progressContent {
+  flex: 1;
+  padding: 3rem 5rem;
+}
+
+.progressHeader {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.groupNamePill {
+  background: white;
+  color: black;
+  padding: 0.7rem 2rem;
+  border-radius: 50px;
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.copyInviteBtn {
+  background: #3d5a5a;
+  color: white;
+  padding: 0.7rem 1.5rem;
+  border: none;
+  border-radius: 25px;
+  font-family: 'Poppins', sans-serif;
+  font-size: 0.95rem;
+  cursor: pointer;
+  text-transform: lowercase;
+  font-weight: 500;
+  transition: opacity 0.2s;
+}
+
+.copyInviteBtn:hover {
+  opacity: 0.9;
+}
+
+.progressTitle {
+  background: white;
+  color: black;
+  padding: 1rem 3rem;
+  border-radius: 50px;
+  font-size: 1.8rem;
+  font-weight: 600;
+  text-align: center;
+  margin-bottom: 2rem;
+  text-transform: capitalize;
+}
+
+.contentGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 3rem;
+  margin-bottom: 3rem;
+}
+
+.mapContainer {
+  background: #1e2a3a;
+  border-radius: 20px;
+  height: 350px;
+  overflow: hidden;
+  position: relative;
+}
+
+.mapContainer img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.preferencesSection {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.foodTypes {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.foodTypeBtn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  background: #f5d9b8;
+  border: 3px solid transparent;
+  border-radius: 15px;
+  padding: 0.8rem 1rem;
+  transition: all 0.2s;
+  min-width: 70px;
+}
+
+.foodTypeBtn:hover {
+  transform: translateY(-2px);
+}
+
+.foodTypeBtn.selected {
+  border-color: #d2542f;
+  background: #ffecd9;
+}
+
+.foodTypeBtn .icon {
+  font-size: 2rem;
+}
+
+.foodTypeBtn span {
+  font-size: 0.75rem;
+  text-transform: capitalize;
+  color: #5a3a1a;
+  font-weight: 600;
+}
+
+.cuisineTags {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.8rem;
+}
+
+.cuisineTag {
+  padding: 0.6rem 1rem;
+  border-radius: 25px;
+  border: none;
+  font-family: 'Poppins', sans-serif;
+  font-size: 0.9rem;
+  cursor: pointer;
+  text-transform: capitalize;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.cuisineTag.selected {
+  background: #d2542f;
+  color: white;
+}
+
+.cuisineTag:not(.selected) {
+  background: #f5d9b8;
+  color: #5a3a1a;
+}
+
+.cuisineTag:hover {
+  opacity: 0.9;
+}
+
+.sliderSection {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.sliderSection label {
+  font-size: 0.95rem;
+  margin-bottom: 0.5rem;
+}
+
+.priceLabels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.85rem;
+  color: #bbb;
+  margin-top: 0.5rem;
+}
+
+.slider {
+  width: 100%;
+  height: 6px;
+  border-radius: 5px;
+  background: #3d4a5a;
+  outline: none;
+}
+
+.slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #d2542f;
+  cursor: pointer;
+}
+
+.slider::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #d2542f;
+  cursor: pointer;
+  border: none;
+}
+
+.hungerSection h2 {
+  font-size: 1.8rem;
+  text-transform: capitalize;
+  font-weight: 600;
+  margin-bottom: 1.5rem;
+}
+
+.submitBtn {
+  background: #7b6bae;
+  color: white;
+  padding: 0.9rem 2.5rem;
+  border: none;
+  border-radius: 30px;
+  font-family: 'Poppins', sans-serif;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  text-transform: lowercase;
+  margin: 2rem auto;
+  display: block;
+  transition: opacity 0.2s;
+}
+
+.submitBtn:hover {
+  opacity: 0.9;
+}
+
+.membersSection {
+  margin-top: 3rem;
+}
+
+.membersSection h2 {
+  font-size: 1.5rem;
+  text-transform: capitalize;
+  font-weight: 600;
+  margin-bottom: 2rem;
+}
+
+.memberStatusList {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.memberStatus {
+  background: linear-gradient(90deg, rgba(173, 216, 230, 0.3) 0%, rgba(147, 112, 219, 0.3) 100%);
+  padding: 1.5rem;
+  border-radius: 50px;
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.memberStatus.submitted {
+  opacity: 0.8;
+}
+
+.memberStatus img {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+}
+
+.memberStatus .memberInfo h3 {
+  font-size: 1.2rem;
+  margin: 0 0 0.3rem 0;
+  font-weight: 600;
+}
+
+.memberStatus .memberInfo p {
+  font-size: 0.9rem;
+  margin: 0;
+  color: #ddd;
+}

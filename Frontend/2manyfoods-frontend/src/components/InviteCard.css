@@ -1,0 +1,32 @@
+.inviteCard {
+  background: #1e1c38;
+  border-radius: var(--border-radius-lg);
+  margin-bottom: 1rem;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.inviteCard .actions {
+  display: flex;
+  gap: 1rem;
+}
+
+.inviteCard .actions .acceptBtn {
+  background: #2ecc71;
+  color: var(--color-white);
+  border: none;
+  border-radius: var(--border-radius);
+  padding: 0.5rem 1.5rem;
+  cursor: pointer;
+}
+
+.inviteCard .actions .rejectBtn {
+  background: #e74c3c;
+  color: var(--color-white);
+  border: none;
+  border-radius: var(--border-radius);
+  padding: 0.5rem 1.5rem;
+  cursor: pointer;
+}
