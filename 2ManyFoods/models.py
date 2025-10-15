@@ -19,6 +19,8 @@ class User:
         self.Budget = Budget
         self.Hunger = Hunger
         self.preferences = preferences
+        self.Reviews = []
+        self.Groups = []
 
     def getUsername(self):
         return self.Username
@@ -81,10 +83,10 @@ class Group:
 
     def __init__(self, GroupName: str, users: list, GroupPhoto: str, GroupID: int):
         self.GroupName = GroupName
-        self.Users = users
+        self.Users = []
         self.GroupPhoto = GroupPhoto
         self.NoOfUsers = len(users)
-        self.GroupID = GroupID
+        self.GroupID = GroupID #auto generate by mongo
         # randomisation = randint(0,122)
         # self.GroupID = md5(str(datetime.now()).encode())[randomisation:randomisation+6]
 
@@ -151,7 +153,7 @@ class Eatery:
         self.Location = Location
         self.OpeningHours = OpeningHours
         self.Reviews = []
-        self.AverageRating = 0.0
+        self.AverageRating = 0.0 #no reviews
 
     def getEateryID(self):
         return self.EateryID

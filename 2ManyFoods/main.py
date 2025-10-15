@@ -33,7 +33,8 @@ async def join_group(groupID):
     if not group:
         return render_template("create_group.html")
     else:
-        return render_template("group_joined.html")
+        return group_controller.handle_join_grp()
+        # return render_template("group_joined.html")
 
 @app.route('/foodball/<groupID>')
 async def make_reco(groupID):

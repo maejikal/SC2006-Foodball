@@ -41,7 +41,7 @@ def login():
     password = data["Password"]
 
     try:
-        user = user_services.login_user(email, password)
+        user = user_services.login_user(email, password) # user successfully set
     except ValueError as e:
         return jsonify({"error":str(e)}), 401
     

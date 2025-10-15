@@ -1,3 +1,8 @@
 2ManyFoods/.env
 /2ManyFoods/db
 /2ManyFoods/__pycache__
+/projectenv
+/.vite
+/2ManyFoods/.pytest_cache
+/*/*/__pycache__
+/*/*/*/__pycache__
