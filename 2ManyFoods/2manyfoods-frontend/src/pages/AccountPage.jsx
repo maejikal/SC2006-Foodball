@@ -1,23 +1,24 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/AuthenticatedNavbar';
 import UserAvatar from '../components/UserAvatar';
 import './AccountPage.css';
 
-const settings = [
-  { name: 'Account', path: '/account' },
-  { name: 'Notification', path: '/account/notification' },
-  { name: 'Appearance', path: '/account/appearance' },
-  { name: 'Privacy & Security', path: '/account/privacy' },
-  { name: 'Food History / Foodprints', path: '/account/history' },
-  { name: 'Language', path: '/account/language' },
-];  
-
 export default function AccountPage() {
+  const navigate = useNavigate();
+
   const user = {
     name: 'harry potter',
     email: 'harrypotter@gmail.com',
-    avatar: 'public/assets/icons8-crab-50.png',
+    avatar: '/assets/icons8-crab-50.png',
   };
+
+  const settings = [
+    { name: 'account & security', path: '/account/security' },
+    { name: 'dietary preference', path: '/account/dietary' },
+    { name: 'cuisine preference', path: '/account/cuisine' },
+    { name: 'food history / foodprints', path: '/account/history' },
+  ];
 
   return (
     <div className="accountPage">
@@ -29,7 +30,11 @@ export default function AccountPage() {
 
         <div className="settingsList">
           {settings.map((s) => (
-            <div key={s.name} className="settingItem">
+            <div
+              key={s.name}
+              className="settingItem"
+              onClick={() => navigate(s.path)}
+            >
               <p>{s.name}</p>
               <span>›</span>
             </div>
