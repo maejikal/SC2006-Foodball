@@ -1,0 +1,82 @@
+.foodHistoryPage {
+  background: linear-gradient(135deg, #1a2332 0%, #2d3e52 100%);
+  min-height: 100vh;
+  color: white;
+  font-family: 'Poppins', sans-serif;
+}
+
+.historySection {
+  max-width: 800px;
+  margin: 2rem auto;
+  padding: 0 2rem;
+}
+
+.historySection h1 {
+  font-size: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.historyList {
+  list-style: none;
+  padding: 0;
+}
+
+.historyList li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #3a3f4e;
+  border-radius: 40px;
+  padding: 1.2rem 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.restaurantInfo {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.restaurantInfo img {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.restaurantInfo span {
+  font-weight: 600;
+  font-size: 1rem;
+  display: block;
+}
+
+.stars {
+  margin-top: 4px;
+  display: flex;
+  gap: 4px;
+}
+
+.star {
+  font-size: 1.1rem;
+  color: #6c6c6c;
+}
+
+.star.filled {
+  color: #ffcc00;
+}
+
+.historyList button {
+  background-color: transparent;
+  border: 1px solid #41e0ff;
+  color: white;
+  border-radius: 30px;
+  padding: 0.5rem 1.2rem;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.historyList button:hover {
+  background-color: #41e0ff;
+  color: black;
+}
