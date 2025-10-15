@@ -1,0 +1,61 @@
+/* src/pages/SecurityPage.css */
+.securityPage {
+  background: linear-gradient(135deg, #1a2332 0%, #2d3e52 100%);
+  min-height: 100vh;
+  color: white;
+  font-family: 'Poppins', sans-serif;
+}
+
+.securityContent {
+  text-align: center;
+  padding: 3rem 1.5rem;
+}
+
+.securityContent h1 {
+  font-size: 1.3rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  text-transform: none;
+}
+
+.securityAvatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  margin-bottom: 2rem;
+}
+
+.securityOptions {
+  max-width: 700px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.securityItem {
+  background-color: #464952;
+  border-radius: 50px;
+  padding: 1.2rem 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  transition: background 0.2s ease-in-out;
+}
+
+.securityItem:hover {
+  background-color: #5b5e6b;
+}
+
+.securityRight {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  font-size: 0.95rem;
+}
+
+.arrow {
+  font-size: 1.2rem;
+  color: #dcdcdc;
+}
