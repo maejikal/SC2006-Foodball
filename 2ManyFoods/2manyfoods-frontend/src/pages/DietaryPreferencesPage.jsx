@@ -2,6 +2,12 @@ import React, { useState } from 'react';
 import Navbar from '../components/AuthenticatedNavbar';
 import { useNavigate } from 'react-router-dom';
 import './DietaryPreferencesPage.css';
+import halalIcon from '../assets/Icons/Halal.png';
+import vegetarianIcon from '../assets/Icons/Vegetarian.png';
+import peanutIcon from '../assets/Icons/peanut.png';
+import shellfishIcon from '../assets/Icons/shellfish.png';
+import milkIcon from '../assets/Icons/milk.png';
+import eggIcon from '../assets/Icons/egg.png';
 
 export default function DietaryPreferencesPage() {
   const navigate = useNavigate();
@@ -10,10 +16,19 @@ export default function DietaryPreferencesPage() {
   const dietaryOptions = [
     { id: 'halal', label: 'Halal' },
     { id: 'vegetarian', label: 'Vegetarian' },
-    { id: 'vegan', label: 'Vegan' },
-    { id: 'diary-free', label: 'Diary-Free' },
-    { id: 'non-pork', label: 'Non-pork' }
+    { id: 'peanut', label: 'Peanut' },
+    { id: 'shellfish', label: 'Shellfish' },
+    { id: 'milk', label: 'Milk' },
+    { id: 'egg', label: 'Egg'}
   ];
+  const dietaryIcons = {
+    halal: halalIcon,
+    vegetarian: vegetarianIcon,
+    peanut: peanutIcon,
+    shellfish: shellfishIcon,
+    milk: milkIcon,
+    egg: eggIcon,
+  };
 
   const togglePreference = (label) => {
     if (selectedPreferences.includes(label)) {
@@ -38,9 +53,11 @@ export default function DietaryPreferencesPage() {
           {dietaryOptions.map((option) => (
             <div key={option.id} className="dietaryOption">
               <div className="dietaryLabel">
-                <svg viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
-                </svg>
+                <img
+                  src ={dietaryIcons[option.id]}
+                  alt={'${option.label} icon'}
+                  className="dietaryIcon"
+                />
                 <span>{option.label}</span>
               </div>
               <input

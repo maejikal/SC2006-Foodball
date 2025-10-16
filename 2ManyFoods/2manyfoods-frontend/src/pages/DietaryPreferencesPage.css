@@ -61,6 +61,14 @@
   color: #bbb;
 }
 
+.dietaryIcon {
+  width: 40px;
+  height: 40px;
+  margin-right: 10px;
+  object-fit: contain;
+  vertical-align: middle;
+}
+
 .customCheckbox {
   appearance: none;
   width: 24px;
@@ -100,6 +108,7 @@
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s;
+  align-self: center;
 }
 
 .saveBtn:hover {
