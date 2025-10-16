@@ -109,7 +109,7 @@ textarea {
   cursor: pointer;
 }
 
-button {
+.reviewPage button {
   background-color: #3f2abf;
   color: white;
   font-weight: 600;

@@ -75,7 +75,7 @@ export default function SignupPage() {
             text="sign up"
             type="submit"
             style={{
-              width: '110%',
+              width: '100%',
               backgroundColor: '#6e4ccf',
               color: 'white',
               padding: '0.8rem',
