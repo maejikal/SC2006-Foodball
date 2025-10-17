@@ -29,10 +29,10 @@ def handle_create_group():
         "username":user # group leader/creator
     }),200
 
-def handle_join_grp(): #dont quite know how to handle joining by link
+def handle_join_grp(groupID: int=None): #dont quite know how to handle joining by link
     data = request.get_json()
     username = data.get("username")
-    grp_id = data.get("grp_id")
+    grp_id = groupID
 
     if not username or not grp_id:
         return jsonify({"error": "Missing username or grp_name"}), 401

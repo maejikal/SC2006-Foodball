@@ -6,3 +6,4 @@
 /2ManyFoods/.pytest_cache
 /*/*/__pycache__
 /*/*/*/__pycache__
+2ManyFoods/.env

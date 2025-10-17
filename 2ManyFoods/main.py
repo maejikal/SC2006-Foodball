@@ -2,39 +2,27 @@ from flask import *
 from __init__ import *
 from db import *
 from models import *
-from recommendations import *
 app = Flask(__name__)
 
 rec_cons = {}
 
 @app.route('/')
 def root():
-    return render_template('D:/NTU/SC2006/2006-SCSB-35/2ManyFoods/Frontend/2manyfoods-frontend/viindex.html')
+    return "placeholder"
 
 
-@app.route('/signup', methods=['POST', 'GET'])
+@app.route('/signup')
 def signup_route():
-    if request.method == 'POST':
-        return auth_controller.signup()
-    elif request.method == 'GET':
-        return render_template('signup.html')
+    return auth_controller.signup()
 
 
-@app.route('/login', methods=['POST', 'GET'])
+@app.route('/login')
 def login_route():
-    if request.method == 'POST':
-        return auth_controller.login()
-    elif request.method == 'GET':
-        return render_template('login.html')
+    return auth_controller.login()
 
 @app.route('/joingroup/<groupID>', methods=['GET'])
 async def join_group(groupID):
-    group = await group_collection.find_one({"GroupID":groupID})
-    if not group:
-        return render_template("create_group.html")
-    else:
-        return group_controller.handle_join_grp()
-        # return render_template("group_joined.html")
+    return group_controller.handle_join_grp(groupID)
 
 @app.route('/foodball/<groupID>')
 async def make_reco(groupID):
@@ -47,15 +35,27 @@ async def make_reco(groupID):
         user_rec = await user_collection.find_one({"ID": userID})
         users.append(user_rec)
     group = Group(group_rec.name, users, group_rec.GroupPhoto, group_rec.id)
-    con = RecommendationController(group, Location(location), radius)
+    con = recommendation_controller(group, Location(location), radius)
     rec_cons[groupID] = con
-    return render_template('foodball.html', recommendations=con)
+    return ""
+
+@app.route('/refresh/<groupID>')
+def refresh(groupID):
+    global rec_cons
+    try:
+        con = rec_cons[groupID]
+        return jsonify({"recommendations": con.recommendations})
+    except:
+        return jsonify({"recommendations": ""}), 400
 
 @app.route('/foodball/<groupID>/voting')
 async def group_voting(groupID):
     global rec_cons
-    con = rec_cons[groupID]
-    return render_template("voting.html", options=con.recommendations)
+    try:
+        con = rec_cons[groupID]
+        return jsonify({"recommendations": con.recommendations})
+    except:
+        return jsonify({"recommendations": ""}), 400
 
 if __name__ == "__main__":
     app.run(debug=True)
