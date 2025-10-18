@@ -18,13 +18,14 @@ def create_user(username:str, password:str, email:str):
         "Username":username,
         "Password":hashed_password,
         "Email":email,
-        "verified":False,
+        "Verified":False,
         "Groups": [],
         "FoodHistory":[],
         "Reviews":[],
         "DietaryRequirements":{},
         "ProfilePhoto":"",
         "Budget":float('inf'),
+        "Preferences": {},
         "Hunger":1
     }
     return user_collection.insert_one(user_doc)

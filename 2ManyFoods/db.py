@@ -56,6 +56,17 @@ async def viewdb():
         print(i)
     for i in review_collection.find():
         print(i)
+        
+async def getdb():
+    client = pymongo.AsyncMongoClient('mongodb://localhost:27017/') 
+    db = client["2ManyFoods_db"]                                                
+
+    user_collection = db.get_collection("Users")
+    group_collection = db.get_collection("Groups")
+    eatery_collection = db.get_collection("Eateries")
+    review_collection = db.get_collection("Reviews")
+    await client.close()
+    return (user_collection, group_collection, eatery_collection, review_collection)
 
 asyncio.run(viewdb())
-#user_collection, group_collection, eatery_collection, review_collection = asyncio.run(makedb())    
+user_collection, group_collection, eatery_collection, review_collection = asyncio.run(getdb())    

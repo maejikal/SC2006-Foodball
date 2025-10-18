@@ -81,14 +81,16 @@ class User:
 
 class Group:
 
-    def __init__(self, GroupName: str, users: list, GroupPhoto: str, GroupID: int):
+    def __init__(self, GroupName: str, users: dict, GroupPhoto: str, GroupID: int):
         self.GroupName = GroupName
-        self.Users = []
+        self.Users = users
         self.GroupPhoto = GroupPhoto
         self.NoOfUsers = len(users)
         self.GroupID = GroupID #auto generate by mongo
         # randomisation = randint(0,122)
         # self.GroupID = md5(str(datetime.now()).encode())[randomisation:randomisation+6]
+        for user in users.keys():
+            users[user]["vote"] = None
 
     def getGroupName(self):
         return self.GroupName
