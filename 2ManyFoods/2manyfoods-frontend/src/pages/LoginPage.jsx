@@ -31,8 +31,13 @@ export default function LoginPage() {
       <div className="loginContainer">
         <h1>Login</h1>
 
-        {/* 🍜 Emoji */}
-        <div style={{ fontSize: '4rem', marginBottom: '1rem' }}>🍜</div>
+        <div style={{marginBottom:'0.5rem'}}>
+          <img
+            src="/assets/2manyfoods-logo.png"
+            alt="2manyfoods"
+            style={{width:'150px', height: '150px'}}
+          />
+        </div>
 
         <form onSubmit={handleSubmit}>
           <FormInput

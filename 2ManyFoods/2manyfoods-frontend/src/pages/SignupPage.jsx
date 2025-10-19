@@ -32,7 +32,15 @@ export default function SignupPage() {
       <Navbar />
       <div className="signupContainer">
         <h1>sign up</h1>
-        <div className="emoji">🍜</div>
+        <div className='logo'>
+          <img
+            src="/assets/2manyfoods-logo.png"
+            alt="2manyfoods"
+            style={{width:'150px', height: '150px'}}
+          />
+        </div>
+
+
         <form onSubmit={handleSubmit}>
           <FormInput
             name="email"
