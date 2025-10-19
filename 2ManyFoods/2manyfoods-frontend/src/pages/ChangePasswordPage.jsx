@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import Navbar from '../components/AuthenticatedNavbar';
+import { useNavigate } from 'react-router-dom';
 import './ChangePasswordPage.css';
 
 export default function ChangePasswordPage() {
+  const navigate = useNavigate();
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -20,6 +22,7 @@ export default function ChangePasswordPage() {
 
     console.log('Changing password...');
     alert('Password changed successfully!');
+    navigate('/account');
   };
 
   return (
@@ -46,7 +49,10 @@ export default function ChangePasswordPage() {
                   className="togglePassword"
                   onClick={() => setShowCurrentPassword(!showCurrentPassword)}
                 >
-                  👁
+                  <img 
+                    src={showCurrentPassword ? '/assets/icons8-eye-50.png' : '/assets/icons8-closed-eye-50.png'}
+                    alt={showCurrentPassword ? 'Hide password' : 'Show password'}
+                  />
                 </button>
               </div>
             </div>
@@ -65,7 +71,10 @@ export default function ChangePasswordPage() {
                   className="togglePassword"
                   onClick={() => setShowNewPassword(!showNewPassword)}
                 >
-                  👁
+                  <img 
+                    src={showNewPassword ? '/assets/icons8-eye-50.png' : '/assets/icons8-closed-eye-50.png'}
+                    alt={showNewPassword ? 'Hide password' : 'Show password'}
+                  />
                 </button>
               </div>
             </div>
@@ -84,7 +93,10 @@ export default function ChangePasswordPage() {
                   className="togglePassword"
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                 >
-                  👁
+                  <img 
+                    src={showConfirmPassword ? '/assets/icons8-eye-50.png' : '/assets/icons8-closed-eye-50.png'}
+                    alt={showConfirmPassword ? 'Hide password' : 'Show password'}
+                  />
                 </button>
               </div>
             </div>

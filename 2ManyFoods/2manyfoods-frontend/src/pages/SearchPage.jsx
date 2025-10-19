@@ -48,15 +48,15 @@ const dummyRestaurants = [
 export default function SearchPage() {
   const [selectedFoodType, setSelectedFoodType] = useState();
   const [selectedCuisines, setSelectedCuisines] = useState([]);
-  const [priceRange, setPriceRange] = useState(5);
+  const [priceRange, setPriceRange] = useState(50);
   const [searchQuery, setSearchQuery] = useState('');
 
   const foodTypes = [
-    { name: 'Snacks', icon: '🍿', cuisines: ['Chips', 'Popcorn', 'Nuts', 'Crackers', 'Cookies', 'Candy'] },
-    { name: 'Meal', icon: '🍱', cuisines: ['Korean', 'Japanese', 'Barbecue', 'Chinese', 'Italian', 'Thai', 'Mexican', 'Indian', 'Vietnamese'] },
-    { name: 'Vegan', icon: '🥗', cuisines: ['Salads', 'Smoothie Bowls', 'Vegan Burgers', 'Buddha Bowls', 'Vegan Pizza', 'Plant-Based'] },
-    { name: 'Dessert', icon: '🍰', cuisines: ['Cakes', 'Ice Cream', 'Pastries', 'Cookies', 'Brownies', 'Pudding'] },
-    { name: 'Drinks', icon: '🥤', cuisines: ['Coffee', 'Tea', 'Smoothies', 'Bubble Tea', 'Juice', 'Milkshakes'] }
+    { name: 'Snacks', icon: '/assets/icons8-snacks-50.png', cuisines: ['Chips', 'Popcorn', 'Nuts', 'Crackers', 'Cookies', 'Candy'] },
+    { name: 'Meal', icon: '/assets/icons8-meal-50.png', cuisines: ['Korean', 'Japanese', 'Barbecue', 'Chinese', 'Italian', 'Thai', 'Mexican', 'Indian', 'Vietnamese'] },
+    { name: 'Vegan', icon: '/assets/icons8-vegan-50.png', cuisines: ['Salads', 'Smoothie Bowls', 'Vegan Burgers', 'Buddha Bowls', 'Vegan Pizza', 'Plant-Based'] },
+    { name: 'Dessert', icon: '/assets/icons8-dessert-50.png', cuisines: ['Cakes', 'Ice Cream', 'Pastries', 'Cookies', 'Brownies', 'Pudding'] },
+    { name: 'Drinks', icon: '/assets/icons8-drinks-50.png', cuisines: ['Coffee', 'Tea', 'Smoothies', 'Bubble Tea', 'Juice', 'Milkshakes'] }
   ];
 
   const getCurrentCuisines = () => {
@@ -98,7 +98,7 @@ export default function SearchPage() {
                     className={`foodTypeBtn ${selectedFoodType === food.name ? 'selected' : ''}`}
                     onClick={() => toggleFoodType(food.name)}
                   >
-                    <div className="icon">{food.icon}</div>
+                    <img src={food.icon} alt={food.name} className="foodIcon" />
                     <span>{food.name}</span>
                   </button>
                 ))}

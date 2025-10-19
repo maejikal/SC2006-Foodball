@@ -2,7 +2,7 @@
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  background: linear-gradient(to bottom right, #1e293b, #0f172a);
+  background: linear-gradient(135deg, #1a2332 0%, #2d3e52 100%);
   color: white;
   font-family: 'Poppins', sans-serif;
 }
@@ -24,9 +24,12 @@
   width: 100%;
 }
 
-.accountCard .emoji {
-  font-size: 3rem;
+.profileIcon {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
   margin-bottom: 1rem;
+  object-fit: cover;
 }
 
 .accountCard h2 {
@@ -47,4 +50,9 @@
   border-radius: 8px;
   font-size: 1rem;
   cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.editButton:hover {
+  background-color: #6d28d9;
 }

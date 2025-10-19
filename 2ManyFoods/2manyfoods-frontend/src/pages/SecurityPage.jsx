@@ -44,30 +44,19 @@ export default function SecurityPage() {
     <div className="securityPage">
       <Navbar />
       <div className="securityContent">
-        <div style={{ position: 'relative', display: 'inline-block', marginBottom: '2rem' }}>
+        <div className="avatarContainer">
           <img src={user.avatar} alt={user.name} className="securityAvatar" />
-          <label style={{
-            position: 'absolute',
-            bottom: '0',
-            right: '0',
-            background: 'white',
-            color: 'black',
-            width: '30px',
-            height: '30px',
-            borderRadius: '50%',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            cursor: 'pointer',
-            fontSize: '1rem',
-            boxShadow: '0 2px 4px rgba(0, 0, 0, 0.2)'
-          }}>
-            ✎
+          <label className="editAvatarLabel">
+            <img 
+              src="/assets/icons8-edit-20.png" 
+              alt="Edit"
+              className="editIcon"
+            />
             <input 
               type="file" 
               accept="image/*" 
               onChange={handleAvatarChange}
-              style={{ display: 'none' }}
+              className="fileInput"
             />
           </label>
         </div>

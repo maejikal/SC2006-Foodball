@@ -46,20 +46,24 @@ export default function CreateGroupPage() {
         <form onSubmit={handleSubmit}>
           <label htmlFor="groupPicInput" className="groupPicUpload">
             {groupPic ? (
-              <img src={groupPic} alt="Group" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+              <img src={groupPic} alt="Group" />
             ) : (
               <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                 <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
               </svg>
             )}
+            <div className="editIconOverlay">
+              <img src="/assets/icons8-edit-20.png" alt="Edit" />
+            </div>
             <input
               type="file"
               id="groupPicInput"
               accept="image/*"
               onChange={handlePicUpload}
+              style={{ display: 'none' }}
             />
           </label>
-          <p className="uploadText">upload a group pic</p>
+          <p className="uploadText"></p>
           
           <input
             type="text"

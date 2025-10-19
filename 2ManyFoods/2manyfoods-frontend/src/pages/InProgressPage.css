@@ -25,6 +25,7 @@
   border-radius: 50px;
   font-size: 1.1rem;
   font-weight: 600;
+  text-transform: lowercase;
 }
 
 .copyInviteBtn {
@@ -54,7 +55,7 @@
   font-weight: 600;
   text-align: center;
   margin-bottom: 2rem;
-  text-transform: capitalize;
+  text-transform: lowercase;
 }
 
 .contentGrid {
@@ -117,9 +118,14 @@
   font-size: 2rem;
 }
 
+.foodTypeBtn img.foodIcon {
+  width: 32px;
+  height: 32px;
+}
+
 .foodTypeBtn span {
   font-size: 0.75rem;
-  text-transform: capitalize;
+  text-transform: lowercase;
   color: #5a3a1a;
   font-weight: 600;
 }
@@ -181,6 +187,7 @@
   border-radius: 5px;
   background: #3d4a5a;
   outline: none;
+  -webkit-appearance: none;
 }
 
 .slider::-webkit-slider-thumb {
@@ -204,7 +211,7 @@
 
 .hungerSection h2 {
   font-size: 1.8rem;
-  text-transform: capitalize;
+  text-transform: lowercase;
   font-weight: 600;
   margin-bottom: 1.5rem;
 }
@@ -235,7 +242,7 @@
 
 .membersSection h2 {
   font-size: 1.5rem;
-  text-transform: capitalize;
+  text-transform: lowercase;
   font-weight: 600;
   margin-bottom: 2rem;
 }
@@ -275,4 +282,5 @@
   font-size: 0.9rem;
   margin: 0;
   color: #ddd;
+  text-transform: lowercase;
 }

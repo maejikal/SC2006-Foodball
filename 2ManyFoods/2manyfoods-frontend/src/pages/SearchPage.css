@@ -72,6 +72,11 @@
   font-size: 2rem;
 }
 
+.foodTypeBtn img.foodIcon {
+  width: 32px;
+  height: 32px;
+}
+
 .foodTypeBtn span {
   font-size: 0.75rem;
   text-transform: capitalize;
