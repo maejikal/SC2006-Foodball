@@ -12,17 +12,60 @@ export default function LoginPage() {
     password: '',
   });
   const [errors, setErrors] = useState({});
+  const [isLoading, setIsLoading] = useState(false);
+  const [authError, setAuthError] = useState('');
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
+
+    if (errors[name]) {
+      setErrors((prev) => ({ ...prev, [name]: '' }));
+    }
+  };
+
+  const validateForm = () => {
+    const newErrors = {};
+
+    if (!form.usernameOrEmail.trim()) {
+      newErrors.usernameOrEmail = 'Email or username is required';
+    }
+    
+    if (!form.password) {
+      newErrors.password = 'Password is required';
+    } else if (form.password.length < 14) {
+      newErrors.password = 'Password must be at least 14 characters';
+    }
+    
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log('Login form submitted', form);
-    // Navigate or authenticate
-    navigate('/dashboard');
+    console.log('Login form submitted', form); // can remove later one
+    setAuthError('');
+    if(!validateForm()){
+      return;
+    }
+
+    setIsLoading(true);
+
+    try{
+
+      //api call should be here
+
+      setTimeout(() => {
+        setIsLoading(false);
+        navigate('/dashboard');
+      }, 1000);
+
+    } catch (error){
+      setAuthError('An error occurred. Please try again.');
+      setIsLoading(false);
+    }
+
   };
 
   return (
@@ -39,6 +82,12 @@ export default function LoginPage() {
           />
         </div>
 
+        {authError && (
+          <div className="authError" style={{color: 'red', marginBottom: '1rem'}}>
+            {authError}
+          </div>
+        )}
+
         <form onSubmit={handleSubmit}>
           <FormInput
             type="text"
@@ -46,6 +95,7 @@ export default function LoginPage() {
             placeholder="email/username"
             value={form.usernameOrEmail}
             onChange={handleChange}
+            required
           />
           {errors.usernameOrEmail && (
             <div className="error">{errors.usernameOrEmail}</div>
@@ -57,6 +107,7 @@ export default function LoginPage() {
             placeholder="password"
             value={form.password}
             onChange={handleChange}
+            required
           />
           {errors.password && (
             <div className="error">{errors.password}</div>
@@ -67,8 +118,9 @@ export default function LoginPage() {
           </div>
 
           <Button
-            text="login"
+            text={isLoading ? "Logging in..." : "login"}
             type="submit"
+            disabled={isLoading}
             style={{ width: '100%', backgroundColor: '#7f56d9', color: 'white' }}
           />
 
