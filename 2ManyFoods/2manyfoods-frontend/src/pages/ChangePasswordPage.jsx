@@ -10,11 +10,6 @@ export default function ChangePasswordPage() {
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-  const user = {
-    avatar: '/assets/icons8-crab-50.png',
-    name: 'harry potter'
-  };
-
   const handleSubmit = (e) => {
     e.preventDefault();
     
@@ -24,28 +19,13 @@ export default function ChangePasswordPage() {
     }
 
     console.log('Changing password...');
-    // Handle password change logic here
     alert('Password changed successfully!');
-  };
-
-  const handleAvatarEdit = () => {
-    console.log('Edit avatar clicked');
-    // Handle avatar edit logic
   };
 
   return (
     <div className="changePasswordPage">
       <Navbar />
       <div className="changePasswordContent">
-        <h2>Account & Security</h2>
-        
-        <div className="avatarSection">
-          <img src={user.avatar} alt={user.name} />
-          <div className="editIcon" onClick={handleAvatarEdit}>
-            ✎
-          </div>
-        </div>
-
         <h3>Change Password</h3>
 
         <div className="passwordFormContainer">
