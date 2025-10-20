@@ -49,25 +49,6 @@
   user-select: none;
 }
 
-.starRating span {
-  font-size: 3rem;
-}
-
-.starRating input[type="radio"]{
-  position: absolute;
-  opacity: 0;
-}
-
-.starRating label:hover,
-.starRating label:hover~label{
-  color: gold;
-}
-
-.starRating input[type="radio"]:checked~label,
-.starRating label.filed {
-  color: gold;
-}
-
 form {
   display: flex;
   flex-direction: column;

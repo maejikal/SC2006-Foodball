@@ -7,35 +7,87 @@ export default function CreateGroupPage() {
   const navigate = useNavigate();
   const [groupName, setGroupName] = useState('');
   const [groupPic, setGroupPic] = useState(null);
+  const [groupPicFile, setGroupPicFile] = useState(null);
+
+  const [isCreating, setIsCreating] = useState(false);
+  const [error, setError] = useState('');
+  const [imageError, setImageError] = useState('');
 
   const handlePicUpload = (e) => {
     const file = e.target.files[0];
+    setImageError('');
+
     if (file) {
+
+      const validTypes = ['image/jpeg', 'image/jpg', 'image/png'];
+      if (!validTypes.includes(file.type)) {
+        setImageError('Please upload a valid image file (JPEG, PNG)');
+        return;
+      }
+
       const reader = new FileReader();
       reader.onloadend = () => {
         setGroupPic(reader.result);
+        setGroupPicFile(file);
+      };
+      reader.onerror = () => {
+        setImageError('Failed to read image file');
       };
       reader.readAsDataURL(file);
     }
   };
 
+  const validateForm = () => {
+    setError('');
+
+    if (!groupName.trim()) {
+      setError('Group name is required');
+      return false;
+    }
+
+    if (groupName.trim().length < 3) {
+      setError('Group name must be at least 3 characters');
+      return false;
+    }
+
+    return true;
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Generate a unique group ID (in real app, this would come from backend)
-    const newGroupId = Date.now();
-    
-    console.log('Create group:', groupName);
-    
-    // Navigate to groups page with the new group data
-    navigate('/groups', { 
-      state: { 
-        newGroup: {
-          id: newGroupId,
-          name: groupName,
-          membersText: 'you'
-        }
-      } 
-    });
+    setError('');
+
+    if (!validateForm()) {
+      return;
+    }
+
+    setIsCreating(true);
+
+    try {
+      
+      // Api Call
+
+      setTimeout(() => {
+        setIsCreating(false);
+        // Navigate to groups page with the new group data
+        navigate('/groups', {
+          state: { 
+            message: 'Group created successfully!',
+            newGroup: {
+              id: Date.now(), // Generate a unique group ID (in real app, this would come from backend)
+              name: groupName.trim(),
+              membersText: 'you',
+              picture: groupPic
+            }
+          }
+        });
+      }, 1000);
+
+    } catch (error) {
+      console.error('Error creating group:', error);
+      setError('Network error. Please try again.');
+      setIsCreating(false);
+    }
   };
 
   return (
@@ -43,6 +95,24 @@ export default function CreateGroupPage() {
       <Navbar />
       <div className="createGroupContainer">
         <h1>create group</h1>
+
+        {/* Error Message */}
+        {error && (
+          <div 
+            className="errorMessage" 
+            style={{
+              color: '#721c24',
+              backgroundColor: '#f8d7da',
+              padding: '0.75rem',
+              borderRadius: '8px',
+              marginBottom: '1rem',
+              textAlign: 'center'
+            }}
+          >
+            {error}
+          </div>
+        )}
+
         <form onSubmit={handleSubmit}>
           <label htmlFor="groupPicInput" className="groupPicUpload">
             {groupPic ? (
@@ -61,19 +131,37 @@ export default function CreateGroupPage() {
               accept="image/*"
               onChange={handlePicUpload}
               style={{ display: 'none' }}
+              disabled={isCreating}
             />
           </label>
-          <p className="uploadText"></p>
+
+          {/* Image Error Message */}
+          {imageError && (
+            <p style={{ color: 'red', fontSize: '0.875rem', marginTop: '0.5rem' }}>
+              {imageError}
+            </p>
+          )}
+
+          <p className="uploadText">Upload group picture</p>
           
           <input
             type="text"
             placeholder="group name"
             value={groupName}
-            onChange={(e) => setGroupName(e.target.value)}
+            onChange={(e) => {
+              setGroupName(e.target.value);
+              setError('');
+            }}
             required
+            disabled={isCreating}
           />
           
-          <button type="submit">create</button>
+          <button 
+            type="submit"
+            disabled={isCreating || !!imageError}
+          >
+            {isCreating ? 'Creating...' : 'create'}
+          </button>
         </form>
       </div>
     </div>
