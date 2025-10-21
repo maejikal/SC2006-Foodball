@@ -13,7 +13,7 @@ export default function FoodReviewPage() {
   const [rating, setRating] = useState(0);
   const [hover, setHover] = useState(0);
   const [review, setReview] = useState('');
-  const [file, setFile] = useState(null);
+  const [file, setFile] = useState(null); //stores the uploaded file
   const [filePreview, setFilePreview] = useState(null);
 
   const [isLoading, setIsLoading] = useState(false);
@@ -22,6 +22,7 @@ export default function FoodReviewPage() {
   const [fileError, setFileError] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
 
+  // loading existing review (for edit)
   useEffect(() => {
     if (!restaurantData) {
       navigate('/account/history');
@@ -104,6 +105,7 @@ export default function FoodReviewPage() {
     return true;
   };
 
+  // save review to backend
   const handleSubmit = (e) => {
     e.preventDefault();
     setError('');
@@ -240,7 +242,8 @@ export default function FoodReviewPage() {
                     cursor: isSaving ? 'not-allowed' : 'pointer',
                     transition: 'all 0.2s'
                   }}
-                >  
+                > 
+                  {/*star shape path*/} 
                   <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" /> 
                 </svg> 
               </label>
@@ -260,7 +263,8 @@ export default function FoodReviewPage() {
             disabled={isSaving}
             maxLength={1000}
           />
-          <small style={{ color: '#666', marginTop: '0.25rem', display: 'block' }}>
+          {/*character counter*/}
+          <small style={{ color: '#666', marginTop: '0.25rem', display: 'block' }}> 
             {review.length}/1000 characters
           </small>
 

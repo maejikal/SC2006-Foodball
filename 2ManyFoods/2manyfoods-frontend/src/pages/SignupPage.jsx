@@ -7,6 +7,7 @@ import './SignupPage.css';
 
 export default function SignupPage() {
   const navigate = useNavigate();
+  // store signup form input values
   const [form, setForm] = useState({
     email: '',
     password: '',
@@ -27,28 +28,26 @@ export default function SignupPage() {
     }
   };
 
-    // Email validation
+  // Email validation
   const isValidEmail = (email) => {
     const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
     return emailRegex.test(email);
   };
 
-  // Phone validation (basic - adjust based on your requirements)
+  // Phone validation 
   const isValidPhone = (phone) => {
     const phoneRegex = /^[0-9]{8,15}$/;
     return phoneRegex.test(phone.replace(/[\s-]/g, ''));
   };
 
-  // Password validation based on your criteria
+  // Password validation
   const validatePassword = (password, username) => {
     const issues = [];
 
-    // Minimum length of 14 characters
     if (password.length < 14) {
       issues.push('Password must be at least 14 characters long');
     }
 
-    // Contains both lowercase and uppercase
     if (!/[a-z]/.test(password)) {
       issues.push('Password must contain at least one lowercase letter');
     }
@@ -56,7 +55,6 @@ export default function SignupPage() {
       issues.push('Password must contain at least one uppercase letter');
     }
 
-    // Contains both alphabets and numbers
     if (!/[0-9]/.test(password)) {
       issues.push('Password must contain at least one number');
     }
@@ -64,17 +62,14 @@ export default function SignupPage() {
       issues.push('Password must contain at least one letter');
     }
 
-    // Contains a special character
     if (!/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)) {
       issues.push('Password must contain at least one special character');
     }
 
-    // Not similar to username
     if (username && password.toLowerCase().includes(username.toLowerCase())) {
       issues.push('Password cannot contain your username');
     }
 
-    // Does not contain common words
     const commonWords = ['password', 'pass', '1234', 'qwerty', 'admin', 'letmein'];
     const lowerPassword = password.toLowerCase();
     const foundCommon = commonWords.find(word => lowerPassword.includes(word));
@@ -82,7 +77,7 @@ export default function SignupPage() {
       issues.push(`Password cannot contain common words like "${foundCommon}"`);
     }
 
-    return issues;
+    return issues; // return all the problem found
   };
 
   const validateForm = () => {
@@ -99,7 +94,7 @@ export default function SignupPage() {
     } else {
       const passwordIssues = validatePassword(form.password, form.username);
       if (passwordIssues.length > 0) {
-        newErrors.password = passwordIssues[0];
+        newErrors.password = passwordIssues[0]; // Shows first issue
       }
     }
 
@@ -129,11 +124,11 @@ export default function SignupPage() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log('Signup form submitted', form);
+    console.log('Signup form submitted', form); // remove later
     setAuthError('');
     if (!validateForm()) {
     return; 
-  }
+    }
 
     setIsLoading(true);
 
@@ -174,7 +169,7 @@ export default function SignupPage() {
 
         <form onSubmit={handleSubmit}>
           <FormInput
-          type='email'
+            type='email' // make it email type
             name="email"
             placeholder="email"
             value={form.email}
@@ -186,7 +181,7 @@ export default function SignupPage() {
           )}
           
           <FormInput
-            type="password"
+            type="password" //make the field show **
             name="password"
             placeholder="password"
             value={form.password}
@@ -221,7 +216,7 @@ export default function SignupPage() {
           )}
 
           <FormInput
-          type='tel'
+            type='tel' // phone type, so keyboard shows numpad
             name="phone"
             placeholder="phone number"
             value={form.phone}
@@ -235,7 +230,7 @@ export default function SignupPage() {
           <Button
             text={isLoading ? "Signing up..." : "sign up"}
             type="submit"
-            disabled={isLoading}
+            disabled={isLoading} // disable the button during submit
             style={{
               width: '100%',
               backgroundColor: '#6e4ccf',

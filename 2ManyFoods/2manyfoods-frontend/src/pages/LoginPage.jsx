@@ -7,6 +7,8 @@ import './LoginPage.css';
 
 export default function LoginPage() {
   const navigate = useNavigate();
+
+  //store the form input values
   const [form, setForm] = useState({
     usernameOrEmail: '',
     password: '',
@@ -16,9 +18,10 @@ export default function LoginPage() {
   const [authError, setAuthError] = useState('');
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    setForm((prev) => ({ ...prev, [name]: value }));
+    const { name, value } = e.target; //get which field changed and it new value
+    setForm((prev) => ({ ...prev, [name]: value })); //update it
 
+    //clear error message
     if (errors[name]) {
       setErrors((prev) => ({ ...prev, [name]: '' }));
     }
@@ -43,9 +46,10 @@ export default function LoginPage() {
   };
 
   const handleSubmit = (e) => {
-    e.preventDefault();
+    e.preventDefault(); //prevent page refresh
     console.log('Login form submitted', form); // can remove later one
     setAuthError('');
+
     if(!validateForm()){
       return;
     }
@@ -81,7 +85,7 @@ export default function LoginPage() {
             style={{width:'150px', height: '150px'}}
           />
         </div>
-
+        {/*if logn fails, show error message*/}
         {authError && (
           <div className="authError" style={{color: 'red', marginBottom: '1rem'}}>
             {authError}
@@ -95,7 +99,7 @@ export default function LoginPage() {
             placeholder="email/username"
             value={form.usernameOrEmail}
             onChange={handleChange}
-            required
+            required // make sure field is not empty
           />
           {errors.usernameOrEmail && (
             <div className="error">{errors.usernameOrEmail}</div>
@@ -107,7 +111,7 @@ export default function LoginPage() {
             placeholder="password"
             value={form.password}
             onChange={handleChange}
-            required
+            required // make sure field is not empty
           />
           {errors.password && (
             <div className="error">{errors.password}</div>

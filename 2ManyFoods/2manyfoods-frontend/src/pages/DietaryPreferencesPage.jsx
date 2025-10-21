@@ -35,12 +35,12 @@ export default function DietaryPreferencesPage() {
     egg: eggIcon,
   };
 
+  // load the existing preference
   useEffect(() => {
     const loadPreferences = async () => {
       setIsLoading(true);
       setError('');
 
-      //loading preference
       try {
         
         //api cai
@@ -69,6 +69,7 @@ export default function DietaryPreferencesPage() {
     setError('');
   };
 
+  // saving to backend
   const handleSave = async () => {
     setError('');
     setSuccessMessage('');

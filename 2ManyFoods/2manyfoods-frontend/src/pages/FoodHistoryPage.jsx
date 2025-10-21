@@ -11,6 +11,7 @@ export default function FoodHistoryPage() {
   const [error, setError] = useState('');
   const [sortBy, setSortBy] = useState('recent');
 
+  // load food history
   useEffect(() => {
     const loadFoodHistory = async () => {
       setIsLoading(true);
@@ -79,6 +80,7 @@ export default function FoodHistoryPage() {
     }
   });
 
+  // create a svg stars (so easier to change color)
   const renderStars = (rating) => {
     const stars = [];
     for (let i = 1; i <= 5; i++) {

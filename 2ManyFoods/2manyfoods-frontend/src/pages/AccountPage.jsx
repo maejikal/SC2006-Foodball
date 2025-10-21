@@ -19,6 +19,7 @@ export default function AccountPage() {
     { name: 'food history / foodprints', path: '/account/history' },
   ];
 
+  //load the user data from backend
   useEffect(() => {
     const loadUserData = async () => {
       setIsLoading(true);
@@ -48,6 +49,7 @@ export default function AccountPage() {
     loadUserData();
   }, [navigate]);
 
+  // Show loading message
   if (isLoading) {
     return (
       <div className="accountPage">
@@ -79,6 +81,7 @@ export default function AccountPage() {
           >
             {error}
           </div>
+          {/*button to reload the page if loading data fails*/}
           <button 
             onClick={() => window.location.reload()} 
             style={{ marginTop: '1rem' }}

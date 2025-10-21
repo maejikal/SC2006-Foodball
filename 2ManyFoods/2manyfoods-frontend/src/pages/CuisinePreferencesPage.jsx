@@ -5,10 +5,10 @@ import './CuisinePreferencesPage.css';
 
 export default function CuisinePreferencesPage() {
   const navigate = useNavigate();
-  const [selectedCuisines, setSelectedCuisines] = useState([]);
 
   const cuisineOptions = ['western', 'italian', 'chinese', 'malay', 'indian', 'japanese', 'korean'];
 
+  // where we store the preference
   const [rank1, setRank1] = useState('');
   const [rank2, setRank2] = useState('');
   const [rank3, setRank3] = useState('');
@@ -86,6 +86,7 @@ export default function CuisinePreferencesPage() {
     }
   };
 
+  // Prevent same cuisine from being selected
   const getOptions = (exclude1, exclude2) =>
     cuisineOptions.filter(opt => opt !== exclude1 && opt !== exclude2);
 
@@ -152,7 +153,7 @@ export default function CuisinePreferencesPage() {
           <select 
             value={rank1} 
             onChange={e => {
-              setRank1(e.target.value);
+              setRank1(e.target.value); // update the value
               setError(''); 
             }}
             disabled={isSaving}
