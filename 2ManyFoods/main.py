@@ -84,5 +84,4 @@ def refresh():
         return jsonify({"recommendations": rec_cons[groupID].getRecommendations()})
 
 if __name__ == "__main__":
-    app.run(debug=True)
-
+    app.run(port=8080, debug=True)
