@@ -26,6 +26,7 @@ class RecommendationController:
                 if category in eatery.types:
                     out.append(eatery)
                     results.remove(eatery)
+        out.append(results)
         # https://developers.google.com/maps/documentation/places/web-service/reference/rest/v1/places
         # https://developers.google.com/maps/documentation/places/web-service/place-types
         return out
@@ -57,3 +58,4 @@ class RecommendationController:
             self._group.Users[userID]["Preferences"].update(pref)
             self.FilterRecommendations()
             return True
+        return False
