@@ -1,15 +1,17 @@
-from db import user_collection
+from db import insertdb, searchdb, updatedb
 from models import *
 from utils.security import hash_password, verify_password
 
+COL = "User"
+
 def get_user_by_email(email:str):
-    return user_collection.find_one({"Email":email})
+    return searchdb(COL, "Email", email)
 
 def get_user_by_username(username:str):
-    return user_collection.find_one({"Username":username})
+    return searchdb(COL,"Username",username)
 
 def create_user(username:str, password:str, email:str):
-    if user_collection.find_one({"Email":email}):
+    if searchdb(COL, "Email", email):
         raise ValueError("This email has already been registered.")
     
     hashed_password = hash_password(password)
@@ -28,62 +30,72 @@ def create_user(username:str, password:str, email:str):
         "Preferences": {},
         "Hunger":1
     }
-    return user_collection.insert_one(user_doc)
+    return insertdb(COL, [user_doc])
 
 def login_user(email:str, password:str):
-    user = user_collection.find_one({"Email":email})
+    user = get_user_by_email(email)
     if not user or not verify_password(password, user["Password"]):
-        raise ValueError("Invalid Email or Password.")
+        print("Invalid Email or Password.")
+        return
     return user
 
-def store_past_dietary_requirements(email: str):
-    user = user_collection.find_one({"Email": email})
+def update_foodhistory(username: str, eatery: str):
+    user = get_user_by_username(username)
     if not user:
-        raise ValueError("User not found.")
+        print("User not found.")
+        return
 
-    current_diet = user.get("DietaryRequirements", {})
-    if not current_diet:
-        print("No DietaryRequirements to store.")
-        return None
-        
-    dietary_history = user.get("DietaryHistory", [])
+    current_history= user["FoodHistory"]
+    if len(current_history) >= 10:
+        current_history = current_history[1:]
+    current_history.append(eatery)
     
-
-    user_collection.update_one(
-        {"Email": email},
-        {"$set": {"DietaryHistory": dietary_history}}
-    )
-
-    return dietary_history
+    return updatedb(COL, "Username", username, "FoodHistory", current_history)
 
 def store_review(username:str, review_id:int):
-    return user_collection.update_one({"Username": username}, {"$push": {"Reviews": review_id}})
+    user = get_user_by_username(username)
+    reviews = user["Reviews"]
+    return updatedb(COL, "Username", username, "Reviews", reviews + [review_id])
+    #return user_collection.update_one({"Username": username}, {"$push": {"Reviews": review_id}})
 
 def delete_review(username:str, review_id:int):
     return user_collection.update_one({"Username": username}, {"$pull": {"Reviews": review_id}})
 
 def join_group(username:str, group_id:int):
-    return user_collection.update_one({"Username": username}, {"$push": {"Groups": group_id}})
+    user = get_user_by_username(username)
+    groups = user["Groups"]
+    return updatedb(User, "Username", username, "Groups", groups + [group_id])
+    #return user_collection.update_one({"Username": username}, {"$push": {"Groups": group_id}})
 
 def leave_group(username:str, group_id:int):
-    return user_collection.update_one({"Username": username}, {"$pull": {"Groups": group_id}})
+    user = get_user_by_username(username)
+    groups = user["Groups"]
+    groups.remove(group_id)
+    return updatedb(COL, "Username", username, "Groups", groups)
+    #return user_collection.update_one({"Username": username}, {"$pull": {"Groups": group_id}})
 
 
-def update_username(user_id, new_username:str):
-    return user_collection.update_one({"_id":user_id}, {'$set':{"Username":new_username}})
+def update_username(username: str, new_username:str):
+    return updatedb(COL, "Username", username, "Username", new_username)
+    #return user_collection.update_one({"_id":user_id}, {'$set':{"Username":new_username}})
 
-def update_email(user_id, new_email:str):
-    return user_collection.update_one({"_id":user_id}, {'$set':{"Email":new_email}})
+def update_email(username: str, new_email:str):
+    return updatedb(COL, "Username", username, "Email", new_email)
+    #return user_collection.update_one({"_id":user_id}, {'$set':{"Email":new_email}})
 
-def update_password(user_id, new_password:str):
-    hashed_password = hash_password(new_password)
-    return user_collection.update_one({"_id":user_id}, {'$set':{"Password":hashed_password}}) 
+def update_password(username: str, new_password:str):
+    return updatedb(COL, "Username", username, "Password", hash_password(new_password))
+    #return user_collection.update_one({"_id":user_id}, {'$set':{"Password":hashed_password}}) 
 
-def update_profile_photo(user_id, new_profile_photo:str):
-    return user_collection.update_one({"_id":user_id}, {'$set':{"ProfilePhoto":new_profile_photo}})
+def update_profile_photo(username: str, new_profile_photo:str):
+    return updatedb(COL, "Username", username, "ProfilePhoto", new_profile_photo)
+    #return user_collection.update_one({"_id":user_id}, {'$set':{"ProfilePhoto":new_profile_photo}})
 
-def update_dietary_preferences(user_id, new_diet_pref:dict):
-    return user_collection.update_one({"_id":user_id}, {'$set':{"DietaryRequirements":new_diet_pref}})
+def update_dietary_preferences(username: str, new_diet_pref:dict):
+    return updatedb(COL, "Username", username, "DietaryRequirements", new_diet_pref)
+    #return user_collection.update_one({"_id":user_id}, {'$set':{"DietaryRequirements":new_diet_pref}})
 
-def update_cuisine_preferences(user_id, new_preferences:dict):
-    return user_collection.update_one({"_id":user_id}, {'$set':{"Preferences":new_preferences}})
+def update_cuisine_preferences(username: str, new_preferences:dict):
+    return updatedb(COL, "Username", username, "Preferences", new_preferences)
+    #return user_collection.update_one({"_id":user_id}, {'$set':{"Preferences":new_preferences}})
+    
