@@ -20,26 +20,28 @@ async def makedb():                                                             
 async def insertdb(field: str, data: list):
     client = pymongo.AsyncMongoClient('127.0.0.1', 27017) 
     db = client["2ManyFoods_db"]
-    result = "Database successfully updated!"
+    result = None
     for i in data:
         print(i)
     match field:
         case "Users":
             user_collection = db["Users"]
-            await user_collection.insert_many(data)
+            result = await user_collection.insert_many(data)
         case "Groups":
             group_collection = db["Groups"]
-            await group_collection.insert_many(data)
+            result = await group_collection.insert_many(data)
             pass
         case "Eateries":
             eatery_collection = db["Eateries"]
             # print(data)
-            await eatery_collection.insert_many(data)
+            result = await eatery_collection.insert_many(data)
         case "Reviews":
             review_collection = db["Reviews"]
-            await review_collection.insert_many(data)
+            result = await review_collection.insert_many(data)
         case _:
-            result = "Failed to update Database!"
+            await client.close()
+            raise ValueError("Invalid collection name")
+        
     await client.close()
     return result
 

@@ -80,31 +80,52 @@ export default function DietaryPreferencesPage() {
   };
 
   const handleSave = async () => {
+    const userId = localStorage.getItem('userId');  
+    
+    if (!userId) {
+      setError('User ID not found. Please sign up or log in again.');
+      return;
+    }
+
     setError('');
     setSuccessMessage('');
-
     setIsSaving(true);
 
+    const requestBody = {
+      user_id: userId,  
+      dietaryRequirements: selectedPreferences
+    };
+
     try {
+      const response = await fetch('http://localhost:8080/account/dietary', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(requestBody)
+      });
 
-      // API call 
+      const data = await response.json();
 
-      setTimeout(() => {
-        setIsSaving(false);
-        
-        if (isOnboarding) {
-          navigate('/account/preferences', { state: { isOnboarding: true } });
-        } else {
-          setSuccessMessage('Dietary preferences saved successfully!');
-          setTimeout(() => {
-            navigate('/account');
-          }, 2000);
-        }
-      }, 1000);
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to save dietary preferences');
+      }
+
+      setIsSaving(false);
+
+      if (isOnboarding) {
+        // Move to next step - cuisine preferences
+        navigate('/account/preferences', { state: { isOnboarding: true } });
+      } else {
+        setSuccessMessage('Dietary preferences saved successfully!');
+        setTimeout(() => {
+          navigate('/account');
+        }, 2000);
+      }
 
     } catch (error) {
       console.error('Error saving dietary preferences:', error);
-      setError('An error occurred. Please try again.');
+      setError(error.message || 'An error occurred. Please try again.');
       setIsSaving(false);
     }
   };

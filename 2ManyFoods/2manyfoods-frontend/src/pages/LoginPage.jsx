@@ -45,7 +45,7 @@ export default function LoginPage() {
 
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault(); //prevent page refresh
     console.log('Login form submitted', form); // can remove later one
     setAuthError('');
@@ -56,21 +56,49 @@ export default function LoginPage() {
 
     setIsLoading(true);
 
-    try{
+    try {
+    // API call to Flask backend
+    const response = await fetch('http://localhost:8080/login', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        email: form.usernameOrEmail,  // Your backend expects 'email'
+        password: form.password
+      })
+    });
 
-      //api call should be here
+    const data = await response.json();
 
-      setTimeout(() => {
-        setIsLoading(false);
-        navigate('/search');
-      }, 1000);
-
-    } catch (error){
-      setAuthError('An error occurred. Please try again.');
-      setIsLoading(false);
+    if (!response.ok) {
+      // Handle error response from backend
+      throw new Error(data.error || 'Login failed');
     }
 
-  };
+    // Success - store token or user data if needed
+    console.log('Login successful:', data);
+
+    // Store user ID and other info
+    if (data.user_id) {
+      localStorage.setItem('userId', data.user_id);
+    }
+    if (data.username) {
+      localStorage.setItem('username', data.username);
+    }
+    
+    // You might want to store the token or user info
+    // localStorage.setItem('token', data.token);
+    
+    navigate('/search');
+
+  } catch (error) {
+    console.error('Login error:', error);
+    setAuthError(error.message || 'Invalid email or password. Please try again.');
+  } finally {
+    setIsLoading(false);
+  }
+};
 
   return (
     <div className="loginPage">

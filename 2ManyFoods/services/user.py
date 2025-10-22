@@ -3,7 +3,7 @@ from models import *
 from utils.security import hash_password, verify_password
 from asyncio import run
 
-COL = "User"
+COL = "Users"
 
 def get_user_by_email(email:str):
     return run(searchdb(COL, "Email", email))
@@ -14,7 +14,8 @@ def get_user_by_username(username:str):
 def create_user(username:str, password:str, email:str):
     if run(searchdb(COL, "Email", email)):
         print("This email has already been registered.")
-        return
+        raise ValueError("This email has already been registered.")
+        #return None
     hashed_password = hash_password(password)
 
     user_doc = {

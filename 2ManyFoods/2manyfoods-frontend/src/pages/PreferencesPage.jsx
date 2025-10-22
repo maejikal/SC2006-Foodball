@@ -67,6 +67,15 @@ export default function PreferencesPage() {
   };
 
   const handleSave = async () => {
+    const userId = localStorage.getItem('userId');
+    
+    console.log('User ID from localStorage:', userId);
+    
+    if (!userId) {
+      setError('User ID not found. Please sign up or log in again.');
+      return;
+    }
+
     setError('');
     setSuccessMessage('');
 
@@ -76,30 +85,53 @@ export default function PreferencesPage() {
 
     setIsSaving(true);
 
+    const requestBody = {
+      user_id: userId, 
+      preferences: {
+        rank1: rank1,
+        rank2: rank2,
+        rank3: rank3
+      },
+      budget: budget
+    };
+    
+    console.log('Sending to backend:', JSON.stringify(requestBody, null, 2));
+
     try {
+      const response = await fetch('http://localhost:8080/account/cuisine', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(requestBody)
+      });
 
-      // API call
+      const data = await response.json();
 
-      setTimeout(() => {
-        setIsSaving(false);
-        
-        if (isOnboarding) {
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to save preferences');
+      }
 
-          navigate('/dashboard');
-        } else {
-          setSuccessMessage('Preferences saved successfully!');
-          setTimeout(() => {
-            navigate('/account');
-          }, 2000);
-        }
-      }, 1000);
+      console.log('Preferences saved:', data);
+      setIsSaving(false);
+
+      if (isOnboarding) {
+        // Onboarding complete - go to dashboard
+        navigate('/dashboard');
+      } else {
+        setSuccessMessage('Preferences saved successfully!');
+        setTimeout(() => {
+          navigate('/account');
+        }, 2000);
+      }
 
     } catch (error) {
       console.error('Error saving preferences:', error);
-      setError('An error occurred. Please try again.');
+      setError(error.message || 'An error occurred. Please try again.');
       setIsSaving(false);
     }
   };
+
   //prevent same option 
   const getOptions = (exclude1, exclude2) =>
     cuisineOptions.filter(opt => opt !== exclude1 && opt !== exclude2);

@@ -122,31 +122,54 @@ export default function SignupPage() {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    console.log('Signup form submitted', form); // remove later
-    setAuthError('');
-    if (!validateForm()) {
-    return; 
+  const handleSubmit = async (e) => {
+  e.preventDefault();
+  console.log('Signup form submitted', form);
+  setAuthError('');
+
+  if (!validateForm()) {
+    return;
+  }
+
+  setIsLoading(true);
+
+  try {
+    const response = await fetch('http://localhost:8080/signup', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        username: form.username,
+        password: form.password,
+        email: form.email,
+        phone: form.phone
+      })
+    });
+
+    const data = await response.json();
+    console.log('Signup response:', data);
+
+    if (!response.ok) {
+      throw new Error(data.error || 'Signup failed');
     }
 
-    setIsLoading(true);
-
-    try {
-
-      //app call
-
-      setTimeout(() => {
-          setIsLoading(false);
-          navigate('/account/dietary', { state: { isOnboarding: true } }); 
-        }, 1000);    
-
-    } catch (error) {
-      setAuthError('An error occurred. Please try again.');
-      setIsLoading(false);
+    if (data.user_id) {
+      localStorage.setItem('userId', data.user_id);
+      console.log('Stored user_id:', data.user_id);
+    } else {
+      console.error('No user_id in response:', data);
     }
 
-  };
+    navigate('/account/dietary', { state: { isOnboarding: true } });
+
+  } catch (error) {
+    console.error('Signup error:', error);
+    setAuthError(error.message || 'An error occurred. Please try again.');
+  } finally {
+    setIsLoading(false);
+  }
+};
 
   return (
     <div className="signupPage">

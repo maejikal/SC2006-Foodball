@@ -13,12 +13,12 @@ def root():
     return "placeholder"
 
 
-@app.route('/signup')
+@app.route('/signup', methods=['POST'])
 def signup_route():
-    return auth_controller.signup()
+    return auth_controller.signup(request.get_json())
 
 
-@app.route('/login')
+@app.route('/login', methods=['POST'])
 def login_route():
     return auth_controller.login(request.get_json())
 
@@ -32,7 +32,6 @@ async def generate_recommendation(groupID):
     if groupID not in rec_cons.keys():
         location = request.args['location']
         radius = request.args['location']
-        #global rec_cons
         group_rec = await group_collection.find_one({"groupID": groupID})
         users = {}
         for userID in group_rec.users:
@@ -71,7 +70,7 @@ def update():
     groupID = request.args['groupID']
     userID = request.args['user']
     pref = request.args['preferences']
-    mongoupdate("Users", {"_id": userID, "Preferences": pref})
+    updatedb("Users", {"_id": userID, "Preferences": pref})
     if groupID in rec_cons.keys():
         rec_cons[groupID].updatePref(userID, pref)
         return jsonify({"recommendations": rec_cons[groupID].getRecommendations()})
