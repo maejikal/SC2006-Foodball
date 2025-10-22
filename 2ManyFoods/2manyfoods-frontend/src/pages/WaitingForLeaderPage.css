@@ -1,0 +1,47 @@
+.waitingPage {
+  background: linear-gradient(135deg, #1a2332 0%, #2d3e52 100%);
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  color: white;
+  font-family: 'Poppins', sans-serif;
+}
+
+.waitingContent {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 5rem;
+  text-align: center;
+}
+
+.spinningGlobe {
+  margin-bottom: 3rem;
+  position: relative;
+  width: 250px;
+  height: 250px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.globeImage {
+  width: 500px;
+  height: 500px;
+  object-fit: contain;
+  filter: drop-shadow(0 0 30px rgba(87, 180, 209, 0.4));
+}
+
+.waitingContent h1 {
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+  font-weight: 600;
+}
+
+.waitingContent p {
+  font-size: 1.1rem;
+  color: #ddd;
+  max-width: 600px;
+}

@@ -35,7 +35,7 @@
 .groupActions {
   display: flex;
   gap: 1rem;
-  margin-bottom: 2rem;
+  margin-bottom: 1.5rem;
 }
 
 .groupActions button {
@@ -59,9 +59,51 @@
   color: white;
 }
 
-.addMemberBtn {
+.inviteCodeSection {
+  margin-top: 1rem;
+}
+
+.inviteCodeLabel {
+  font-size: 0.9rem;
+  color: #ddd;
+  margin-bottom: 0.5rem;
+  text-transform: lowercase;
+}
+
+.inviteCodeDisplay {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  background: rgba(255, 255, 255, 0.1);
+  padding: 0.8rem 1.2rem;
+  border-radius: 12px;
+  max-width: fit-content;
+}
+
+.inviteCode {
+  font-size: 1.3rem;
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  font-family: 'Courier New', monospace;
+  color: white;
+}
+
+.copyCodeBtn {
   background: #3d5a5a;
   color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  font-family: 'Poppins', sans-serif;
+  font-size: 0.85rem;
+  cursor: pointer;
+  text-transform: lowercase;
+  font-weight: 500;
+  transition: opacity 0.2s;
+}
+
+.copyCodeBtn:hover {
+  opacity: 0.8;
 }
 
 .startFoodballBtn {
