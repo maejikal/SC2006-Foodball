@@ -42,15 +42,6 @@ async def generate_recommendation(groupID):
         con = rec_cons[groupID]
     return con.getRecommendations()
 
-@app.route('/refresh/<groupID>')
-def refresh(groupID):
-    global rec_cons
-    try:
-        con = rec_cons[groupID]
-        return jsonify({"recommendations": con.recommendations})
-    except:
-        return jsonify({"recommendations": {}}), 400
-
 @app.route('/foodball/<groupID>/vote')
 async def group_voting(groupID):
     global rec_cons

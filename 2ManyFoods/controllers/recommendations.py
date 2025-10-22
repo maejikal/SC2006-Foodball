@@ -15,6 +15,8 @@ class RecommendationController:
             radius=self.radius, types=['restuarant'])
         results = [Eatery(i) for i in query_result]
         weights = [user.getHunger() for user in self._group.Users]
+        if len(weights) == 1:
+            weights = [1]
         preferences = self._group.getPreferences()
         groupPreferences = dict.fromkeys(preferences[0].keys())
         for key in groupPreferences.keys():

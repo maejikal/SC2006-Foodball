@@ -68,6 +68,6 @@ async def getdb():
     review_collection = db.get_collection("Reviews")
     await client.close()
     return (user_collection, group_collection, eatery_collection, review_collection)
-# asyncio.run(makedb())
-asyncio.run(viewdb())
+
+# asyncio.run(viewdb())
 user_collection, group_collection, eatery_collection, review_collection = asyncio.run(getdb())   
