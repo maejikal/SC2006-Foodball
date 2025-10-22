@@ -15,7 +15,7 @@ def root():
 
 @app.route('/signup')
 def signup_route():
-    return auth_controller.signup(request.get_json())
+    return auth_controller.signup()
 
 
 @app.route('/login')

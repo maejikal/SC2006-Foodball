@@ -6,14 +6,14 @@ def signup():
         return jsonify({"error":"Invalid or Missing JSON input"})
     data = request.get_json()
 
-    required_fields = ["Username", "Password", "Email"]
+    required_fields = ["username", "password", "email"]
     missing = [field for field in required_fields if field not in data]
     if missing:
         return jsonify({"error":f"Missing fields:{','.join(missing)}"}), 400
     
-    username = data["Username"]
-    password = data["Password"]
-    email = data["Email"]
+    username = data["username"]
+    password = data["password"]
+    email = data["email"]
 
     try:
         result = user_services.create_user(username, password, email)
@@ -32,7 +32,7 @@ def login():
         return jsonify({"error":"Invalid or Missing JSON input"})
     data = request.get_json()
 
-    required_fields = ["Email", "Password"]
+    required_fields = ["email", "password"]
     missing = [field for field in required_fields if field not in data]
     if missing:
         return jsonify({"error":f"Missing fields:{','.join(missing)}"}), 400
