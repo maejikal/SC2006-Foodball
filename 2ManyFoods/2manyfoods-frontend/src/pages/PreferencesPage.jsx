@@ -85,7 +85,7 @@ export default function PreferencesPage() {
         
         if (isOnboarding) {
 
-          navigate('/dashboard');
+          navigate('/search');
         } else {
           setSuccessMessage('Preferences saved successfully!');
           setTimeout(() => {
