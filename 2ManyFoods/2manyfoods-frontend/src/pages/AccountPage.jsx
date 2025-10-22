@@ -17,6 +17,7 @@ export default function AccountPage() {
     { name: 'dietary preference', path: '/account/dietary' },
     { name: 'cuisine preference', path: '/account/cuisine' },
     { name: 'food history / foodprints', path: '/account/history' },
+    { name: 'logout', path: '/'},
   ];
 
   //load the user data from backend

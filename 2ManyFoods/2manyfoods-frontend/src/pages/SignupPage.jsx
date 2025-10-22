@@ -138,7 +138,7 @@ export default function SignupPage() {
 
       setTimeout(() => {
           setIsLoading(false);
-          navigate('/dashboard'); 
+          navigate('/search'); 
         }, 1000);    
 
     } catch (error) {

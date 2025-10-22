@@ -62,7 +62,7 @@ export default function LoginPage() {
 
       setTimeout(() => {
         setIsLoading(false);
-        navigate('/dashboard');
+        navigate('/search');
       }, 1000);
 
     } catch (error){
