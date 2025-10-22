@@ -8,7 +8,6 @@ export default function GroupDetailsPage() {
   const { groupId } = useParams();
   const location = useLocation();
 
-  // Get group data from location state if it's a new group
   const initialGroupName = location.state?.groupName || 'supper';
   const initialGroupPic = location.state?.groupPic;
 
@@ -19,12 +18,13 @@ export default function GroupDetailsPage() {
     maxMembers: 20,
   });
 
-  // TODO: This should come from your backend when the group is created/fetched
   const [inviteCode, setInviteCode] = useState('');
 
+  // TODO: Replace with actual user session data
+  const currentUserId = 4; // Mock current user ID - change here to see leader or user page
+  const groupLeaderId = 4; // Mock leader ID (first member or creator)
+
   useEffect(() => {
-    // TODO: Replace this with an API call to fetch the group's invite code
-    // For now, generating a mock code (this should be done by backend)
     const generateMockCode = () => {
       const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
       let code = '';
@@ -82,16 +82,29 @@ export default function GroupDetailsPage() {
   };
 
   const handleStartFoodball = () => {
-    navigate('/foodball/in-progress', { 
-      state: { 
-        groupName: group.name, 
-        groupId: group.id 
-      } 
-    });
+    // Check if current user is the leader
+    const isLeader = currentUserId === groupLeaderId;
+
+    if (isLeader) {
+      // Leader goes to location selection page
+      navigate('/foodball/select-location', { 
+        state: { 
+          groupName: group.name, 
+          groupId: group.id 
+        } 
+      });
+    } else {
+      // Other members go to waiting page
+      navigate('/foodball/waiting', { 
+        state: { 
+          groupName: group.name, 
+          groupId: group.id 
+        } 
+      });
+    }
   };
 
   const handleBackToGroups = () => {
-    // Pass the group data back to GroupsPage
     navigate('/groups', { 
       state: { 
         newGroup: { 

@@ -16,6 +16,8 @@ import FoodReviewPage from './pages/FoodReviewPage';
 import GroupsPage from './pages/GroupsPage';
 import CreateGroupPage from './pages/CreateGroupPage';
 import GroupDetailsPage from './pages/GroupDetailsPage';
+import LeaderLocationPage from './pages/LeaderLocationPage';
+import WaitingForLeaderPage from './pages/WaitingForLeaderPage';
 import InProgressPage from './pages/InProgressPage';
 import ResultsPage from './pages/ResultsPage';
 import VotingPage from './pages/VotingPage';
@@ -40,6 +42,8 @@ function App() {
         <Route path="/groups" element={<GroupsPage />} />
         <Route path="/groups/create" element={<CreateGroupPage />} />
         <Route path="/groups/:groupId" element={<GroupDetailsPage />} />
+        <Route path="/foodball/select-location" element={<LeaderLocationPage />} />
+        <Route path="/foodball/waiting" element={<WaitingForLeaderPage />} />
         <Route path="/foodball/in-progress" element={<InProgressPage />} />
         <Route path="/foodball/results" element={<ResultsPage />} />
         <Route path="/foodball/voting" element={<VotingPage />} />

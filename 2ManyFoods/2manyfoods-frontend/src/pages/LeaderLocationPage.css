@@ -1,0 +1,107 @@
+.leaderLocationPage {
+  background: linear-gradient(135deg, #1a2332 0%, #2d3e52 100%);
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  color: white;
+  font-family: 'Poppins', sans-serif;
+}
+
+.leaderLocationContent {
+  flex: 1;
+  padding: 3rem 5rem;
+}
+
+.leaderLocationContent h1 {
+  font-size: 3rem;
+  text-transform: capitalize;
+  margin-bottom: 1rem;
+  font-weight: 600;
+}
+
+.leaderLocationContent > p {
+  font-size: 1rem;
+  color: #ddd;
+  margin-bottom: 3rem;
+}
+
+.mapSection {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.mapWrapper {
+  background: #1e2a3a;
+  border-radius: 20px;
+  height: 500px;
+  overflow: hidden;
+  position: relative;
+  cursor: crosshair;
+}
+
+.placeholderMap {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  color: #999;
+  position: relative;
+}
+
+.locationMarker {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  background: #d2542f;
+  border-radius: 50%;
+  border: 3px solid white;
+  transform: translate(-50%, -50%);
+  box-shadow: 0 0 20px rgba(210, 84, 47, 0.6);
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: translate(-50%, -50%) scale(1.2);
+    opacity: 0.8;
+  }
+}
+
+.locationInfo {
+  background: rgba(255, 255, 255, 0.1);
+  padding: 1.5rem;
+  border-radius: 15px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.locationInfo p {
+  font-size: 1.1rem;
+  margin: 0;
+}
+
+.confirmBtn {
+  background: #7b6bae;
+  color: white;
+  padding: 0.9rem 2.5rem;
+  border: none;
+  border-radius: 30px;
+  font-family: 'Poppins', sans-serif;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  text-transform: lowercase;
+  transition: opacity 0.2s;
+}
+
+.confirmBtn:hover {
+  opacity: 0.9;
+}
