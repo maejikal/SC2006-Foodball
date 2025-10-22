@@ -14,7 +14,7 @@ export default function LandingPage() {
         <div className="heroText">
           <h1>having trouble deciding what to eat?</h1>
           <p>
-            choosing what to eat shouldn't be stressful. 2manyfoods helps you discover, compare, and decide on meals quickly, whether you're eating alone or with a group. one of the key features is foodball (magic 8Ball but for food!)—your group food recommendation engine.
+            Choosing what to eat shouldn't be stressful. 2manyfoods helps you discover, compare, and decide on meals quickly, whether you're eating alone or with a group. one of the key features is foodball (magic 8Ball but for food!)—your group food recommendation engine.
           </p>
         </div>
         <div className="foodIcons">
@@ -75,7 +75,7 @@ export default function LandingPage() {
       <footer className="footer">
         <h2>too many foods, one simple choice. get started now!</h2>
         <div className="footerButtons">
-          <Button text="sign up" onClick={() => navigate("/signup")} />
+          <Button text="sign up" variant="light" onClick={() => navigate("/signup")} />
           <Button text="login" variant="light" onClick={() => navigate("/login")} />
         </div>
       </footer>
