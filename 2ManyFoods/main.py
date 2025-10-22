@@ -26,10 +26,11 @@ async def join_group(groupID):
 
 @app.route('/foodball/<groupID>')
 async def generate_recommendation(groupID):
+    global rec_cons
     if groupID not in rec_cons.keys():
         location = request.args['location']
         radius = request.args['location']
-        global rec_cons
+        #global rec_cons
         group_rec = await group_collection.find_one({"groupID": groupID})
         users = {}
         for userID in group_rec.users:
@@ -43,7 +44,7 @@ async def generate_recommendation(groupID):
     return con.getRecommendations()
 
 @app.route('/refresh/<groupID>')
-def refresh(groupID):
+def refresh_group(groupID):
     global rec_cons
     try:
         con = rec_cons[groupID]
@@ -82,6 +83,18 @@ def refresh():
         if voted:
             return jsonify({"finalVote": rec_cons[groupID].finishVoting()}) 
         return jsonify({"recommendations": rec_cons[groupID].getRecommendations()})
+    
+@app.route('/account/security', methods=['POST'])
+def update_security():
+    return user_controller.update_user_profile(request.get_json(), section='security')
+
+@app.route('/account/dietary', methods=['POST'])
+def update_dietary():
+    return user_controller.update_user_profile(request.get_json(), section='dietary')
+
+@app.route('/account/cuisine', methods=['POST'])
+def update_cuisine():
+    return user_controller.update_user_profile(request.get_json(), section='cuisine')
 
 if __name__ == "__main__":
     app.run(debug=True)

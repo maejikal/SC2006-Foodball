@@ -59,8 +59,31 @@ def store_past_dietary_requirements(email: str):
 def store_review(username:str, review_id:int):
     return user_collection.update_one({"Username": username}, {"$push": {"Reviews": review_id}})
 
+def delete_review(username:str, review_id:int):
+    return user_collection.update_one({"Username": username}, {"$pull": {"Reviews": review_id}})
+
 def join_group(username:str, group_id:int):
     return user_collection.update_one({"Username": username}, {"$push": {"Groups": group_id}})
 
 def leave_group(username:str, group_id:int):
     return user_collection.update_one({"Username": username}, {"$pull": {"Groups": group_id}})
+
+
+def update_username(user_id, new_username:str):
+    return user_collection.update_one({"_id":user_id}, {'$set':{"Username":new_username}})
+
+def update_email(user_id, new_email:str):
+    return user_collection.update_one({"_id":user_id}, {'$set':{"Email":new_email}})
+
+def update_password(user_id, new_password:str):
+    hashed_password = hash_password(new_password)
+    return user_collection.update_one({"_id":user_id}, {'$set':{"Password":hashed_password}}) 
+
+def update_profile_photo(user_id, new_profile_photo:str):
+    return user_collection.update_one({"_id":user_id}, {'$set':{"ProfilePhoto":new_profile_photo}})
+
+def update_dietary_preferences(user_id, new_diet_pref:dict):
+    return user_collection.update_one({"_id":user_id}, {'$set':{"DietaryRequirements":new_diet_pref}})
+
+def update_cuisine_preferences(user_id, new_preferences:dict):
+    return user_collection.update_one({"_id":user_id}, {'$set':{"Preferences":new_preferences}})

@@ -1,19 +1,18 @@
 from flask import request, jsonify
 from services import user as user_services
 
-def signup():
-    if not request.is_json:
-        return jsonify({"error":"Invalid or Missing JSON input"})
-    data = request.get_json()
+def signup(data):
+    if not data:
+        return jsonify({"error":"Invalid or Missing JSON input"}), 400
 
-    required_fields = ["Username", "Password", "Email"]
+    required_fields = ["username", "password", "email"]
     missing = [field for field in required_fields if field not in data]
     if missing:
         return jsonify({"error":f"Missing fields:{','.join(missing)}"}), 400
     
-    username = data["Username"]
-    password = data["Password"]
-    email = data["Email"]
+    username = data["username"]
+    password = data["password"]
+    email = data["email"]
 
     try:
         result = user_services.create_user(username, password, email)
@@ -27,18 +26,17 @@ def signup():
         "user_id":str(result.inserted_id)
     }), 201
 
-def login():
-    if not request.is_json:
-        return jsonify({"error":"Invalid or Missing JSON input"})
-    data = request.get_json()
+def login(data):
+    if not data: 
+        return jsonify({"error":"Invalid or Missing JSON input"}), 400
 
-    required_fields = ["Email", "Password"]
+    required_fields = ["email", "password"]
     missing = [field for field in required_fields if field not in data]
     if missing:
         return jsonify({"error":f"Missing fields:{','.join(missing)}"}), 400
     
-    email = data["Email"]
-    password = data["Password"]
+    email = data["email"]
+    password = data["password"]
 
     try:
         user = user_services.login_user(email, password) # user successfully set
