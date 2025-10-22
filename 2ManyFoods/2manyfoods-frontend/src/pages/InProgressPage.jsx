@@ -8,17 +8,13 @@ export default function InProgressPage() {
   const location = useLocation();
   const groupName = location.state?.groupName || 'supper';
 
-  const [selectedFoodType, setSelectedFoodType] = useState();
+  const [selectedFoodType, setSelectedFoodType] = useState('Meal');
   const [selectedCuisines, setSelectedCuisines] = useState([]);
   const [priceRange, setPriceRange] = useState(50);
   const [hungerLevel, setHungerLevel] = useState(5);
 
   const foodTypes = [
-    { name: 'Snacks', icon: '/assets/icons8-snacks-50.png', cuisines: ['Chips', 'Popcorn', 'Nuts', 'Crackers', 'Cookies', 'Candy'] },
     { name: 'Meal', icon: '/assets/icons8-meal-50.png', cuisines: ['Korean', 'Japanese', 'Barbecue', 'Chinese', 'Italian', 'Thai', 'Mexican', 'Indian', 'Vietnamese'] },
-    { name: 'Vegan', icon: '/assets/icons8-vegan-50.png', cuisines: ['Salads', 'Smoothie Bowls', 'Vegan Burgers', 'Buddha Bowls', 'Vegan Pizza', 'Plant-Based'] },
-    { name: 'Dessert', icon: '/assets/icons8-dessert-50.png', cuisines: ['Cakes', 'Ice Cream', 'Pastries', 'Cookies', 'Brownies', 'Pudding'] },
-    { name: 'Drinks', icon: '/assets/icons8-drinks-50.png', cuisines: ['Coffee', 'Tea', 'Smoothies', 'Bubble Tea', 'Juice', 'Milkshakes'] }
   ];
 
   const getCurrentCuisines = () => {

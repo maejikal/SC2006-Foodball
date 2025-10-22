@@ -1,8 +1,10 @@
 from flask import *
+from flask_cors import CORS
 from __init__ import *
 from db import *
 from models import *
 app = Flask(__name__)
+CORS(app)
 
 rec_cons = {}
 
@@ -13,7 +15,7 @@ def root():
 
 @app.route('/signup')
 def signup_route():
-    return auth_controller.signup(request.get_json())
+    return auth_controller.signup()
 
 
 @app.route('/login')
@@ -97,5 +99,4 @@ def update_cuisine():
     return user_controller.update_user_profile(request.get_json(), section='cuisine')
 
 if __name__ == "__main__":
-    app.run(debug=True)
-
+    app.run(port=8080, debug=True)

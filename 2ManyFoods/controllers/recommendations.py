@@ -15,6 +15,8 @@ class RecommendationController:
             radius=self.radius, types=['restuarant'])
         results = [Eatery(i) for i in query_result]
         weights = [user.getHunger() for user in self._group.Users]
+        if len(weights) == 1:
+            weights = [1]
         preferences = self._group.getPreferences()
         groupPreferences = dict.fromkeys(preferences[0].keys())
         for key in groupPreferences.keys():
@@ -26,6 +28,7 @@ class RecommendationController:
                 if category in eatery.types:
                     out.append(eatery)
                     results.remove(eatery)
+        out.append(results)
         # https://developers.google.com/maps/documentation/places/web-service/reference/rest/v1/places
         # https://developers.google.com/maps/documentation/places/web-service/place-types
         return out
@@ -57,3 +60,4 @@ class RecommendationController:
             self._group.Users[userID]["Preferences"].update(pref)
             self.FilterRecommendations()
             return True
+        return False

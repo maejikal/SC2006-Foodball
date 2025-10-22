@@ -1,0 +1,300 @@
+.faqContactPage {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #1a2332 0%, #2d3e52 100%); /* Changed to match LoginPage */
+  font-family: 'Poppins', sans-serif;
+}
+
+.faqContactContainer {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem;
+}
+
+.pageHeader {
+  text-align: center;
+  color: white;
+  margin-bottom: 3rem;
+  padding: 2rem 0;
+}
+
+.pageHeader h1 {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+.pageHeader p {
+  font-size: 1.1rem;
+  opacity: 0.9;
+}
+
+.faqSection,
+.contactSection {
+  background: white;
+  border-radius: 16px;
+  padding: 2.5rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+}
+
+.faqSection h2,
+.contactSection h2 {
+  font-size: 2rem;
+  color: #2d3748;
+  margin-bottom: 0.5rem;
+  text-align: center;
+}
+
+.sectionSubtitle {
+  text-align: center;
+  color: #718096;
+  margin-bottom: 2rem;
+  font-size: 1rem;
+}
+
+.faqList {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.faqItem {
+  border: 2px solid #e2e8f0;
+  border-radius: 12px;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.faqItem:hover {
+  border-color: #667eea;
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15);
+}
+
+.faqItem.expanded {
+  border-color: #667eea;
+}
+
+.faqQuestion {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.25rem 1.5rem;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: #2d3748;
+  transition: background 0.2s ease;
+}
+
+.faqQuestion:hover {
+  background: #f7fafc;
+}
+
+.faqItem.expanded .faqQuestion {
+  background: #edf2f7;
+}
+
+.faqQuestion span {
+  flex: 1;
+  padding-right: 1rem;
+}
+
+.faqIcon {
+  flex-shrink: 0;
+  color: #667eea;
+  transition: transform 0.3s ease;
+}
+
+.faqItem.expanded .faqIcon {
+  transform: rotate(180deg);
+}
+
+.faqAnswer {
+  padding: 0 1.5rem 1.25rem 1.5rem;
+  animation: slideDown 0.3s ease-out;
+}
+
+.faqAnswer p {
+  color: #4a5568;
+  line-height: 1.7;
+  margin: 0;
+  font-size: 0.95rem;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.contactMethods {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2.5rem;
+}
+
+.contactMethod {
+  display: flex;
+  gap: 1.25rem;
+  padding: 1.5rem;
+  background: #f7fafc;
+  border-radius: 12px;
+  border: 2px solid #e2e8f0;
+  transition: all 0.3s ease;
+}
+
+.contactMethod:hover {
+  border-color: #667eea;
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15);
+  transform: translateY(-2px);
+}
+
+.contactIcon {
+  flex-shrink: 0;
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 10px;
+  color: white;
+}
+
+.contactInfo {
+  flex: 1;
+}
+
+.contactInfo h3 {
+  font-size: 1.1rem;
+  color: #2d3748;
+  margin-bottom: 0.25rem;
+  font-weight: 600;
+}
+
+.contactInfo p {
+  color: #4a5568;
+  font-size: 1rem;
+  margin: 0.25rem 0;
+  font-weight: 500;
+}
+
+.contactInfo small {
+  color: #718096;
+  font-size: 0.85rem;
+}
+
+.businessHours {
+  background: #f7fafc;
+  border-radius: 12px;
+  padding: 2rem;
+  border: 2px solid #e2e8f0;
+}
+
+.businessHours h3 {
+  font-size: 1.25rem;
+  color: #2d3748;
+  margin-bottom: 1.5rem;
+  text-align: center;
+  font-weight: 600;
+}
+
+.hoursGrid {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+.hoursRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 1.25rem;
+  background: white;
+  border-radius: 8px;
+}
+
+.hoursRow .day {
+  color: #4a5568;
+  font-weight: 500;
+}
+
+.hoursRow .time {
+  color: #667eea;
+  font-weight: 600;
+}
+
+@media (max-width: 768px) {
+  .faqContactContainer {
+    padding: 1.5rem 1rem;
+  }
+
+  .pageHeader h1 {
+    font-size: 2rem;
+  }
+
+  .pageHeader p {
+    font-size: 1rem;
+  }
+
+  .faqSection,
+  .contactSection {
+    padding: 1.5rem;
+  }
+
+  .faqSection h2,
+  .contactSection h2 {
+    font-size: 1.5rem;
+  }
+
+  .faqQuestion {
+    font-size: 0.95rem;
+    padding: 1rem;
+  }
+
+  .faqAnswer {
+    padding: 0 1rem 1rem 1rem;
+  }
+
+  .contactMethods {
+    grid-template-columns: 1fr;
+  }
+
+  .businessHours {
+    padding: 1.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .pageHeader h1 {
+    font-size: 1.75rem;
+  }
+
+  .faqQuestion {
+    font-size: 0.9rem;
+  }
+
+  .contactMethod {
+    flex-direction: column;
+    text-align: center;
+    align-items: center;
+  }
+
+  .hoursRow {
+    flex-direction: column;
+    gap: 0.25rem;
+    text-align: center;
+  }
+}

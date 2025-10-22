@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Navbar from '../components/AuthenticatedNavbar';
 import './SearchPage.css';
 
@@ -46,18 +46,59 @@ const dummyRestaurants = [
 ];
 
 export default function SearchPage() {
-  const [selectedFoodType, setSelectedFoodType] = useState();
+  const [selectedFoodType, setSelectedFoodType] = useState('Meal');
   const [selectedCuisines, setSelectedCuisines] = useState([]);
   const [priceRange, setPriceRange] = useState(50);
   const [searchQuery, setSearchQuery] = useState('');
+  
+  const [userPreferences, setUserPreferences] = useState({
+    rank1: '',
+    rank2: '',
+    rank3: ''
+  });
 
   const foodTypes = [
-    { name: 'Snacks', icon: '/assets/icons8-snacks-50.png', cuisines: ['Chips', 'Popcorn', 'Nuts', 'Crackers', 'Cookies', 'Candy'] },
-    { name: 'Meal', icon: '/assets/icons8-meal-50.png', cuisines: ['Korean', 'Japanese', 'Barbecue', 'Chinese', 'Italian', 'Thai', 'Mexican', 'Indian', 'Vietnamese'] },
-    { name: 'Vegan', icon: '/assets/icons8-vegan-50.png', cuisines: ['Salads', 'Smoothie Bowls', 'Vegan Burgers', 'Buddha Bowls', 'Vegan Pizza', 'Plant-Based'] },
-    { name: 'Dessert', icon: '/assets/icons8-dessert-50.png', cuisines: ['Cakes', 'Ice Cream', 'Pastries', 'Cookies', 'Brownies', 'Pudding'] },
-    { name: 'Drinks', icon: '/assets/icons8-drinks-50.png', cuisines: ['Coffee', 'Tea', 'Smoothies', 'Bubble Tea', 'Juice', 'Milkshakes'] }
+    { name: 'Meal', icon: '/assets/icons8-meal-50.png', cuisines: ['western', 'italian', 'chinese', 'malay', 'indian', 'japanese', 'korean'] },
   ];
+
+  // Load user's saved preferences on mount
+  useEffect(() => {
+    const loadUserPreferences = async () => {
+      try {
+
+        //api call
+
+        setTimeout(() => {
+          const preferences = {
+            rank1: 'italian',
+            rank2: 'japanese',
+            rank3: 'korean'
+          };
+          
+          setUserPreferences(preferences);
+          
+          setSelectedCuisines([
+            preferences.rank1,
+            preferences.rank2,
+            preferences.rank3
+          ]);
+          
+        }, 500);
+        
+      } catch (error) {
+        console.error('Error loading preferences:', error);
+      }
+    };
+
+    loadUserPreferences();
+  }, []);
+
+  // Get dynamic ranking based on position in selectedCuisines array
+  const getCuisineRank = (cuisine) => {
+    const index = selectedCuisines.indexOf(cuisine.toLowerCase());
+    if (index === -1) return null;
+    return index + 1;
+  };
 
   const getCurrentCuisines = () => {
     const foodType = foodTypes.find(ft => ft.name === selectedFoodType);
@@ -69,11 +110,56 @@ export default function SearchPage() {
     setSelectedCuisines([]);
   };
 
+  // Always maintain exactly 3 selections
   const toggleCuisine = (cuisine) => {
-    if (selectedCuisines.includes(cuisine)) {
-      setSelectedCuisines(selectedCuisines.filter(c => c !== cuisine));
+    const lowerCuisine = cuisine.toLowerCase();
+    
+    if (selectedCuisines.includes(lowerCuisine)) {
+      // Don't allow unselecting if it would go below 3
+      if (selectedCuisines.length <= 3) {
+        return;
+      }
     } else {
-      setSelectedCuisines([...selectedCuisines, cuisine]);
+      // Always add as #1 and drop the last one if needed
+      if (selectedCuisines.length >= 3) {
+        // Already 3 selected - replace the oldest (#3)
+        setSelectedCuisines([lowerCuisine, ...selectedCuisines.slice(0, 2)]);
+      } else {
+        // Less than 3 - just add to front
+        setSelectedCuisines([lowerCuisine, ...selectedCuisines]);
+      }
+    }
+  };
+
+  const handleConfirmChoice = async () => {
+    if (selectedCuisines.length !== 3) {
+      alert('Please select exactly 3 cuisines');
+      return;
+    }
+
+    try {
+      const preferencesData = {
+        rank1: selectedCuisines[0],
+        rank2: selectedCuisines[1],
+        rank3: selectedCuisines[2]
+      };
+
+      //api call
+      
+      console.log('Saving preferences:', preferencesData);
+      setTimeout(() => {
+        setUserPreferences({
+          rank1: preferencesData.rank1,
+          rank2: preferencesData.rank2,
+          rank3: preferencesData.rank3
+        });
+        
+        alert('Preferences saved successfully!');
+      }, 500);
+
+    } catch (error) {
+      console.error('Error saving preferences:', error);
+      alert('Failed to save preferences. Please try again.');
     }
   };
 
@@ -103,16 +189,25 @@ export default function SearchPage() {
                   </button>
                 ))}
               </div>
+
               <div className="cuisineTags">
-                {getCurrentCuisines().map((cuisine) => (
-                  <button
-                    key={cuisine}
-                    className={`cuisineTag ${selectedCuisines.includes(cuisine) ? 'selected' : ''}`}
-                    onClick={() => toggleCuisine(cuisine)}
-                  >
-                    {cuisine}
-                  </button>
-                ))}
+                {getCurrentCuisines().map((cuisine) => {
+                  const rank = getCuisineRank(cuisine);
+                  const isSelected = selectedCuisines.includes(cuisine.toLowerCase());
+                  
+                  return (
+                    <button
+                      key={cuisine}
+                      className={`cuisineTag ${isSelected ? 'selected' : ''}`}
+                      onClick={() => toggleCuisine(cuisine)}
+                    >
+                      <span>{cuisine}</span>
+                      {isSelected && rank && (
+                        <span className="rankBadge">#{rank}</span>
+                      )}
+                    </button>
+                  );
+                })}
               </div>
             </div>
 
@@ -134,6 +229,14 @@ export default function SearchPage() {
                 <span>$100 &gt;</span>
               </div>
             </div>
+
+            <button 
+              className="confirmBtn" 
+              onClick={handleConfirmChoice}
+              disabled={selectedCuisines.length !== 3}
+            >
+              Confirm Choice
+            </button>
           </div>
         </div>
 

@@ -10,7 +10,7 @@ import AccountPage from './pages/AccountPage';
 import SecurityPage from './pages/SecurityPage';
 import ChangePasswordPage from './pages/ChangePasswordPage';
 import DietaryPreferencesPage from './pages/DietaryPreferencesPage';
-import CuisinePreferencesPage from './pages/CuisinePreferencesPage';
+import PreferencesPage from './pages/PreferencesPage';
 import FoodHistoryPage from './pages/FoodHistoryPage';
 import FoodReviewPage from './pages/FoodReviewPage';
 import GroupsPage from './pages/GroupsPage';
@@ -19,6 +19,7 @@ import GroupDetailsPage from './pages/GroupDetailsPage';
 import InProgressPage from './pages/InProgressPage';
 import ResultsPage from './pages/ResultsPage';
 import VotingPage from './pages/VotingPage';
+import Faqpage from './pages/FaqPage';
 
 function App() {
   return (
@@ -33,7 +34,7 @@ function App() {
         <Route path="/account/security" element={<SecurityPage />} />
         <Route path="/account/security/change-password" element={<ChangePasswordPage />} />
         <Route path="/account/dietary" element={<DietaryPreferencesPage />} />
-        <Route path="/account/cuisine" element={<CuisinePreferencesPage />} />
+        <Route path="/account/preferences" element={<PreferencesPage />} />
         <Route path="/account/history" element={<FoodHistoryPage />} />
         <Route path="/account/review" element={<FoodReviewPage />} />
         <Route path="/groups" element={<GroupsPage />} />
@@ -42,6 +43,7 @@ function App() {
         <Route path="/foodball/in-progress" element={<InProgressPage />} />
         <Route path="/foodball/results" element={<ResultsPage />} />
         <Route path="/foodball/voting" element={<VotingPage />} />
+        <Route path="/FaqPage" element={<Faqpage />} />
       </Routes>
     </Router>
   );
