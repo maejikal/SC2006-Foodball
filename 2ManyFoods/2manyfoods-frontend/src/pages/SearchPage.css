@@ -91,6 +91,9 @@
 }
 
 .cuisineTag {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   padding: 0.6rem 1rem;
   border-radius: 25px;
   border: none;
@@ -100,6 +103,7 @@
   text-transform: capitalize;
   font-weight: 500;
   transition: all 0.2s;
+  gap: 0.5rem;
 }
 
 .cuisineTag.selected {
@@ -112,8 +116,33 @@
   color: #5a3a1a;
 }
 
-.cuisineTag:hover {
+.cuisineTag:hover:not(.disabled) {
   opacity: 0.9;
+}
+
+/* Disabled state for cuisines when 3 are selected */
+.cuisineTag.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.cuisineTag:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Rank Badge */
+.rankBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.3);
+  color: white;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 0.15rem 0.4rem;
+  border-radius: 10px;
+  margin-left: 0.3rem;
 }
 
 .priceSliderSection {
@@ -199,6 +228,7 @@
   gap: 2rem;
   max-height: 600px;
   overflow-y: auto;
+  width: 100%;
 }
 
 .restaurantCard {
@@ -277,3 +307,35 @@
 .restaurantList::-webkit-scrollbar-thumb:hover {
   background: rgba(255, 255, 255, 0.5);
 }
+
+.confirmBtn {
+  padding: 0.6rem 1.5rem;
+  background: #667eea;
+  color: white;
+  border: none;
+  border-radius: 20px;
+  font-family: 'Poppins', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+  margin-top: 1rem;
+  margin-left: auto;
+  margin-bottom: 1rem;
+  display: block;
+  width: fit-content;
+}
+
+.confirmBtn:hover:not(:disabled) {
+  background: #5568d3;
+  transform: translateY(-2px);
+}
+
+.confirmBtn:disabled {
+  background: #999;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+
+

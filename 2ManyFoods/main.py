@@ -1,8 +1,10 @@
 from flask import *
+from flask_cors import CORS
 from __init__ import *
 from db import *
 from models import *
 app = Flask(__name__)
+CORS(app)
 
 rec_cons = {}
 
@@ -26,10 +28,10 @@ async def join_group(groupID):
 
 @app.route('/foodball/<groupID>')
 async def generate_recommendation(groupID):
+    global rec_cons
     if groupID not in rec_cons.keys():
         location = request.args['location']
         radius = request.args['location']
-        global rec_cons
         group_rec = await group_collection.find_one({"groupID": groupID})
         users = {}
         for userID in group_rec.users:

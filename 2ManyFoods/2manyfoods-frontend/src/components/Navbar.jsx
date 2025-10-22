@@ -8,8 +8,7 @@ export default function Navbar() {
       <div className="logo">2manyfoods</div>
       <ul className="navLinks">
         <li><Link to="/foodball">foodball</Link></li>
-        <li><Link to="/contact">contact</Link></li>
-        <li><Link to="/faq">faq</Link></li>
+        <li><Link to="/FaqPage">faq & contact</Link></li>
         <li><Link to="/login">login</Link></li>
       </ul>
     </nav>

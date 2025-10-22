@@ -15,7 +15,7 @@ export default function AccountPage() {
   const settings = [
     { name: 'account & security', path: '/account/security' },
     { name: 'dietary preference', path: '/account/dietary' },
-    { name: 'cuisine preference', path: '/account/cuisine' },
+    { name: 'preferences', path: '/account/preferences' },
     { name: 'food history / foodprints', path: '/account/history' },
     { name: 'logout', path: '/'},
   ];

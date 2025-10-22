@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Navbar from '../components/AuthenticatedNavbar';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import './DietaryPreferencesPage.css';
 import halalIcon from '../assets/Icons/Halal.png';
 import vegetarianIcon from '../assets/Icons/Vegetarian.png';
@@ -12,6 +12,8 @@ import eggIcon from '../assets/Icons/egg.png';
 export default function DietaryPreferencesPage() {
   const navigate = useNavigate();
   const [selectedPreferences, setSelectedPreferences] = useState([]);
+  const location = useLocation();
+  const isOnboarding = location.state?.isOnboarding || false;
 
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -37,13 +39,21 @@ export default function DietaryPreferencesPage() {
 
   // load the existing preference
   useEffect(() => {
+    // Skip loading preferences if this is onboarding (new user)
+    if (isOnboarding) {
+      setIsLoading(false);
+      return;
+    }
+
+    // Load existing preferences for settings page
     const loadPreferences = async () => {
       setIsLoading(true);
       setError('');
 
       try {
-        
-        //api cai
+
+        // API call 
+
         setTimeout(() => {
           setSelectedPreferences(['Halal', 'Vegetarian']);
           setIsLoading(false);
@@ -57,7 +67,7 @@ export default function DietaryPreferencesPage() {
     };
 
     loadPreferences();
-  }, []);
+  }, [isOnboarding]);
 
   const togglePreference = (label) => {
     if (selectedPreferences.includes(label)) {
@@ -69,7 +79,6 @@ export default function DietaryPreferencesPage() {
     setError('');
   };
 
-  // saving to backend
   const handleSave = async () => {
     setError('');
     setSuccessMessage('');
@@ -78,16 +87,19 @@ export default function DietaryPreferencesPage() {
 
     try {
 
-      //api call
+      // API call 
 
       setTimeout(() => {
         setIsSaving(false);
-        setSuccessMessage('Dietary preferences saved successfully!');
         
-        // Navigate after 2 seconds
-        setTimeout(() => {
-          navigate('/account');
-        }, 2000);
+        if (isOnboarding) {
+          navigate('/account/preferences', { state: { isOnboarding: true } });
+        } else {
+          setSuccessMessage('Dietary preferences saved successfully!');
+          setTimeout(() => {
+            navigate('/account');
+          }, 2000);
+        }
       }, 1000);
 
     } catch (error) {
@@ -111,14 +123,24 @@ export default function DietaryPreferencesPage() {
     );
   }
 
+
   return (
     <div className="dietaryPage">
       <Navbar />
       <div className="dietaryContent">
-        <h1>Dietary Preferences</h1>
-        <p style={{ marginBottom: '1.5rem', color: '#666' }}>
-          Select your dietary restrictions and preferences
-        </p>
+        <h1>
+          {isOnboarding ? 'Set Your Dietary Preferences' : 'Dietary Preferences'}
+        </h1>
+        
+        {isOnboarding ? (
+          <p style={{ marginBottom: '1.5rem', color: '#666' }}>
+            Select any dietary restrictions or preferences (Step 1 of 2)
+          </p>
+        ) : (
+          <p style={{ marginBottom: '1.5rem', color: '#666' }}>
+            Select your dietary restrictions and preferences
+          </p>
+        )}
 
         {/* Error Message */}
         {error && (
@@ -159,7 +181,7 @@ export default function DietaryPreferencesPage() {
             <div key={option.id} className="dietaryOption">
               <div className="dietaryLabel">
                 <img
-                  src ={dietaryIcons[option.id]}
+                  src={dietaryIcons[option.id]}
                   alt={`${option.label} icon`}
                   className="dietaryIcon"
                 />
@@ -181,7 +203,7 @@ export default function DietaryPreferencesPage() {
           onClick={handleSave}
           disabled={isSaving}
         >
-          {isSaving ? 'Saving...' : 'Save Preferences'}
+          {isSaving ? 'Saving...' : (isOnboarding ? 'Continue' : 'Save Preferences')}
         </button>
       </div>
     </div>
