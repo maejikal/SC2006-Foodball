@@ -57,14 +57,13 @@ export default function LoginPage() {
     setIsLoading(true);
 
     try {
-    // API call to Flask backend
     const response = await fetch('http://localhost:8080/login', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        email: form.usernameOrEmail,  // Your backend expects 'email'
+        email: form.usernameOrEmail, 
         password: form.password
       })
     });
@@ -72,23 +71,17 @@ export default function LoginPage() {
     const data = await response.json();
 
     if (!response.ok) {
-      // Handle error response from backend
       throw new Error(data.error || 'Login failed');
     }
 
-    // Success - store token or user data if needed
     console.log('Login successful:', data);
 
-    // Store user ID and other info
     if (data.user_id) {
       localStorage.setItem('userId', data.user_id);
     }
     if (data.username) {
       localStorage.setItem('username', data.username);
     }
-    
-    // You might want to store the token or user info
-    // localStorage.setItem('token', data.token);
     
     navigate('/search');
 
