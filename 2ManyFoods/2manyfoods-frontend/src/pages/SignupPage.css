@@ -60,3 +60,37 @@ form .error {
   margin-top: -0.75rem;
   margin-bottom: -0.5rem;
 }
+
+.passwordInputWrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.passwordInputWrapper input {
+  padding-right: 3rem;
+}
+
+.togglePassword {
+  position: absolute;
+  right: 1rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  width: 24px;
+  height: 24px;
+  transition: opacity 0.2s;
+}
+
+.togglePassword:hover {
+  opacity: 0.8;
+}
+
+.togglePassword img {
+  width: 24px;
+  height: 24px;
+}

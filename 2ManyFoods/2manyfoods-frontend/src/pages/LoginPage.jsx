@@ -16,6 +16,7 @@ export default function LoginPage() {
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
   const [authError, setAuthError] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target; //get which field changed and it new value
@@ -124,7 +125,7 @@ export default function LoginPage() {
           <FormInput
             type="text"
             name="usernameOrEmail"
-            placeholder="email/username"
+            placeholder="email"
             value={form.usernameOrEmail}
             onChange={handleChange}
             required // make sure field is not empty
@@ -133,14 +134,26 @@ export default function LoginPage() {
             <div className="error">{errors.usernameOrEmail}</div>
           )}
 
-          <FormInput
-            type="password"
-            name="password"
-            placeholder="password"
-            value={form.password}
-            onChange={handleChange}
-            required // make sure field is not empty
-          />
+          <div className="passwordInputWrapper">
+            <FormInput
+              type={showPassword ? 'text' : 'password'}
+              name="password"
+              placeholder="password"
+              value={form.password}
+              onChange={handleChange}
+              required // make sure field is not empty
+            />
+            <button
+              type="button"
+              className="togglePassword"
+              onClick={() => setShowPassword(!showPassword)}
+            >
+              <img 
+                src={showPassword ? '/assets/icons8-eye-50.png' : '/assets/icons8-closed-eye-50.png'}
+                alt={showPassword ? 'Hide password' : 'Show password'}
+              />
+            </button>
+          </div>
           {errors.password && (
             <div className="error">{errors.password}</div>
           )}
@@ -159,7 +172,7 @@ export default function LoginPage() {
         </form>
 
         <p>
-          don’t have an account?{' '}
+          don't have an account?{' '}
           <a href="/signup">sign up</a>
         </p>
       </div>

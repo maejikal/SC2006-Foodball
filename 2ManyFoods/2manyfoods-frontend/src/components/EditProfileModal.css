@@ -4,144 +4,49 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.6);
+  background-color: rgba(0, 0, 0, 0.7);
   display: flex;
-  align-items: center;
   justify-content: center;
+  align-items: center;
   z-index: 1000;
-  font-family: 'Poppins', sans-serif;
 }
 
 .modalContent {
-  background: linear-gradient(135deg, #1a2332 0%, #2d3e52 100%);
-  border-radius: 20px;
+  background: #2d3e52;
+  border-radius: 16px;
   padding: 2rem;
-  max-width: 500px;
   width: 90%;
+  max-width: 450px;
   color: white;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+  font-family: 'Poppins', sans-serif;
 }
 
-.modalHeader {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+.modalContent h3 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+.modalBody {
   margin-bottom: 2rem;
 }
 
-.modalHeader h2 {
-  font-size: 1.5rem;
-  font-weight: 600;
-  margin: 0;
+.formGroup {
+  margin-bottom: 1.5rem;
 }
 
-.closeBtn {
-  background: none;
-  border: none;
-  color: white;
-  font-size: 1.5rem;
-  cursor: pointer;
-  padding: 0;
-  width: 30px;
-  height: 30px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: opacity 0.2s;
-}
-
-.closeBtn:hover {
-  opacity: 0.7;
-}
-
-.stepIndicator {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  margin-bottom: 2rem;
-}
-
-.step {
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.1);
-  border: 2px solid rgba(255, 255, 255, 0.3);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 600;
-  font-size: 0.9rem;
-  transition: all 0.3s;
-}
-
-.step.active {
-  background: #7b6bae;
-  border-color: #7b6bae;
-}
-
-.stepLine {
-  width: 30px;
-  height: 2px;
-  background: rgba(255, 255, 255, 0.2);
-  transition: all 0.3s;
-}
-
-.stepLine.active {
-  background: #7b6bae;
-}
-
-.stepContent {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-}
-
-.stepTitle {
-  font-size: 1.1rem;
-  font-weight: 600;
-  margin: 0;
-  text-align: center;
-}
-
-.stepSubtext {
-  font-size: 0.9rem;
-  color: #bbb;
-  text-align: center;
-  margin: 0;
-}
-
-.newValue {
-  font-size: 0.95rem;
-  color: #ddd;
-  text-align: center;
-  margin: 0;
-  padding: 1rem;
-  background: rgba(123, 107, 174, 0.2);
-  border-radius: 8px;
-}
-
-.newValue strong {
-  color: #7b6bae;
-}
-
-.successIcon {
-  width: 60px;
-  height: 60px;
-  border-radius: 50%;
-  background: #4caf50;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 2rem;
-  margin: 0 auto;
+.formGroup label {
+  display: block;
+  font-size: 1rem;
+  font-weight: 500;
+  margin-bottom: 0.5rem;
   color: white;
 }
 
-.modalInput {
+.formGroup input {
   width: 100%;
-  padding: 0.9rem 1rem;
+  padding: 0.9rem;
   border: none;
   border-radius: 8px;
   font-family: 'Poppins', sans-serif;
@@ -151,60 +56,47 @@
   box-sizing: border-box;
 }
 
-.modalInput::placeholder {
+.formGroup input::placeholder {
   color: #999;
 }
 
-.modalInput:focus {
-  outline: none;
-  box-shadow: 0 0 0 2px #7b6bae;
-}
-
-.errorText {
+.errorMessage {
   color: #ff6b6b;
-  font-size: 0.85rem;
-  margin: 0;
+  font-size: 0.875rem;
+  margin-top: 0.5rem;
+  text-align: center;
 }
 
-.modalBtn {
-  padding: 0.9rem 1.5rem;
+.modalActions {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+}
+
+.cancelBtn,
+.saveBtn {
+  padding: 0.75rem 1.5rem;
   border: none;
   border-radius: 8px;
   font-family: 'Poppins', sans-serif;
   font-size: 1rem;
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: opacity 0.2s;
+  flex: 0 0 auto;
 }
 
-.modalBtn.primary {
+.cancelBtn {
+  background: #666;
+  color: white;
+}
+
+.saveBtn {
   background: #7b6bae;
   color: white;
-  width: 100%;
 }
 
-.modalBtn.primary:hover:not(:disabled) {
+.cancelBtn:hover,
+.saveBtn:hover {
   opacity: 0.9;
-  transform: translateY(-2px);
-}
-
-.modalBtn.primary:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-.modalBtn.secondary {
-  background: rgba(255, 255, 255, 0.1);
-  color: white;
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  flex: 1;
-}
-
-.modalBtn.secondary:hover:not(:disabled) {
-  background: rgba(255, 255, 255, 0.2);
-}
-
-.modalActions {
-  display: flex;
-  gap: 1rem;
 }

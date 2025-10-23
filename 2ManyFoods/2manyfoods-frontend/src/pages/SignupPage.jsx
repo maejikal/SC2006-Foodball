@@ -18,6 +18,8 @@ export default function SignupPage() {
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
   const [authError, setAuthError] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -203,26 +205,50 @@ export default function SignupPage() {
             <div className="error">{errors.email}</div>
           )}
           
-          <FormInput
-            type="password" //make the field show **
-            name="password"
-            placeholder="password"
-            value={form.password}
-            onChange={handleChange}
-            required
-          />
+          <div className="passwordInputWrapper">
+            <FormInput
+              type={showPassword ? 'text' : 'password'} //make the field show **
+              name="password"
+              placeholder="password"
+              value={form.password}
+              onChange={handleChange}
+              required
+            />
+            <button
+              type="button"
+              className="togglePassword"
+              onClick={() => setShowPassword(!showPassword)}
+            >
+              <img 
+                src={showPassword ? '/assets/icons8-eye-50.png' : '/assets/icons8-closed-eye-50.png'}
+                alt={showPassword ? 'Hide password' : 'Show password'}
+              />
+            </button>
+          </div>
           {errors.password && (
             <div className="error">{errors.password}</div>
           )}
 
-          <FormInput
-            type="password"
-            name="confirmPassword"
-            placeholder="confirm password"
-            value={form.confirmPassword}
-            onChange={handleChange}
-            required
-          />
+          <div className="passwordInputWrapper">
+            <FormInput
+              type={showConfirmPassword ? 'text' : 'password'}
+              name="confirmPassword"
+              placeholder="confirm password"
+              value={form.confirmPassword}
+              onChange={handleChange}
+              required
+            />
+            <button
+              type="button"
+              className="togglePassword"
+              onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+            >
+              <img 
+                src={showConfirmPassword ? '/assets/icons8-eye-50.png' : '/assets/icons8-closed-eye-50.png'}
+                alt={showConfirmPassword ? 'Hide password' : 'Show password'}
+              />
+            </button>
+          </div>
           {errors.confirmPassword && (
             <div className="error">{errors.confirmPassword}</div>
           )}

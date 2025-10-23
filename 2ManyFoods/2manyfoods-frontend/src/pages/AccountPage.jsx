@@ -13,11 +13,11 @@ export default function AccountPage() {
   const [error, setError] = useState('');
 
   const settings = [
-    { name: 'account & security', path: '/account/security' },
-    { name: 'dietary preference', path: '/account/dietary' },
-    { name: 'preferences', path: '/account/preferences' },
-    { name: 'food history / foodprints', path: '/account/history' },
-    { name: 'logout', path: '/'},
+    { name: 'Account & Security', path: '/account/security' },
+    { name: 'Dietary Restrictions', path: '/account/dietary' },
+    { name: 'Preferences', path: '/account/preferences' },
+    { name: 'Food History / Foodprints', path: '/account/history' },
+    { name: 'Logout', path: '/'},
   ];
 
   //load the user data from backend
