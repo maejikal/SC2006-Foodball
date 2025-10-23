@@ -9,24 +9,24 @@ def update_user_profile(data, section):
     if not data:
         return jsonify({"error":"Missing or invalid JSON input"}), 400
     
-    user_id = ObjectId(data["user_id"])
+    username = data.get("username")
     try:
         match section:
             case "security":
                 if "username" in data:
-                    user_services.update_username(user_id, data["username"])
+                    user_services.update_username(username, data["username"])
                 if "email" in data:
-                    user_services.update_email(user_id, data["email"])
+                    user_services.update_email(username, data["email"])
                 if "password" in data:
-                    user_services.update_password(user_id, data["password"])
+                    user_services.update_password(username, data["password"])
                 if "profile_photo" in data:
-                    user_services.update_profile_photo(user_id, data["profile_photo"])
+                    user_services.update_profile_photo(username, data["profile_photo"])
             case "dietary":
                 if "dietary_preferences" in data:
-                    user_services.update_dietary_preferences(user_id, data["dietary_preferences"])
+                    user_services.update_dietary_preferences(username, data["dietary_preferences"])
             case "cuisine":
                 if "cuisine_preferences" in data:
-                    user_services.update_cuisine_preferences(user_id, data["cuisine_preferences"])
+                    user_services.update_cuisine_preferences(username, data["cuisine_preferences"])
     except Exception as e:
         return jsonify({"error":f"Failed to update field: {str(e)}"}), 500
     
