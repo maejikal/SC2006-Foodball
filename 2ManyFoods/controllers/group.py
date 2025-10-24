@@ -3,30 +3,33 @@ from services import group as group_services, user as user_services
 from flask import request, jsonify
 from bson.objectid import ObjectId 
 
-def handle_create_group(data: dict):
-    if not request.is_json:
-        return jsonify({"error":"Invalid or Missing JSON input"})
-    required_fields = ["GroupName"] # the rest can be blank
-    missing = [field for field in required_fields if field not in data]
-    if missing:
-        return jsonify({"error":f"Missing fields:{','.join(missing)}"}), 400
-    
-    user = data["Username"]
-    grp_name = data["GroupName"]
-    photo = data["photo"]
+def handle_create_group(data):
+    if not data:
+        return jsonify({"error": "Missing input"}), 400
+
+    owner = data.get("Username")
+    grp_name = data.get("GroupName")
+    photo = data.get("photo", "")
+
+    if not owner or not grp_name:
+        return jsonify({"error": "Username and GroupName required"}), 400
 
     try:
-        group = group_services.create_group(user, grp_name, photo)
-        group_id = group.inserted_id
-        user_services.join_group(user, group_id)
+        result = group_services.create_group(owner, grp_name, photo)
+        group_id = str(result.inserted_ids[0])
+        user_services.join_group(owner, group_id)
+
     except ValueError as e:
-        return jsonify({"error":str(e)}), 401
-    
+        return jsonify({"error": str(e)}), 400
+    except Exception as e:
+        return jsonify({"error": f"Unexpected error: {str(e)}"}), 500
+
     return jsonify({
-        "message":"Group created successfully.",
-        "group_id":str(group["grp_id"]),
-        "username":user # group leader/creator
-    }),200
+        "message": "Group created successfully.",
+        "group_id": group_id,
+        "username": owner
+    }), 200
+
 
 def handle_join_grp(data: dict, groupID: int=None): #dont quite know how to handle joining by link
 
@@ -63,3 +66,44 @@ def handle_leave_group(data: dict):
         return jsonify({"error": str(e)}), 500
     
     return jsonify({"message": f"User '{username}' successfully left group '{grp_id}'."}), 200
+
+def handle_get_user_groups(username):
+    if not username:
+        return jsonify({"error": "Username required"}), 400
+    try:
+        groups = group_services.get_user_groups(username)
+        return jsonify(groups), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+def handle_get_group_details(grp_id):
+    try:
+        group = group_services.get_grp_by_id(grp_id)
+        if not group:
+            return jsonify({"error": "Group not found"}), 404
+        
+        members = []
+        for username in group.get("users", []):
+            user = user_services.get_user_by_username(username)
+            if user:
+                prefs_dict = user.get("Preferences", {})
+                prefs_list = list(prefs_dict.values())
+                
+                members.append({
+                    "id": username,
+                    "name": user.get("name", user.get("Username", username)),
+                    "preferences": prefs_list,
+                    "avatar": user.get("ProfilePhoto", "")  
+                })
+        
+        return jsonify({
+            "id": str(group["_id"]),
+            "name": group["grp_name"],
+            "photo": group.get("photo", ""),
+            "members": members,
+            "owner": group.get("owner"),
+            "total_users": group.get("total_users", len(members))
+        }), 200
+    except Exception as e:
+        print(f"Error in handle_get_group_details: {str(e)}")
+        return jsonify({"error": str(e)}), 500

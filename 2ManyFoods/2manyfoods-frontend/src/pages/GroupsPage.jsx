@@ -8,18 +8,49 @@ export default function GroupsPage() {
   const navigate = useNavigate();
   const location = useLocation();
   const [yourGroups, setYourGroups] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  // Check if a new group was created and add it to the list
+  useEffect(() => {
+
+    async function fetchGroups() {
+      try {
+        const username = localStorage.getItem('username');
+        if (!username) {
+          console.error("Username not found in localStorage");
+          setLoading(false);
+          return;
+        }
+
+        const response = await fetch(`http://localhost:8080/api/groups/user/${username}`);
+        const data = await response.json();
+        if (response.ok) {
+          const mappedGroups = (data || []).map(g => ({
+        ...g,
+        picture: g.photo || "/assets/default-group.png" 
+    }));
+    setYourGroups(mappedGroups);
+        } else {
+          console.error("Failed to fetch groups:", data.error);
+        }
+      } catch (err) {
+        console.error("Error fetching groups:", err);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchGroups();
+  }, []);
+
   useEffect(() => {
     if (location.state?.newGroup) {
       const newGroup = location.state.newGroup;
-      setYourGroups((prevGroups) => {
-        // Check if group already exists to avoid duplicates
-        const exists = prevGroups.some(g => g.id === newGroup.id);
+      setYourGroups(prev => {
+        const exists = prev.some(g => g.id === newGroup.id);
         if (!exists) {
-          return [...prevGroups, newGroup];
+          return [...prev, newGroup];
         }
-        return prevGroups;
+        return prev;
       });
     }
   }, [location.state?.newGroup]);
@@ -37,15 +68,17 @@ export default function GroupsPage() {
 
         <div className="yourGroupsSection">
           <h2>your groups</h2>
-          {yourGroups.length === 0 ? (
-            <p>you are not in any group, create one to begin</p>
+          {loading ? (
+            <p style={{ color: 'white', fontSize: '1rem' }}>Loading groups...</p>
+          ) : yourGroups.length === 0 ? (
+            <p style={{ color: 'white', fontSize: '1rem' }}>you are not in any group, create one to begin</p>
           ) : (
             <div className="groupList">
               {yourGroups.map((group) => (
                 <GroupCard
                   key={group.id}
                   group={group}
-                  onClick={() => navigate('/groups/:groupId')}
+                  onClick={() => navigate(`/groups/${group.id}`)}
                 />
               ))}
             </div>

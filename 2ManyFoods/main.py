@@ -109,6 +109,19 @@ def get_cuisine(username):
 def get_account_info_route(username):
     return user_controller.get_account_info(username)
 
+@app.route('/api/groups/create', methods=['POST'])
+def create_group_route():
+    data = request.get_json()
+    return group_controller.handle_create_group(data)
+
+@app.route('/api/groups/user/<username>', methods=['GET'])
+def get_user_groups(username):
+    return group_controller.handle_get_user_groups(username)
+
+@app.route('/api/groups/<grp_id>', methods=['GET'])
+def get_group_details(grp_id):
+    return group_controller.handle_get_group_details(grp_id)
+
 
 
 if __name__ == "__main__":
