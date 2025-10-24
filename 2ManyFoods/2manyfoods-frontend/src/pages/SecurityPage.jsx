@@ -116,8 +116,48 @@ export default function SecurityPage() {
     setModalState({ isOpen: false, field: null });
   };
 
-  const handleSaveField = (field, newValue) => {
-    setUser({ ...user, [field]: newValue });
+  const handleSaveField = async (field, newValue) => {
+    const username = localStorage.getItem('username');
+    
+    if (!username) {
+      setError('Please log in to make changes');
+      return;
+    }
+
+    try {
+      const requestBody = { username }; 
+
+      if (field === 'name') {
+        requestBody.new_username = newValue;
+      } else if (field === 'email') {
+        requestBody.new_email = newValue;
+      }
+
+      const response = await fetch('http://localhost:8080/account/security', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(requestBody)
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || `Failed to update ${field}`);
+      }
+
+      setUser({ ...user, [field]: newValue });
+      
+      if (field === 'name') {
+        localStorage.setItem('username', newValue);
+      }
+
+      alert(`${field === 'name' ? 'Username' : 'Email'} updated successfully!`);
+
+      closeModal();
+
+    } catch (error) {
+      alert(error.message || `Failed to update ${field}. Please try again.`);
+    }
   };
 
   // Loading state

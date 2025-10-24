@@ -85,14 +85,40 @@ def leave_group(username:str, group_id:int):
 
 
 def update_username(username: str, new_username:str):
+
+    existing_user = get_user_by_username(new_username)
+    
+    if existing_user and existing_user.get("Username") != username:
+        raise ValueError("Username already taken")
+    
+    if new_username == username:
+        return True
+
     return run(updatedb(COL, "Username", username, "Username", new_username))
     #return user_collection.update_one({"_id":user_id}, {'$set':{"Username":new_username}})
 
 def update_email(username: str, new_email:str):
+
+    if get_user_by_email(new_email):
+        raise ValueError("Email already registered")
+
     return run(updatedb(COL, "Username", username, "Email", new_email))
     #return user_collection.update_one({"_id":user_id}, {'$set':{"Email":new_email}})
 
-def update_password(username: str, new_password:str):
+def update_password(username: str, new_password:str, current_password: str = None):
+    if current_password:
+        user = get_user_by_username(username)
+        
+        if not user:
+            raise ValueError("User not found")
+        
+        from utils.security import verify_password
+        if not verify_password(current_password, user.get("Password")):
+            raise ValueError("Current password is incorrect")
+    
+    from utils.security import hash_password
+    hashed_password = hash_password(new_password)
+
     return run(updatedb(COL, "Username", username, "Password", hash_password(new_password)))
     #return user_collection.update_one({"_id":user_id}, {'$set':{"Password":hashed_password}}) 
 

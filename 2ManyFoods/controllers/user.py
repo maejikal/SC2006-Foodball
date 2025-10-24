@@ -13,12 +13,12 @@ def update_user_profile(data, section):
     try:
         match section:
             case "security":
-                if "username" in data:
-                    user_services.update_username(username, data["username"])
-                if "email" in data:
-                    user_services.update_email(username, data["email"])
+                if "new_username" in data:
+                    user_services.update_username(username, data["new_username"])
+                if "new_email" in data:
+                    user_services.update_email(username, data["new_email"])
                 if "password" in data:
-                    user_services.update_password(username, data["password"])
+                    user_services.update_password(username, data["password"], data.get("current_password"))
                 if "profile_photo" in data:
                     user_services.update_profile_photo(username, data["profile_photo"])
             case "dietary":

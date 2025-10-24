@@ -81,7 +81,7 @@ export default function ChangePasswordPage() {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setErrorMessage('');
     setSuccessMessage('');
@@ -92,28 +92,50 @@ export default function ChangePasswordPage() {
 
     setIsLoading(true);
     
-    try{
+    const username = localStorage.getItem('username');
+    
+    if (!username) {
+      setErrorMessage('Please log in to change password');
+      setIsLoading(false);
+      return;
+    }
 
-      //api call here
+    try {
+      const response = await fetch('http://localhost:8080/account/security', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          username: username,
+          current_password: currentPassword,  
+          password: newPassword          
+        })
+      });
 
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to change password');
+      }
+
+      setIsLoading(false);
+      setSuccessMessage('Password changed successfully!');
+      
+      // Clear form
+      setCurrentPassword('');
+      setNewPassword('');
+      setConfirmPassword('');
+      
+      // Redirect to account page
       setTimeout(() => {
-        setIsLoading(false);
-        setSuccessMessage('Password changed successfully!');
-        
-        setCurrentPassword('');
-        setNewPassword('');
-        setConfirmPassword('');
-        
-        setTimeout(() => {
-          navigate('/account');
-        }, 2000);
-      }, 1000);
+        navigate('/security');
+      }, 2000);
 
     } catch (error) {
-      setErrorMessage('An error occurred. Please try again.');
+      setErrorMessage(error.message || 'An error occurred. Please try again.');
       setIsLoading(false);
     }
-    
   };
 
   return (

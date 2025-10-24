@@ -10,13 +10,13 @@ export default function EditProfileModal({ isOpen, onClose, field, currentValue,
 
   useEffect(() => {
     if (isOpen) {
-      setNewValue('');
+      setNewValue(currentValue || '');
       setConfirmValue('');
       setVerificationCode('');
       setShowVerification(false);
       setError('');
     }
-  }, [isOpen]);
+  }, [isOpen, currentValue]);
 
   if (!isOpen) return null;
 
@@ -31,6 +31,11 @@ export default function EditProfileModal({ isOpen, onClose, field, currentValue,
 
     if (newValue !== confirmValue) {
       setError(`${field === 'name' ? 'Names' : 'Emails'} do not match`);
+      return;
+    }
+
+    if (newValue === currentValue) {
+      setError('New value must be different from current value');
       return;
     }
 
@@ -64,8 +69,6 @@ export default function EditProfileModal({ isOpen, onClose, field, currentValue,
       return;
     }
 
-    // Here you would verify the code with your backend
-    // For now, we'll just simulate success
     onSave(field, newValue);
     onClose();
   };
@@ -82,6 +85,11 @@ export default function EditProfileModal({ isOpen, onClose, field, currentValue,
         {!showVerification ? (
           <>
             <div className="modalBody">
+              {/* ✓ NEW: Show current value */}
+              <div style={{ marginBottom: '1rem', color: '#999', fontSize: '0.9rem' }}>
+                Current {getFieldLabel()}: <strong style={{ color: '#ddd' }}>{currentValue}</strong>
+              </div>
+
               <div className="formGroup">
                 <label>New {getFieldLabel()}</label>
                 <input
