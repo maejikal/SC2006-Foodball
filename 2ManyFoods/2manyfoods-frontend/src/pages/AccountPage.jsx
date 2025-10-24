@@ -26,29 +26,49 @@ export default function AccountPage() {
       setIsLoading(true);
       setError('');
 
+      const username = localStorage.getItem('username');
+
+      if (!username) {
+        setError('Please log in to view your account');
+        navigate('/login');
+        return;
+      }
+
       try {
         
-        //Api call
+        const response = await fetch(
+          `http://localhost:8080/account/info/${username}`,
+          {
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json',
+            }
+          }
+        );
 
-        setTimeout(() => {
-          setUser({
-            name: 'harry potter',
-            email: 'harrypotter@gmail.com',
-            avatar: '/assets/icons8-crab-50.png',
-            username: 'harrypotter123'
-          });
-          setIsLoading(false);
-        }, 800);
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.error || 'Failed to load account data');
+        }
+
+        setUser({
+          name: data.username,
+          email: data.email,
+          avatar: data.profilePhoto || '/assets/icons8-crab-50.png', // Default avatar
+          username: data.username
+        });
+        setIsLoading(false);
 
       } catch (error) {
-        console.error('Error loading user data:', error);
-        setError('Network error. Please try again.');
+        setError('Failed to load account. Please try again.');
         setIsLoading(false);
       }
     };
 
     loadUserData();
   }, [navigate]);
+  
 
   // Show loading message
   if (isLoading) {

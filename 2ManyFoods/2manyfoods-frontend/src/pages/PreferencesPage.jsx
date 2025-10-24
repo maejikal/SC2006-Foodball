@@ -35,20 +35,41 @@ export default function PreferencesPage() {
       setIsLoading(true);
       setError('');
 
+      const username = localStorage.getItem('username');
+    
+      if (!username) {
+        setError('Please log in to view preferences');
+        setIsLoading(false);
+        return;
+      }
+
       try {
+        const response = await fetch(`http://localhost:8080/account/cuisine/${username}`,
+          {
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json',
+            }
+          }
+        );
 
-        // API call
+        const data = await response.json();
 
-        setTimeout(() => {
-          setRank1('italian');
-          setRank2('japanese');
-          setRank3('korean');
-          setBudget(50);
-          setIsLoading(false);
-        }, 800);
+        if (!response.ok) {
+          throw new Error(data.error || 'Failed to load preferences');
+        }
+
+        // Load cuisine preferences
+        const prefs = data.preferences || {};
+        setRank1(prefs.rank1 || '');
+        setRank2(prefs.rank2 || '');
+        setRank3(prefs.rank3 || '');
+        
+        setBudget(data.budget || 50);
+        
+        setIsLoading(false);
 
       } catch (error) {
-        console.error('Error loading preferences:', error);
         setError('Failed to load preferences. Please try again.');
         setIsLoading(false);
       }
@@ -67,14 +88,12 @@ export default function PreferencesPage() {
   };
 
   const handleSave = async () => {
-    const userId = localStorage.getItem('userId');
+    const username = localStorage.getItem('username');
     
-    console.log('User ID from localStorage:', userId);
-    
-    if (!userId) {
-      setError('User ID not found. Please sign up or log in again.');
-      return;
-    }
+    if (!username) {
+    setError('Username not found. Please sign up or log in again.');
+    return;
+  }
 
     setError('');
     setSuccessMessage('');
@@ -86,8 +105,8 @@ export default function PreferencesPage() {
     setIsSaving(true);
 
     const requestBody = {
-      user_id: userId, 
-      preferences: {
+      username: username, 
+      cuisine_preferences: {
         rank1: rank1,
         rank2: rank2,
         rank3: rank3

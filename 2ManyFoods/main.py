@@ -97,5 +97,19 @@ def update_dietary():
 def update_cuisine():
     return user_controller.update_user_profile(request.get_json(), section='cuisine')
 
+@app.route('/account/dietary/<username>', methods=['GET'])
+def get_dietary(username):
+    return user_controller.get_dietary_preferences(username)
+
+@app.route('/account/cuisine/<username>', methods=['GET'])
+def get_cuisine(username):
+    return user_controller.get_cuisine_preferences(username)
+
+@app.route('/account/info/<username>', methods=['GET'])
+def get_account_info_route(username):
+    return user_controller.get_account_info(username)
+
+
+
 if __name__ == "__main__":
     app.run(port=8080, debug=True)

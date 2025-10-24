@@ -52,11 +52,11 @@ async def searchdb(collection: str,field: str, data: str):
     result = await coll.find_one({field:data})
     return result
 
-async def updatedb(collection: str, identifierfield: str, identifier: str, field: str, data: str):
+async def updatedb(collection: str, identifierfield: str, identifier: str, field: str, data):
     client = pymongo.AsyncMongoClient('127.0.0.1', 27017) 
     db = client["2ManyFoods_db"]
     coll = db[collection]
-    result = await coll.update_one({identifierfield:identifier},{field:data})
+    result = await coll.update_one({identifierfield:identifier},{'$set': {field: data}})
     return result
 
 

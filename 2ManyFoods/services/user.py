@@ -15,7 +15,11 @@ def create_user(username:str, password:str, email:str):
     if run(searchdb(COL, "Email", email)):
         print("This email has already been registered.")
         raise ValueError("This email has already been registered.")
-        #return None
+        
+    if run(searchdb(COL, "Username", username)):
+        print("This username is already taken.")
+        raise ValueError("This username is already taken.")
+    
     hashed_password = hash_password(password)
 
     user_doc = {
@@ -103,4 +107,8 @@ def update_dietary_preferences(username: str, new_diet_pref:dict):
 def update_cuisine_preferences(username: str, new_preferences:dict):
     return run(updatedb(COL, "Username", username, "Preferences", new_preferences))
     #return user_collection.update_one({"_id":user_id}, {'$set':{"Preferences":new_preferences}})
+
+def update_budget(username: str, new_budget: float):
+    return run(updatedb(COL, "Username", username, "Budget", new_budget))
+
     

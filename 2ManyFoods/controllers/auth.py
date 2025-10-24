@@ -19,8 +19,6 @@ def signup(data):
 
         if result is None:
             return jsonify({"error":"Email already registered"}), 400
-        
-        user_id = str(result.inserted_ids[0])
 
     except ValueError as ve:
         return jsonify({"error":str(ve)}), 400
@@ -30,7 +28,6 @@ def signup(data):
     return jsonify({
         "message":"Signup successful.",
         "username": username,
-        "user_id": user_id
     }), 201
 
 def login(data):
@@ -56,7 +53,6 @@ def login(data):
     
     return jsonify({
         "message":"Login successful.",
-        "user_id":str(user["_id"]),
         "username":user["Username"]
     }),200
     

@@ -50,7 +50,8 @@ export default function SearchPage() {
   const [selectedCuisines, setSelectedCuisines] = useState([]);
   const [priceRange, setPriceRange] = useState(50);
   const [searchQuery, setSearchQuery] = useState('');
-  
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
   const [userPreferences, setUserPreferences] = useState({
     rank1: '',
     rank2: '',
@@ -64,29 +65,58 @@ export default function SearchPage() {
   // Load user's saved preferences on mount
   useEffect(() => {
     const loadUserPreferences = async () => {
+      setIsLoading(true);
+
+      const username = localStorage.getItem('username');
+
+      if (!username) {
+        console.error('No username found');
+        setIsLoading(false);
+        return;
+      }
+
       try {
+        const response = await fetch(
+          `http://localhost:8080/account/cuisine/${username}`,
+          {
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json',
+            }
+          }
+        );
 
-        //api call
+        const data = await response.json();
 
-        setTimeout(() => {
-          const preferences = {
-            rank1: 'italian',
-            rank2: 'japanese',
-            rank3: 'korean'
-          };
-          
-          setUserPreferences(preferences);
-          
-          setSelectedCuisines([
-            preferences.rank1,
-            preferences.rank2,
-            preferences.rank3
-          ]);
-          
-        }, 500);
+        if (!response.ok) {
+          throw new Error(data.error || 'Failed to load preferences');
+        }
+
+        const prefs = data.preferences || {};
+        
+        setUserPreferences({
+          rank1: prefs.rank1 || '',
+          rank2: prefs.rank2 || '',
+          rank3: prefs.rank3 || ''
+        });
+        
+        const savedCuisines = [
+          prefs.rank1,
+          prefs.rank2,
+          prefs.rank3
+        ].filter(c => c); // Remove empty values
+        
+        setSelectedCuisines(savedCuisines);
+        
+        if (data.budget) {
+          setPriceRange(data.budget);
+        }
+        
+        setIsLoading(false);
         
       } catch (error) {
         console.error('Error loading preferences:', error);
+        setIsLoading(false);
       }
     };
 
@@ -132,36 +162,69 @@ export default function SearchPage() {
   };
 
   const handleConfirmChoice = async () => {
-    if (selectedCuisines.length !== 3) {
-      alert('Please select exactly 3 cuisines');
+    
+    const username = localStorage.getItem('username');
+    
+    if (!username) {
+      alert('Please log in to save preferences');
       return;
     }
 
+    setIsSaving(true);
+
     try {
-      const preferencesData = {
+      const requestBody = {
+        username: username,
+        preferences: {
+          rank1: selectedCuisines[0],
+          rank2: selectedCuisines[1],
+          rank3: selectedCuisines[2]
+        },
+        budget: priceRange
+      };
+
+      const response = await fetch('http://localhost:8080/account/cuisine', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(requestBody)
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to save preferences');
+      }
+
+      setUserPreferences({
         rank1: selectedCuisines[0],
         rank2: selectedCuisines[1],
         rank3: selectedCuisines[2]
-      };
-
-      //api call
+      });
       
-      console.log('Saving preferences:', preferencesData);
-      setTimeout(() => {
-        setUserPreferences({
-          rank1: preferencesData.rank1,
-          rank2: preferencesData.rank2,
-          rank3: preferencesData.rank3
-        });
-        
-        alert('Preferences saved successfully!');
-      }, 500);
+      setIsSaving(false);
+      alert('Preferences saved successfully!');
 
     } catch (error) {
       console.error('Error saving preferences:', error);
       alert('Failed to save preferences. Please try again.');
+      setIsSaving(false);
     }
   };
+
+  if (isLoading) {
+    return (
+      <div className="searchPage">
+        <Navbar />
+        <div className="searchContent">
+          <p style={{ textAlign: 'center', marginTop: '2rem' }}>
+            Loading your preferences...
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="searchPage">
@@ -233,9 +296,9 @@ export default function SearchPage() {
             <button 
               className="confirmBtn" 
               onClick={handleConfirmChoice}
-              disabled={selectedCuisines.length !== 3}
+              disabled={selectedCuisines.length !== 3 || isSaving}
             >
-              Confirm Choice
+              {isSaving ? 'Saving...' : 'Confirm Choice'}
             </button>
           </div>
         </div>

@@ -50,17 +50,43 @@ export default function DietaryPreferencesPage() {
       setIsLoading(true);
       setError('');
 
+      const username = localStorage.getItem('username');
+
+      if (!username) {
+        setError('Please log in to view preferences');
+        setIsLoading(false);
+        return;
+      }
+
       try {
+        
+        const response = await fetch(`http://localhost:8080/account/dietary/${username}`, 
+          {
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json',
+            }
+          }
+        );
 
-        // API call 
+        const data = await response.json();
 
-        setTimeout(() => {
-          setSelectedPreferences(['Halal', 'Vegetarian']);
-          setIsLoading(false);
-        }, 800);
+        if (!response.ok) {
+          throw new Error(data.error || 'Failed to load preferences');
+        }
+
+        // Convert dict back to array for display
+        // Backend sends: {Halal: true, Vegetarian: true}
+        // Frontend needs: ['Halal', 'Vegetarian']
+        const dietaryDict = data.dietaryRequirements || {};
+        const preferencesArray = Object.keys(dietaryDict).filter(
+          key => dietaryDict[key]
+        );
+        
+        setSelectedPreferences(preferencesArray);
+        setIsLoading(false);
 
       } catch (error) {
-        console.error('Error loading dietary preferences:', error);
         setError('Failed to load preferences. Please try again.');
         setIsLoading(false);
       }
@@ -80,20 +106,25 @@ export default function DietaryPreferencesPage() {
   };
 
   const handleSave = async () => {
-    const userId = localStorage.getItem('userId');  
+    const username = localStorage.getItem('username');  
     
-    if (!userId) {
-      setError('User ID not found. Please sign up or log in again.');
-      return;
-    }
+    if (!username) {
+    setError('Username not found. Please sign up or log in again.'); 
+    return;
+  }
 
     setError('');
     setSuccessMessage('');
     setIsSaving(true);
 
+    const dietaryDict = selectedPreferences.reduce((acc, pref) => {
+      acc[pref] = true;
+      return acc;
+    }, {});
+
     const requestBody = {
-      user_id: userId,  
-      dietaryRequirements: selectedPreferences
+      username: username,  
+      dietary_requirements: dietaryDict
     };
 
     try {
