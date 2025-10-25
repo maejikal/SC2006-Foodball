@@ -4,11 +4,17 @@ import Navbar from '../components/AuthenticatedNavbar';
 import GroupCard from '../components/GroupCard';
 import './GroupsPage.css';
 
+
 export default function GroupsPage() {
   const navigate = useNavigate();
   const location = useLocation();
   const [yourGroups, setYourGroups] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [showJoinModal, setShowJoinModal] = useState(false);
+  const [inviteCode, setInviteCode] = useState('');
+  const [joinError, setJoinError] = useState('');
+  const [joining, setJoining] = useState(false);
+
 
   useEffect(() => {
     async function fetchGroups() {
@@ -22,11 +28,10 @@ export default function GroupsPage() {
 
         const response = await fetch(`http://localhost:8080/api/groups/user/${username}`);
         const data = await response.json();
-
         if (response.ok) {
           const mappedGroups = (data || []).map(g => ({
             ...g,
-            picture: g.photo || "/assets/default-group.png"
+            picture: g.photo
           }));
           setYourGroups(mappedGroups);
         } else {
@@ -38,8 +43,10 @@ export default function GroupsPage() {
         setLoading(false);
       }
     }
+
     fetchGroups();
   }, []);
+
 
   useEffect(() => {
     if (location.state?.newGroup) {
@@ -54,57 +61,122 @@ export default function GroupsPage() {
     }
   }, [location.state?.newGroup]);
 
-  // Handler for when a group card is clicked
-  const handleGroupClick = (group) => {
-    navigate(`/groups/${group.id}`, {
-      state: {
-        groupName: group.name,
-        groupPic: group.picture || group.photo
+
+  const handleJoinGroup = async () => {
+    if (!inviteCode.trim()) {
+      setJoinError('Please enter an invite code');
+      return;
+    }
+
+    setJoining(true);
+    setJoinError('');
+
+    try {
+      const username = localStorage.getItem('username');
+      const response = await fetch(`http://localhost:8080/api/groups/join`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          inviteCode: inviteCode.trim(),
+          username: username 
+        })
+      });
+
+      const data = await response.json();
+      
+      if (response.ok) {
+        const joinedGroup = {
+          ...data.group,
+          picture: data.group.photo
+        };
+        setYourGroups(prev => [...prev, joinedGroup]);
+        
+        setShowJoinModal(false);
+        setInviteCode('');
+        setJoinError('');
+      } else {
+        setJoinError(data.error || 'Failed to join group');
       }
-    });
+    } catch (err) {
+      console.error("Error joining group:", err);
+      setJoinError('An error occurred. Please try again.');
+    } finally {
+      setJoining(false);
+    }
   };
+
 
   return (
     <div className="groupsPage">
       <Navbar />
-
       <div className="groupsContent">
-        <h1>Groups</h1>
+        <h1>groups</h1>
+        <p>view and manage your groups</p>
         
-        <p>
-          {yourGroups.length === 0 
-            ? "You are not in any group, create one to begin" 
-            : "View and manage your groups"}
-        </p>
-
-        {/* Create Group Button */}
         <div className="createGroupBtn">
-          <button onClick={() => navigate('/groups/create')}>
-            + create group
-          </button>
+          <button onClick={() => navigate('/groups/create')}>+ create group</button>
+          <button onClick={() => setShowJoinModal(true)}>+ join group</button>
         </div>
 
-        {/* Single Groups Section */}
-        <div className="groupsSection">
+        <div className="yourGroupsSection">
+          <h2>your groups</h2>
           {loading ? (
-            <p>Loading groups...</p>
+            <p style={{ color: 'white', fontSize: '1rem' }}>Loading groups...</p>
           ) : yourGroups.length === 0 ? (
-            <div className="emptyState">
-              <p>No groups yet. Create your first group to get started!</p>
-            </div>
+            <p style={{ color: 'white', fontSize: '1rem' }}>you are not in any group, create one to begin</p>
           ) : (
             <div className="groupList">
               {yourGroups.map((group) => (
-                <GroupCard 
-                  key={group.id} 
-                  group={group} 
-                  onClick={() => handleGroupClick(group)}
+                <GroupCard
+                  key={group.id}
+                  group={group}
+                  onClick={() => navigate(`/groups/${group.id}`)}
                 />
               ))}
             </div>
           )}
         </div>
       </div>
+
+      {/* Join Group Modal */}
+      {showJoinModal && (
+        <div className="modalOverlay" onClick={() => setShowJoinModal(false)}>
+          <div className="modalContent" onClick={(e) => e.stopPropagation()}>
+            <h2>join group</h2>
+            <p>enter the invite code to join a group</p>
+            
+            <input
+              type="text"
+              placeholder="enter invite code"
+              value={inviteCode}
+              onChange={(e) => setInviteCode(e.target.value)}
+              className="inviteCodeInput"
+            />
+            
+            {joinError && <p className="errorMessage">{joinError}</p>}
+            
+            <div className="modalActions">
+              <button 
+                onClick={() => {
+                  setShowJoinModal(false);
+                  setInviteCode('');
+                  setJoinError('');
+                }}
+                className="cancelBtn"
+              >
+                cancel
+              </button>
+              <button 
+                onClick={handleJoinGroup}
+                disabled={joining}
+                className="joinBtn"
+              >
+                {joining ? 'joining...' : 'join'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
