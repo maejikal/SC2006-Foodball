@@ -53,7 +53,7 @@ export default function CreateGroupPage() {
     return true;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
 
@@ -64,28 +64,37 @@ export default function CreateGroupPage() {
     setIsCreating(true);
 
     try {
-      
-      // Api Call
+      const response = await fetch('http://localhost:8080/api/groups/create', { 
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          Username: localStorage.getItem('username'), 
+          GroupName: groupName,
+          photo: groupPic || ''
+        })
+      });
 
-      setTimeout(() => {
-        setIsCreating(false);
-        // Navigate to groups page with the new group data
-        navigate('/groups', {
-          state: { 
-            message: 'Group created successfully!',
-            newGroup: {
-              id: Date.now(), // Generate a unique group ID (in real app, this would come from backend)
-              name: groupName.trim(),
-              membersText: 'you',
-              picture: groupPic
-            }
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || 'Failed to create group');
+      }
+
+      navigate('/groups', {
+        state: {
+          message: result.message,
+          newGroup: {
+            id: result.group_id,
+            name: groupName.trim(),
+            membersText: 'you',
+            picture: groupPic
           }
-        });
-      }, 1000);
-
-    } catch (error) {
-      console.error('Error creating group:', error);
-      setError('Network error. Please try again.');
+        }
+      });
+    } catch (err) {
+      console.error('Error creating group:', err);
+      setError(err.message || 'Network error. Please try again.');
+    } finally {
       setIsCreating(false);
     }
   };

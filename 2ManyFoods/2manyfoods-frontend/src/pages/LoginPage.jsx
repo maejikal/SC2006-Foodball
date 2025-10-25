@@ -77,9 +77,6 @@ export default function LoginPage() {
 
     console.log('Login successful:', data);
 
-    if (data.user_id) {
-      localStorage.setItem('userId', data.user_id);
-    }
     if (data.username) {
       localStorage.setItem('username', data.username);
     }

@@ -52,18 +52,20 @@
 
 .passwordInputWrapper {
   position: relative;
-  display: flex;
-  align-items: center;
+  width: 100%;
   margin-bottom: 0.5rem;
 }
 
 .passwordInputWrapper input {
+  width: 100%; 
   padding-right: 3rem;
+  margin-bottom: 0;
 }
 
 .togglePassword {
   position: absolute;
-  right: 1rem;
+  right: 0.75rem;
+  top: 13px;
   background: none;
   border: none;
   cursor: pointer;
@@ -81,8 +83,9 @@
 }
 
 .togglePassword img {
-  width: 24px;
-  height: 24px;
+  width: 20px;
+  height: 20px;
+  display: block;
 }
 
 .forgotLink {

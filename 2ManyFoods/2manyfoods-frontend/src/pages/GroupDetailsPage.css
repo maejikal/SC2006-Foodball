@@ -150,6 +150,17 @@
   text-transform: lowercase;
 }
 
+.leaderBadge {
+  background-color: #FFD700;
+  color: black;
+  font-size: 0.7rem;
+  font-weight: bold;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  margin-left: 0.5rem;
+}
+
+
 /* Back to Groups button */
 .backToGroupsBtn {
   background: transparent;

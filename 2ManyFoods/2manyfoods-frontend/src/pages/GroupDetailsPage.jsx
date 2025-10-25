@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useParams, useLocation } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import Navbar from '../components/AuthenticatedNavbar';
 import './GroupDetailsPage.css';
 
@@ -8,22 +8,49 @@ export default function GroupDetailsPage() {
   const { groupId } = useParams();
   const location = useLocation();
 
-  const initialGroupName = location.state?.groupName || 'Supper';
+  const initialGroupName = location.state?.groupName || 'supper';
   const initialGroupPic = location.state?.groupPic;
 
-  const [group] = useState({
-    id: groupId,
-    name: initialGroupName,
-    membersCount: 4,
-    maxMembers: 20,
-  });
-
+  const [group, setGroup] = useState(null);
+  const [members, setMembers] = useState([]);
   const [inviteCode, setInviteCode] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
-  // TODO: Replace with actual user session data
-  const currentUserId = 1; // Mock current user ID - change here to see leader or user page
-  const groupLeaderId = 4; // Mock leader ID (first member or creator)
+  const currentUserId = localStorage.getItem('userId');
 
+  // Fetch group data
+  useEffect(() => {
+    async function fetchGroup() {
+      setLoading(true);
+      setError('');
+      try {
+        const response = await fetch(`http://localhost:8080/api/groups/${groupId}`);
+        const data = await response.json();
+        if (response.ok) {
+          setGroup({
+            id: data.id,
+            name: data.name,
+            membersCount: data.total_users,
+            maxMembers: 20,
+            photo: data.photo,
+            leaderId: data.owner
+          });
+          setMembers(data.members);
+        } else {
+          setError(data.error || 'Failed to fetch group.');
+        }
+      } catch (err) {
+        setError('Error fetching group data.');
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchGroup();
+  }, [groupId]);
+
+  // Generate mock invite code
   useEffect(() => {
     const generateMockCode = () => {
       const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
@@ -33,86 +60,30 @@ export default function GroupDetailsPage() {
       }
       return code;
     };
-    
     setInviteCode(generateMockCode());
   }, [groupId]);
 
-  const [members] = useState([
-    { 
-      id: 1, 
-      name: 'Jessica', 
-      preferences: 'likes italian, seafood, mala', 
-      avatar: '/assets/icons8-rabbit-50.png' 
-    },
-    { 
-      id: 2, 
-      name: 'Daniel', 
-      preferences: 'likes thai, seafood, mala', 
-      avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Daniel&backgroundColor=e0d5d5' 
-    },
-    { 
-      id: 3, 
-      name: 'Draco', 
-      preferences: 'likes chinese, chicken rice', 
-      avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Draco&backgroundColor=ffd6cc' 
-    },
-    { 
-      id: 4, 
-      name: 'You', 
-      preferences: 'likes chinese, chicken rice', 
-      avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=You&backgroundColor=ffd6cc' 
-    }
-  ]);
-
   const handleCopyInviteLink = () => {
-    const inviteLink = `${window.location.origin}/groups/invite/${groupId}`;
-    navigator.clipboard.writeText(inviteLink).then(() => {
-      alert('Invite link copied to clipboard!');
-    }).catch(err => {
-      console.error('Failed to copy:', err);
-    });
+    navigator.clipboard.writeText(`${window.location.origin}/groups/invite/${groupId}`)
+      .then(() => alert('Invite link copied to clipboard!'));
   };
 
   const handleCopyInviteCode = () => {
-    navigator.clipboard.writeText(inviteCode).then(() => {
-      alert('Invite code copied to clipboard!');
-    }).catch(err => {
-      console.error('Failed to copy:', err);
-    });
+    navigator.clipboard.writeText(inviteCode)
+      .then(() => alert('Invite code copied to clipboard!'));
   };
 
   const handleStartFoodball = () => {
-    // Check if current user is the leader
-    const isLeader = currentUserId === groupLeaderId;
-
-    if (isLeader) {
-      // Leader goes to location selection page
-      navigate('/foodball/select-location', { 
-        state: { 
-          groupName: group.name, 
-          groupId: group.id 
-        } 
-      });
-    } else {
-      // Other members go to waiting page
-      navigate('/foodball/waiting', { 
-        state: { 
-          groupName: group.name, 
-          groupId: group.id 
-        } 
-      });
-    }
+    if (!group) return;
+    const isLeader = currentUserId === group.leaderId;
+    navigate(isLeader ? '/foodball/select-location' : '/foodball/waiting', 
+      { state: { groupName: group.name, groupId: group.id } }
+    );
   };
 
   const handleBackToGroups = () => {
-    navigate('/groups', { 
-      state: { 
-        newGroup: { 
-          id: group.id, 
-          name: group.name, 
-          membersText: 'you' 
-        } 
-      } 
+    navigate('/groups', {
+      state: { newGroup: { id: group?.id, name: group?.name, membersText: `${members.length} members` } }
     });
   };
 
@@ -120,43 +91,51 @@ export default function GroupDetailsPage() {
     <div className="groupDetailsPage">
       <Navbar />
       <div className="groupDetailContent">
-        <div className="groupHeader">
-          <div className="groupTitleSection">
-            <h1>{group.name}</h1>
-            <div className="groupActions">
-              <button className="copyInviteBtn" onClick={handleCopyInviteLink}>
-                Copy invite link
-              </button>
-            </div>
-            <div className="inviteCodeSection">
-              <p className="inviteCodeLabel">Invite Code:</p>
-              <div className="inviteCodeDisplay">
-                <span className="inviteCode">{inviteCode}</span>
-                <button className="copyCodeBtn" onClick={handleCopyInviteCode}>
-                  copy
-                </button>
-              </div>
-            </div>
-          </div>
-          <button className="startFoodballBtn" onClick={handleStartFoodball}>
-            Start Foodball
-          </button>
-        </div>
-
-        <div className="membersSection">
-          <h2>members ({group.membersCount}/{group.maxMembers})</h2>
-          <div className="membersList">
-            {members.map((member) => (
-              <div key={member.id} className="memberCard">
-                <img src={member.avatar} alt={member.name} />
-                <div className="memberInfo">
-                  <h3>{member.name}</h3>
-                  <p>{member.preferences}</p>
+        {loading ? (
+          <p className="loadingText">Loading group...</p>
+        ) : error ? (
+          <p className="errorText">{error}</p>
+        ) : !group ? (
+          <p className="errorText">Group not found.</p>
+        ) : (
+          <>
+            <div className="groupHeader">
+              <div className="groupTitleSection">
+                <h1 className="groupName">{group.name}</h1>
+                <div className="groupActions">
+                  <button className="copyInviteBtn" onClick={handleCopyInviteLink}>
+                    Copy invite link
+                  </button>
+                </div>
+                <div className="inviteCodeSection">
+                  <p className="inviteCodeLabel">Invite Code:</p>
+                  <div className="inviteCodeDisplay">
+                    <span className="inviteCode">{inviteCode}</span>
+                    <button className="copyCodeBtn" onClick={handleCopyInviteCode}>
+                      copy
+                    </button>
+                  </div>
                 </div>
               </div>
-            ))}
-          </div>
-        </div>
+              <button className="startFoodballBtn" onClick={handleStartFoodball}>
+                Start Foodball
+              </button>
+            </div>
+
+            <div className="membersSection">
+              <h2>members ({group.membersCount}/{group.maxMembers})</h2>
+              <div className="membersList">
+                {members.map((member) => (
+                  <div key={member.id} className="memberCard">
+                    <img src={member.avatar} alt={member.name} className="memberAvatar"/>
+                    <div className="memberInfo">
+                      <h3>{member.name}</h3>
+                      <p>likes {member.preferences?.join(', ')}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
 
         <button className='backToGroupsBtn'
           onClick={handleBackToGroups}>

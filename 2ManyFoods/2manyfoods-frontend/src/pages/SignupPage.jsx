@@ -156,11 +156,9 @@ export default function SignupPage() {
       throw new Error(data.error || 'Signup failed');
     }
 
-    if (data.user_id) {
-      localStorage.setItem('userId', data.user_id);
-      console.log('Stored user_id:', data.user_id);
-    } else {
-      console.error('No user_id in response:', data);
+    if(data.username)
+    {
+      localStorage.setItem('username', data.username);
     }
 
     navigate('/account/dietary', { state: { isOnboarding: true } });
