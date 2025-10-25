@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import Navbar from '../components/AuthenticatedNavbar';
 import './GroupDetailsPage.css';
 
@@ -137,10 +137,11 @@ export default function GroupDetailsPage() {
               </div>
             </div>
 
-        <button className='backToGroupsBtn'
-          onClick={handleBackToGroups}>
-          Back To Groups
-        </button>
+            <button className='backToGroupsBtn' onClick={handleBackToGroups}>
+              Back To Groups
+            </button>
+          </>
+        )}
       </div>
     </div>
   );
