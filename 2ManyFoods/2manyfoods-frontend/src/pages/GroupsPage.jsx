@@ -11,7 +11,6 @@ export default function GroupsPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-
     async function fetchGroups() {
       try {
         const username = localStorage.getItem('username');
@@ -23,12 +22,13 @@ export default function GroupsPage() {
 
         const response = await fetch(`http://localhost:8080/api/groups/user/${username}`);
         const data = await response.json();
+
         if (response.ok) {
           const mappedGroups = (data || []).map(g => ({
-        ...g,
-        picture: g.photo || "/assets/default-group.png" 
-    }));
-    setYourGroups(mappedGroups);
+            ...g,
+            picture: g.photo || "/assets/default-group.png"
+          }));
+          setYourGroups(mappedGroups);
         } else {
           console.error("Failed to fetch groups:", data.error);
         }
@@ -38,7 +38,6 @@ export default function GroupsPage() {
         setLoading(false);
       }
     }
-
     fetchGroups();
   }, []);
 
@@ -55,6 +54,16 @@ export default function GroupsPage() {
     }
   }, [location.state?.newGroup]);
 
+  // Handler for when a group card is clicked
+  const handleGroupClick = (group) => {
+    navigate(`/groups/${group.id}`, {
+      state: {
+        groupName: group.name,
+        groupPic: group.picture || group.photo
+      }
+    });
+  };
+
   return (
     <div className="groupsPage">
       <Navbar />
@@ -62,7 +71,6 @@ export default function GroupsPage() {
       <div className="groupsContent">
         <h1>Groups</h1>
         
-        {/* Conditional description text */}
         <p>
           {yourGroups.length === 0 
             ? "You are not in any group, create one to begin" 
@@ -78,15 +86,20 @@ export default function GroupsPage() {
 
         {/* Single Groups Section */}
         <div className="groupsSection">
-          {yourGroups.length === 0 ? (
+          {loading ? (
+            <p>Loading groups...</p>
+          ) : yourGroups.length === 0 ? (
             <div className="emptyState">
               <p>No groups yet. Create your first group to get started!</p>
             </div>
           ) : (
             <div className="groupList">
               {yourGroups.map((group) => (
-                <GroupCard key={group.id} group={group}
-                onClick={() => navigate('/groups/:groupId')} />
+                <GroupCard 
+                  key={group.id} 
+                  group={group} 
+                  onClick={() => handleGroupClick(group)}
+                />
               ))}
             </div>
           )}

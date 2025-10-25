@@ -54,6 +54,8 @@ export default function SearchPage() {
     rank2: '',
     rank3: ''
   });
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
 
   // Available cuisines for Meal (always displayed)
   const mealCuisines = ['western', 'italian', 'chinese', 'malay', 'indian', 'japanese', 'korean'];
@@ -75,6 +77,7 @@ export default function SearchPage() {
             preferences.rank2,
             preferences.rank3
           ]);
+          setIsLoading(false);
         }, 500);
       } catch (error) {
         console.error('Error loading preferences:', error);
@@ -114,7 +117,11 @@ export default function SearchPage() {
   };
 
   const handleConfirmChoice = async () => {
-    
+    if (selectedCuisines.length !== 3) {
+      alert('Please select exactly 3 cuisines');
+      return;
+    }
+
     const username = localStorage.getItem('username');
     
     if (!username) {
@@ -153,22 +160,13 @@ export default function SearchPage() {
         rank1: selectedCuisines[0],
         rank2: selectedCuisines[1],
         rank3: selectedCuisines[2]
-      };
+      });
 
-      //api call
-      console.log('Saving preferences:', preferencesData);
-      
-      setTimeout(() => {
-        setUserPreferences({
-          rank1: preferencesData.rank1,
-          rank2: preferencesData.rank2,
-          rank3: preferencesData.rank3
-        });
-        alert('Preferences saved successfully!');
-      }, 500);
+      alert('Preferences saved successfully!');
     } catch (error) {
       console.error('Error saving preferences:', error);
       alert('Failed to save preferences. Please try again.');
+    } finally {
       setIsSaving(false);
     }
   };
