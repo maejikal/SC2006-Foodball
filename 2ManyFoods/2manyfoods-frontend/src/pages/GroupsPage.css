@@ -15,7 +15,6 @@
 
 .groupsContent h1 {
   font-size: 3rem;
-  text-transform: lowercase;
   margin-bottom: 1rem;
 }
 
@@ -23,20 +22,7 @@
   font-size: 1rem;
   color: #eee;
   margin-top: 0.5rem;
-}
-
-.groupList {
-  margin-top: 2rem;
-}
-
-.yourGroupsSection {
-  margin-top: 4rem;
-}
-
-.yourGroupsSection h2 {
-  font-size: 2rem;
-  margin-bottom: 1.5rem;
-  text-transform: lowercase;
+  margin-bottom: 2rem;
 }
 
 .createGroupBtn {
@@ -63,4 +49,28 @@
 
 .createGroupBtn button:hover {
   text-decoration: underline;
+}
+
+.groupsSection {
+  margin-top: 2rem;
+}
+
+.groupList {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 2rem;
+}
+
+.emptyState {
+  text-align: center;
+  padding: 4rem 2rem;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 20px;
+  margin-top: 2rem;
+}
+
+.emptyState p {
+  font-size: 1.2rem;
+  color: #bbb;
+  margin: 0;
 }

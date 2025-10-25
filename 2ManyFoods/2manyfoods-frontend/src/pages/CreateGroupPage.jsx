@@ -94,7 +94,7 @@ export default function CreateGroupPage() {
     <div className="createGroupPage">
       <Navbar />
       <div className="createGroupContainer">
-        <h1>create group</h1>
+        <h1>Create Group</h1>
 
         {/* Error Message */}
         {error && (

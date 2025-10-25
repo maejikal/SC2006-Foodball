@@ -39,49 +39,8 @@
   gap: 2rem;
 }
 
-.foodTypes {
-  display: flex;
-  gap: 1rem;
-  margin-bottom: 1.5rem;
-}
-
-.foodTypeBtn {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.5rem;
-  cursor: pointer;
-  background: #f5d9b8;
-  border: 3px solid transparent;
-  border-radius: 15px;
-  padding: 0.8rem 1rem;
-  transition: all 0.2s;
-  min-width: 70px;
-}
-
-.foodTypeBtn:hover {
-  transform: translateY(-2px);
-}
-
-.foodTypeBtn.selected {
-  border-color: #d2542f;
-  background: #ffecd9;
-}
-
-.foodTypeBtn .icon {
-  font-size: 2rem;
-}
-
-.foodTypeBtn img.foodIcon {
-  width: 32px;
-  height: 32px;
-}
-
-.foodTypeBtn span {
-  font-size: 0.75rem;
+.filtersSection h3 {
   text-transform: capitalize;
-  color: #5a3a1a;
-  font-weight: 600;
 }
 
 .cuisineTags {
@@ -324,6 +283,7 @@
   margin-bottom: 1rem;
   display: block;
   width: fit-content;
+  text-transform: capitalize;
 }
 
 .confirmBtn:hover:not(:disabled) {
@@ -336,6 +296,3 @@
   cursor: not-allowed;
   opacity: 0.6;
 }
-
-
-

@@ -46,45 +46,36 @@ const dummyRestaurants = [
 ];
 
 export default function SearchPage() {
-  const [selectedFoodType, setSelectedFoodType] = useState('Meal');
   const [selectedCuisines, setSelectedCuisines] = useState([]);
   const [priceRange, setPriceRange] = useState(50);
   const [searchQuery, setSearchQuery] = useState('');
-  
   const [userPreferences, setUserPreferences] = useState({
     rank1: '',
     rank2: '',
     rank3: ''
   });
 
-  const foodTypes = [
-    { name: 'Meal', icon: '/assets/icons8-meal-50.png', cuisines: ['western', 'italian', 'chinese', 'malay', 'indian', 'japanese', 'korean'] },
-  ];
+  // Available cuisines for Meal (always displayed)
+  const mealCuisines = ['western', 'italian', 'chinese', 'malay', 'indian', 'japanese', 'korean'];
 
   // Load user's saved preferences on mount
   useEffect(() => {
     const loadUserPreferences = async () => {
       try {
-
         //api call
-
         setTimeout(() => {
           const preferences = {
             rank1: 'italian',
             rank2: 'japanese',
             rank3: 'korean'
           };
-          
           setUserPreferences(preferences);
-          
           setSelectedCuisines([
             preferences.rank1,
             preferences.rank2,
             preferences.rank3
           ]);
-          
         }, 500);
-        
       } catch (error) {
         console.error('Error loading preferences:', error);
       }
@@ -98,16 +89,6 @@ export default function SearchPage() {
     const index = selectedCuisines.indexOf(cuisine.toLowerCase());
     if (index === -1) return null;
     return index + 1;
-  };
-
-  const getCurrentCuisines = () => {
-    const foodType = foodTypes.find(ft => ft.name === selectedFoodType);
-    return foodType ? foodType.cuisines : [];
-  };
-
-  const toggleFoodType = (foodType) => {
-    setSelectedFoodType(foodType);
-    setSelectedCuisines([]);
   };
 
   // Always maintain exactly 3 selections
@@ -145,18 +126,16 @@ export default function SearchPage() {
       };
 
       //api call
-      
       console.log('Saving preferences:', preferencesData);
+      
       setTimeout(() => {
         setUserPreferences({
           rank1: preferencesData.rank1,
           rank2: preferencesData.rank2,
           rank3: preferencesData.rank3
         });
-        
         alert('Preferences saved successfully!');
       }, 500);
-
     } catch (error) {
       console.error('Error saving preferences:', error);
       alert('Failed to save preferences. Please try again.');
@@ -166,72 +145,63 @@ export default function SearchPage() {
   return (
     <div className="searchPage">
       <Navbar />
+
       <div className="searchContent">
         <div className="searchTop">
+          {/* Map Container */}
           <div className="mapContainer">
             <img 
-              src="https://api.mapbox.com/styles/v1/mapbox/dark-v10/static/103.8198,1.3521,11,0/600x400@2x?access_token=pk.eyJ1IjoiZXhhbXBsZSIsImEiOiJjazZ0bnFnbHkwMDAwM21xdnU5MHU0ZnE0In0.example" 
-              alt="Map" 
+              src="https://maps.googleapis.com/maps/api/staticmap?center=Singapore&zoom=12&size=600x400&key=YOUR_API_KEY" 
+              alt="Map"
             />
           </div>
 
+          {/* Filters Section */}
           <div className="filtersSection">
-            <div>
-              <div className="foodTypes">
-                {foodTypes.map((food) => (
-                  <button
-                    key={food.name}
-                    className={`foodTypeBtn ${selectedFoodType === food.name ? 'selected' : ''}`}
-                    onClick={() => toggleFoodType(food.name)}
-                  >
-                    <img src={food.icon} alt={food.name} className="foodIcon" />
-                    <span>{food.name}</span>
-                  </button>
-                ))}
-              </div>
+            <h3 style={{ marginBottom: '1rem', fontSize: '1.2rem' }}>Meal Preferences</h3>
 
-              <div className="cuisineTags">
-                {getCurrentCuisines().map((cuisine) => {
-                  const rank = getCuisineRank(cuisine);
-                  const isSelected = selectedCuisines.includes(cuisine.toLowerCase());
-                  
-                  return (
-                    <button
-                      key={cuisine}
-                      className={`cuisineTag ${isSelected ? 'selected' : ''}`}
-                      onClick={() => toggleCuisine(cuisine)}
-                    >
-                      <span>{cuisine}</span>
-                      {isSelected && rank && (
-                        <span className="rankBadge">#{rank}</span>
-                      )}
-                    </button>
-                  );
-                })}
-              </div>
+            {/* Cuisine Tags - Always visible */}
+            <div className="cuisineTags">
+              {mealCuisines.map((cuisine) => {
+                const rank = getCuisineRank(cuisine);
+                const isSelected = selectedCuisines.includes(cuisine.toLowerCase());
+                
+                return (
+                  <button
+                    key={cuisine}
+                    className={`cuisineTag ${isSelected ? 'selected' : ''}`}
+                    onClick={() => toggleCuisine(cuisine)}
+                  >
+                    {cuisine}
+                    {rank && <span className="rankBadge">{rank}</span>}
+                  </button>
+                );
+              })}
             </div>
 
+            {/* Price Range Slider */}
             <div className="priceSliderSection">
+              <h4>Price Range</h4>
               <input
                 type="range"
-                min="1"
+                min="0"
                 max="100"
                 value={priceRange}
-                onChange={(e) => setPriceRange(e.target.value)}
+                onChange={(e) => setPriceRange(Number(e.target.value))}
                 className="slider"
               />
               <div className="priceLabels">
                 <span>$5</span>
                 <span>$10</span>
                 <span>$15</span>
-                <span>$25</span>
                 <span>$50</span>
-                <span>$100 &gt;</span>
+                <span>$100</span>
               </div>
             </div>
 
+            {/* Confirm Button - Capitalized */}
             <button 
-              className="confirmBtn" 
+              className="confirmBtn"
               onClick={handleConfirmChoice}
               disabled={selectedCuisines.length !== 3}
             >
@@ -240,30 +210,49 @@ export default function SearchPage() {
           </div>
         </div>
 
+        {/* Search Bar */}
         <div className="searchBarContainer">
           <div className="searchBar">
-            <svg className="searchIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <circle cx="11" cy="11" r="8"></circle>
-              <path d="m21 21-4.35-4.35"></path>
+            <svg 
+              className="searchIcon" 
+              fill="none" 
+              stroke="currentColor" 
+              viewBox="0 0 24 24"
+            >
+              <path 
+                strokeLinecap="round" 
+                strokeLinejoin="round" 
+                strokeWidth={2} 
+                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" 
+              />
             </svg>
-            <input 
-              type="text" 
-              placeholder="search..." 
+            <input
+              type="text"
+              placeholder="Search for restaurants..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
           </div>
         </div>
 
+        {/* Restaurant List */}
         <div className="restaurantList">
           {dummyRestaurants.map((restaurant) => (
             <div key={restaurant.id} className="restaurantCard">
-              <img src={restaurant.image} alt={restaurant.name} className="restaurantImage" />
+              <img 
+                src={restaurant.image} 
+                alt={restaurant.name}
+                className="restaurantImage"
+              />
               <div className="restaurantInfo">
                 <h3>{restaurant.name}</h3>
                 <p className="address">{restaurant.address}</p>
-                <p className={`price ${restaurant.priceLevel}`}>{restaurant.priceRange}</p>
-                <p className={`status ${restaurant.visited ? 'visited' : ''}`}>{restaurant.statusText}</p>
+                <p className={`price ${restaurant.priceLevel}`}>
+                  {restaurant.priceRange}
+                </p>
+                <p className={`status ${restaurant.visited ? 'visited' : ''}`}>
+                  {restaurant.statusText}
+                </p>
               </div>
             </div>
           ))}

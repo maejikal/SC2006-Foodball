@@ -9,7 +9,7 @@ export default function PreferencesPage() {
 
   const isOnboarding = location.state?.isOnboarding || false;
 
-  const cuisineOptions = ['western', 'italian', 'chinese', 'malay', 'indian', 'japanese', 'korean'];
+  const cuisineOptions = ['Western', 'Italian', 'Chinese', 'Malay', 'Indian', 'Japanese', 'Korean'];
 
   // where we store the preference
   const [rank1, setRank1] = useState('');

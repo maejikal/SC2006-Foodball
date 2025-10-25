@@ -20,7 +20,6 @@
   color: white;
   font-size: 2rem;
   margin-bottom: 3rem;
-  text-transform: lowercase;
   font-weight: 600;
 }
 
@@ -82,7 +81,7 @@
   font-size: 0.9rem;
   color: #ddd;
   margin-bottom: 2rem;
-  text-transform: lowercase;
+  text-transform: capitalize;
 }
 
 .createGroupContainer input[type="text"] {

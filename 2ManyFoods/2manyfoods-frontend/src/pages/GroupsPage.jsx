@@ -27,26 +27,35 @@ export default function GroupsPage() {
   return (
     <div className="groupsPage">
       <Navbar />
+
       <div className="groupsContent">
-        <h1>groups</h1>
-        <p>view and manage your groups</p>
+        <h1>Groups</h1>
         
+        {/* Conditional description text */}
+        <p>
+          {yourGroups.length === 0 
+            ? "You are not in any group, create one to begin" 
+            : "View and manage your groups"}
+        </p>
+
+        {/* Create Group Button */}
         <div className="createGroupBtn">
-          <button onClick={() => navigate('/groups/create')}>+ create group</button>
+          <button onClick={() => navigate('/groups/create')}>
+            + create group
+          </button>
         </div>
 
-        <div className="yourGroupsSection">
-          <h2>your groups</h2>
+        {/* Single Groups Section */}
+        <div className="groupsSection">
           {yourGroups.length === 0 ? (
-            <p>you are not in any group, create one to begin</p>
+            <div className="emptyState">
+              <p>No groups yet. Create your first group to get started!</p>
+            </div>
           ) : (
             <div className="groupList">
               {yourGroups.map((group) => (
-                <GroupCard
-                  key={group.id}
-                  group={group}
-                  onClick={() => navigate('/groups/:groupId')}
-                />
+                <GroupCard key={group.id} group={group}
+                onClick={() => navigate('/groups/:groupId')} />
               ))}
             </div>
           )}

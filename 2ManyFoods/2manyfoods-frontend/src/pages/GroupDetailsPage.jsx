@@ -8,7 +8,7 @@ export default function GroupDetailsPage() {
   const { groupId } = useParams();
   const location = useLocation();
 
-  const initialGroupName = location.state?.groupName || 'supper';
+  const initialGroupName = location.state?.groupName || 'Supper';
   const initialGroupPic = location.state?.groupPic;
 
   const [group] = useState({
@@ -21,7 +21,7 @@ export default function GroupDetailsPage() {
   const [inviteCode, setInviteCode] = useState('');
 
   // TODO: Replace with actual user session data
-  const currentUserId = 4; // Mock current user ID - change here to see leader or user page
+  const currentUserId = 1; // Mock current user ID - change here to see leader or user page
   const groupLeaderId = 4; // Mock leader ID (first member or creator)
 
   useEffect(() => {
@@ -125,11 +125,11 @@ export default function GroupDetailsPage() {
             <h1>{group.name}</h1>
             <div className="groupActions">
               <button className="copyInviteBtn" onClick={handleCopyInviteLink}>
-                copy invite link
+                Copy invite link
               </button>
             </div>
             <div className="inviteCodeSection">
-              <p className="inviteCodeLabel">invite code:</p>
+              <p className="inviteCodeLabel">Invite Code:</p>
               <div className="inviteCodeDisplay">
                 <span className="inviteCode">{inviteCode}</span>
                 <button className="copyCodeBtn" onClick={handleCopyInviteCode}>
@@ -139,7 +139,7 @@ export default function GroupDetailsPage() {
             </div>
           </div>
           <button className="startFoodballBtn" onClick={handleStartFoodball}>
-            start foodball
+            Start Foodball
           </button>
         </div>
 
@@ -158,22 +158,9 @@ export default function GroupDetailsPage() {
           </div>
         </div>
 
-        <button 
-          onClick={handleBackToGroups}
-          style={{
-            background: 'transparent',
-            border: '1px solid white',
-            color: 'white',
-            padding: '0.7rem 1.5rem',
-            borderRadius: '25px',
-            cursor: 'pointer',
-            fontFamily: 'Poppins, sans-serif',
-            fontSize: '0.95rem',
-            marginTop: '2rem',
-            textTransform: 'lowercase'
-          }}
-        >
-          back to groups
+        <button className='backToGroupsBtn'
+          onClick={handleBackToGroups}>
+          Back To Groups
         </button>
       </div>
     </div>
