@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import Navbar from '../components/AuthenticatedNavbar';
 import './LeaderLocationPage.css';
@@ -6,63 +6,106 @@ import './LeaderLocationPage.css';
 export default function LeaderLocationPage() {
   const navigate = useNavigate();
   const location = useLocation();
+  
   const groupName = location.state?.groupName || 'supper';
   const groupId = location.state?.groupId;
-
+  
   const [selectedLocation, setSelectedLocation] = useState(null);
+  const [searchQuery, setSearchQuery] = useState('');
 
-  // TODO: Replace with actual WebSocket connection
   const broadcastLocationSelection = (locationData) => {
-    // This should send the location to all group members via WebSocket
     console.log('Broadcasting location selection:', locationData);
-    
-    // Mock WebSocket broadcast:
-    // socket.emit('location-selected', { groupId, location: locationData });
+    // TODO: Implement WebSocket broadcast
   };
 
   const handleLocationClick = (e) => {
-    // Get click coordinates on map (mock implementation)
     const rect = e.currentTarget.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
     
-    setSelectedLocation({ x, y, name: 'Selected Location' });
+    setSelectedLocation({ 
+      x, 
+      y, 
+      name: searchQuery || 'Selected Location' 
+    });
   };
 
   const handleConfirmLocation = () => {
     if (selectedLocation) {
-      // Broadcast to all members
       broadcastLocationSelection(selectedLocation);
-      
-      // Navigate to InProgressPage
-      navigate('/foodball/in-progress', {
-        state: {
-          groupName,
-          groupId,
-          location: selectedLocation
-        }
+      navigate('/foodball/in-progress', { 
+        state: { 
+          groupName, 
+          groupId, 
+          location: selectedLocation 
+        } 
       });
     }
+  };
+
+  const handleSearch = (e) => {
+    e.preventDefault();
+    // TODO: Implement actual location search using Google Maps API or similar
+    console.log('Searching for:', searchQuery);
+    alert(`Searching for: ${searchQuery}\n(Search functionality will be implemented with Maps API)`);
   };
 
   return (
     <div className="leaderLocationPage">
       <Navbar />
+      
       <div className="leaderLocationContent">
-        <h1>choose location</h1>
+        <h1>{groupName} is selecting location</h1>
         <p>Select the area where you want to find food</p>
 
+        {/* Search Bar */}
+        <form className="searchBarContainer" onSubmit={handleSearch}>
+          <div className="searchBar">
+            <svg 
+              className="searchIcon" 
+              fill="none" 
+              stroke="currentColor" 
+              viewBox="0 0 24 24"
+            >
+              <path 
+                strokeLinecap="round" 
+                strokeLinejoin="round" 
+                strokeWidth={2} 
+                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" 
+              />
+            </svg>
+            <input
+              type="text"
+              placeholder="Search for a location (e.g. NTU, Jurong East)..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+            {searchQuery && (
+              <button 
+                type="button" 
+                className="clearBtn"
+                onClick={() => setSearchQuery('')}
+              >
+                ✕
+              </button>
+            )}
+          </div>
+          <button type="submit" className="searchBtn">
+            Search
+          </button>
+        </form>
+
+        {/* Map Section */}
         <div className="mapSection">
           <div className="mapWrapper" onClick={handleLocationClick}>
-            {/* Replace with actual map component (Google Maps, Mapbox, etc.) */}
             <div className="placeholderMap">
-              <p>Click on the map to select location</p>
+              Click on the map to select location
               {selectedLocation && (
                 <div 
-                  className="locationMarker"
-                  style={{
-                    left: `${selectedLocation.x}px`,
-                    top: `${selectedLocation.y}px`
+                  className="locationMarker" 
+                  style={{ 
+                    left: `${selectedLocation.x}px`, 
+                    top: `${selectedLocation.y}px` 
                   }}
                 />
               )}
@@ -71,7 +114,7 @@ export default function LeaderLocationPage() {
 
           {selectedLocation && (
             <div className="locationInfo">
-              <p>Location selected</p>
+              <p>Location selected: {selectedLocation.name}</p>
               <button className="confirmBtn" onClick={handleConfirmLocation}>
                 confirm location
               </button>
