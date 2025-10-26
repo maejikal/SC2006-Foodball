@@ -94,7 +94,7 @@ def remove_usr(username: str, grp_id: str):
                 return result
         finally:
             # Always close the client
-            client.close()
+            await client.close()
     
     # Run the async function
     return run(_remove_user_async())

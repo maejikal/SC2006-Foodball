@@ -33,7 +33,7 @@ export default function LoginPage() {
     const newErrors = {};
     
     if (!form.usernameOrEmail.trim()) {
-      newErrors.usernameOrEmail = 'Email or username is required';
+      newErrors.usernameOrEmail = 'Email is required';
     }
     
     if (!form.password) {
@@ -145,12 +145,12 @@ export default function LoginPage() {
         <img src="/assets/2manyfoods-logo.png" alt="2manyfoods" />
         
         <form onSubmit={handleSubmit}>
-          {authError && <div className="error-message">{authError}</div>}
+          {authError && <div className="errorText">{authError}</div>}
           
           <FormInput
             type="text"
             name="usernameOrEmail"
-            placeholder="Email or Username"
+            placeholder="Email"
             value={form.usernameOrEmail}
             onChange={handleChange}
             error={errors.usernameOrEmail}
@@ -175,7 +175,7 @@ export default function LoginPage() {
               />
             </button>
           </div>
-          {errors.password && <div className="error-message">{errors.password}</div>}
+          {errors.password && <div className="errorText">{errors.password}</div>}
           
           <div className="forgotLink">
             <a href="#" onClick={(e) => { e.preventDefault(); handleForgotPassword(); }}>
@@ -183,9 +183,12 @@ export default function LoginPage() {
             </a>
           </div>
           
-          <Button type="submit" disabled={isLoading}>
-            {isLoading ? 'logging in...' : 'login'}
-          </Button>
+          <Button 
+            type="submit" 
+            variant="default"
+            text={isLoading ? 'logging in...' : 'login'}
+            disabled={isLoading}
+          />
         </form>
         
         <p>

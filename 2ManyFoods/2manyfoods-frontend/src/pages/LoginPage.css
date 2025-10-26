@@ -54,7 +54,7 @@
 .passwordInputWrapper {
   position: relative;
   width: 100%;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0;
 }
 
 .passwordInputWrapper input {
@@ -223,4 +223,11 @@
 
 .resetBtn:hover {
   opacity: 0.9;
+}
+
+.errorText {
+  color: #ff6b6b;
+  font-size: 0.85rem;
+  margin-top: 0.25rem;
+  margin-bottom: 0.5rem;
 }
