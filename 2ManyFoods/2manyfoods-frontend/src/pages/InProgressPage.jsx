@@ -123,21 +123,18 @@ export default function InProgressPage() {
             </div>
 
             <div className="sliderSection">
+              <h3>Price Range: ${priceRange}</h3>
               <input
                 type="range"
-                min="1"
+                min="0"
                 max="100"
                 value={priceRange}
-                onChange={(e) => setPriceRange(e.target.value)}
+                onChange={(e) => setPriceRange(Number(e.target.value))}
                 className="slider"
               />
               <div className="priceLabels">
-                <span>$5</span>
-                <span>$10</span>
-                <span>$15</span>
-                <span>$25</span>
-                <span>$50</span>
-                <span>$100 &gt;</span>
+                <span>0</span>
+                <span>100+</span>
               </div>
             </div>
           </div>
@@ -146,17 +143,17 @@ export default function InProgressPage() {
         <div className="hungerSection">
           <h2>pick your hunger level</h2>
           <div className="sliderSection">
+            <h3>Hunger Level: {hungerLevel}</h3>
             <input
               type="range"
               min="1"
               max="10"
               value={hungerLevel}
-              onChange={(e) => setHungerLevel(e.target.value)}
+              onChange={(e) => setHungerLevel(Number(e.target.value))}
               className="slider"
             />
             <div className="priceLabels">
               <span>1</span>
-              <span>5</span>
               <span>10</span>
             </div>
           </div>

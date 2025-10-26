@@ -167,7 +167,7 @@
   gap: 0.5rem;
 }
 
-.sliderSection label {
+.sliderSection h3 {
   font-size: 0.95rem;
   margin-bottom: 0.5rem;
 }
@@ -186,7 +186,6 @@
   border-radius: 5px;
   background: #3d4a5a;
   outline: none;
-  -webkit-appearance: none;
 }
 
 .slider::-webkit-slider-thumb {
