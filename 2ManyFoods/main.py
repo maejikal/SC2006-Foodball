@@ -126,6 +126,11 @@ def get_user_groups(username):
 def get_group_details(grp_id):
     return group_controller.handle_get_group_details(grp_id)
 
+@app.route('/api/groups/leave', methods=['POST'])
+def leave_group():
+    return group_controller.handle_leave_group(request.get_json())
+
+
 
 
 if __name__ == "__main__":

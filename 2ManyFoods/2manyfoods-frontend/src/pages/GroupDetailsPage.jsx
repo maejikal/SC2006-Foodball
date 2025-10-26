@@ -17,6 +17,7 @@ export default function GroupDetailsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [showInviteCode, setShowInviteCode] = useState(false);
+  const [showLeaveConfirmation, setShowLeaveConfirmation] = useState(false);
 
   const currentUsername = localStorage.getItem('username');
 
@@ -52,6 +53,7 @@ export default function GroupDetailsPage() {
     fetchGroup();
   }, [groupId]);
 
+  // Check if current user is the leader
   const isLeader = currentUsername === group?.leaderId;
 
   const handleCopyInviteCode = () => {
@@ -65,15 +67,61 @@ export default function GroupDetailsPage() {
 
   const handleStartFoodball = () => {
     if (!group) return;
-    navigate(isLeader ? '/foodball/select-location' : '/foodball/waiting', 
+    
+    // Only allow leader to start foodball
+    if (!isLeader) {
+      alert('Only the group leader can start Foodball!');
+      return;
+    }
+    
+    navigate('/foodball/select-location', 
       { state: { groupName: group.name, groupId: group.id } }
     );
   };
 
   const handleBackToGroups = () => {
-    navigate('/groups', {
-      state: { newGroup: { id: group?.id, name: group?.name, membersText: `${members.length} members` } }
-    });
+    navigate('/groups');
+  };
+
+  const handleLeaveGroup = () => {
+    setShowLeaveConfirmation(true);
+  };
+
+  const handleCancelLeave = () => {
+    setShowLeaveConfirmation(false);
+  };
+
+  const handleConfirmLeave = async () => {
+    try {
+      const response = await fetch('http://localhost:8080/api/groups/leave', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          username: currentUsername,
+          grp_id: groupId
+        })
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to leave group');
+      }
+
+      // Navigate back to groups page
+      navigate('/groups', { 
+        state: { 
+          removeGroupId: groupId,
+          message: 'Successfully left the group' 
+        } 
+      });
+    } catch (error) {
+      console.error('Error leaving group:', error);
+      alert(`Failed to leave group: ${error.message}`);
+      setShowLeaveConfirmation(false);
+    }
   };
 
   return (
@@ -93,30 +141,29 @@ export default function GroupDetailsPage() {
                 <h1 className="groupName">{group.name}</h1>
                 <div className="groupActions">
                   <button className="showInviteCodeBtn" onClick={handleToggleInviteCode}>
-                    {showInviteCode ? 'Hide Invite Code' : 'Show Invite Code'}
+                    {showInviteCode ? 'Hide' : 'Show'} Invite Code
                   </button>
                 </div>
-                
                 {showInviteCode && (
                   <div className="inviteCodeSection">
                     <p className="inviteCodeLabel">Invite Code:</p>
                     <div className="inviteCodeDisplay">
                       <span className="inviteCode">{inviteCode}</span>
                       <button className="copyCodeBtn" onClick={handleCopyInviteCode}>
-                        copy
+                        Copy
                       </button>
                     </div>
                   </div>
                 )}
               </div>
-              
-              <button
+              <button 
                 className={`startFoodballBtn ${!isLeader ? 'disabled' : ''}`}
                 onClick={handleStartFoodball}
-                disabled={!isLeader} 
-                title={isLeader ? '' : 'Only the group leader can start Foodball'}
+                disabled={!isLeader}
+                title={!isLeader ? 'Only the group leader can start Foodball' : ''}
               >
                 Start Foodball
+                {!isLeader && <span className="leaderOnlyTag">(Leader Only)</span>}
               </button>
             </div>
 
@@ -125,17 +172,11 @@ export default function GroupDetailsPage() {
               <div className="membersList">
                 {members.map((member) => (
                   <div key={member.id} className="memberCard">
-                    <img 
-                      src={member.avatar || 'default-avatar.png'} 
-                      alt={member.name} 
-                      className="memberAvatar"
-                    />
+                    <img src={member.avatar} alt={member.name} className="memberAvatar"/>
                     <div className="memberInfo">
                       <h3>
                         {member.name}
-                        {member.id === group.leaderId && (
-                          <span className="leaderTag">Leader</span>
-                        )}
+                        {member.id === group.leaderId && <span className="leaderTag">LEADER</span>}
                       </h3>
                       <p>likes {member.preferences?.join(', ') || 'no preferences'}</p>
                     </div>
@@ -144,12 +185,35 @@ export default function GroupDetailsPage() {
               </div>
             </div>
 
-            <button className='backToGroupsBtn' onClick={handleBackToGroups}>
-              Back To Groups
-            </button>
+            <div className="bottomButtons">
+              <button className='backToGroupsBtn' onClick={handleBackToGroups}>
+                Back To Groups
+              </button>
+              <button className='leaveGroupBtn' onClick={handleLeaveGroup}>
+                Leave Group
+              </button>
+            </div>
           </>
         )}
       </div>
+
+      {/* Confirmation Popup */}
+      {showLeaveConfirmation && (
+        <div className="confirmationOverlay">
+          <div className="confirmationModal">
+            <h3>Are you sure?</h3>
+            <p>Do you want to leave this group?</p>
+            <div className="confirmationButtons">
+              <button className="cancelBtn" onClick={handleCancelLeave}>
+                Cancel
+              </button>
+              <button className="confirmBtn" onClick={handleConfirmLeave}>
+                Confirm
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

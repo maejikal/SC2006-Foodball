@@ -4,7 +4,6 @@ import Navbar from '../components/AuthenticatedNavbar';
 import GroupCard from '../components/GroupCard';
 import './GroupsPage.css';
 
-
 export default function GroupsPage() {
   const navigate = useNavigate();
   const location = useLocation();
@@ -14,7 +13,6 @@ export default function GroupsPage() {
   const [inviteCode, setInviteCode] = useState('');
   const [joinError, setJoinError] = useState('');
   const [joining, setJoining] = useState(false);
-
 
   useEffect(() => {
     async function fetchGroups() {
@@ -28,10 +26,11 @@ export default function GroupsPage() {
 
         const response = await fetch(`http://localhost:8080/api/groups/user/${username}`);
         const data = await response.json();
+
         if (response.ok) {
           const mappedGroups = (data || []).map(g => ({
             ...g,
-            picture: g.photo
+            picture: g.photo || "/assets/default-group.png"
           }));
           setYourGroups(mappedGroups);
         } else {
@@ -43,10 +42,21 @@ export default function GroupsPage() {
         setLoading(false);
       }
     }
-
     fetchGroups();
   }, []);
 
+  // Handle removing a group when coming back from GroupDetailsPage
+  useEffect(() => {
+    if (location.state?.removeGroupId) {
+      setYourGroups(prev => prev.filter(g => g.id !== location.state.removeGroupId));
+      
+      if (location.state?.message) {
+        alert(location.state.message);
+      }
+      
+      window.history.replaceState({}, document.title);
+    }
+  }, [location.state]);
 
   useEffect(() => {
     if (location.state?.newGroup) {
@@ -61,6 +71,14 @@ export default function GroupsPage() {
     }
   }, [location.state?.newGroup]);
 
+  const handleGroupClick = (group) => {
+    navigate(`/groups/${group.id}`, {
+      state: {
+        groupName: group.name,
+        groupPic: group.picture || group.photo
+      }
+    });
+  };
 
   const handleJoinGroup = async () => {
     if (!inviteCode.trim()) {
@@ -73,27 +91,29 @@ export default function GroupsPage() {
 
     try {
       const username = localStorage.getItem('username');
-      const response = await fetch(`http://localhost:8080/api/groups/join`, {
+      const response = await fetch('http://localhost:8080/api/groups/join', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
           inviteCode: inviteCode.trim(),
-          username: username 
+          username: username
         })
       });
 
       const data = await response.json();
-      
+
       if (response.ok) {
         const joinedGroup = {
           ...data.group,
-          picture: data.group.photo
+          picture: data.group.photo || "/assets/default-group.png"
         };
         setYourGroups(prev => [...prev, joinedGroup]);
-        
         setShowJoinModal(false);
         setInviteCode('');
         setJoinError('');
+        alert(`Successfully joined ${data.group.name}!`);
       } else {
         setJoinError(data.error || 'Failed to join group');
       }
@@ -105,32 +125,43 @@ export default function GroupsPage() {
     }
   };
 
-
   return (
     <div className="groupsPage">
       <Navbar />
+
       <div className="groupsContent">
-        <h1>groups</h1>
-        <p>view and manage your groups</p>
+        <h1>Groups</h1>
         
+        <p>
+          {yourGroups.length === 0 
+            ? "You are not in any group, create one to begin" 
+            : "View and manage your groups"}
+        </p>
+
+        {/* Create & Join Group Buttons */}
         <div className="createGroupBtn">
-          <button onClick={() => navigate('/groups/create')}>+ create group</button>
-          <button onClick={() => setShowJoinModal(true)}>+ join group</button>
+          <button onClick={() => navigate('/groups/create')}>
+            + create group
+          </button>
+          <button onClick={() => setShowJoinModal(true)}>
+            + join group
+          </button>
         </div>
 
-        <div className="yourGroupsSection">
-          <h2>your groups</h2>
+        <div className="groupsSection">
           {loading ? (
-            <p style={{ color: 'white', fontSize: '1rem' }}>Loading groups...</p>
+            <p>Loading groups...</p>
           ) : yourGroups.length === 0 ? (
-            <p style={{ color: 'white', fontSize: '1rem' }}>you are not in any group, create one to begin</p>
+            <div className="emptyState">
+              <p>No groups yet. Create your first group to get started!</p>
+            </div>
           ) : (
             <div className="groupList">
               {yourGroups.map((group) => (
-                <GroupCard
-                  key={group.id}
-                  group={group}
-                  onClick={() => navigate(`/groups/${group.id}`)}
+                <GroupCard 
+                  key={group.id} 
+                  group={group} 
+                  onClick={() => handleGroupClick(group)}
                 />
               ))}
             </div>
@@ -143,35 +174,32 @@ export default function GroupsPage() {
         <div className="modalOverlay" onClick={() => setShowJoinModal(false)}>
           <div className="modalContent" onClick={(e) => e.stopPropagation()}>
             <h2>join group</h2>
-            <p>enter the invite code to join a group</p>
-            
+            <p>Enter the invite code to join a group</p>
             <input
               type="text"
-              placeholder="enter invite code"
+              placeholder="Enter invite code"
               value={inviteCode}
               onChange={(e) => setInviteCode(e.target.value)}
               className="inviteCodeInput"
             />
-            
             {joinError && <p className="errorMessage">{joinError}</p>}
-            
             <div className="modalActions">
               <button 
+                className="cancelBtn" 
                 onClick={() => {
                   setShowJoinModal(false);
                   setInviteCode('');
                   setJoinError('');
                 }}
-                className="cancelBtn"
               >
-                cancel
+                Cancel
               </button>
               <button 
+                className="joinBtn" 
                 onClick={handleJoinGroup}
-                disabled={joining}
-                className="joinBtn"
+                disabled={joining || !inviteCode.trim()}
               >
-                {joining ? 'joining...' : 'join'}
+                {joining ? 'Joining...' : 'Join'}
               </button>
             </div>
           </div>
