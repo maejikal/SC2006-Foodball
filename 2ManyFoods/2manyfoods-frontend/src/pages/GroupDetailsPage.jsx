@@ -16,6 +16,7 @@ export default function GroupDetailsPage() {
   const [inviteCode, setInviteCode] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [showInviteCode, setShowInviteCode] = useState(false);
 
   const currentUserId = localStorage.getItem('userId');
 
@@ -37,6 +38,7 @@ export default function GroupDetailsPage() {
             leaderId: data.owner
           });
           setMembers(data.members);
+          setInviteCode(data.invite_code || '');
         } else {
           setError(data.error || 'Failed to fetch group.');
         }
@@ -50,27 +52,13 @@ export default function GroupDetailsPage() {
     fetchGroup();
   }, [groupId]);
 
-  // Generate mock invite code
-  useEffect(() => {
-    const generateMockCode = () => {
-      const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-      let code = '';
-      for (let i = 0; i < 6; i++) {
-        code += characters.charAt(Math.floor(Math.random() * characters.length));
-      }
-      return code;
-    };
-    setInviteCode(generateMockCode());
-  }, [groupId]);
-
-  const handleCopyInviteLink = () => {
-    navigator.clipboard.writeText(`${window.location.origin}/groups/invite/${groupId}`)
-      .then(() => alert('Invite link copied to clipboard!'));
-  };
-
   const handleCopyInviteCode = () => {
     navigator.clipboard.writeText(inviteCode)
       .then(() => alert('Invite code copied to clipboard!'));
+  };
+
+  const handleToggleInviteCode = () => {
+    setShowInviteCode(!showInviteCode);
   };
 
   const handleStartFoodball = () => {
@@ -103,19 +91,22 @@ export default function GroupDetailsPage() {
               <div className="groupTitleSection">
                 <h1 className="groupName">{group.name}</h1>
                 <div className="groupActions">
-                  <button className="copyInviteBtn" onClick={handleCopyInviteLink}>
-                    Copy invite link
+                  <button className="showInviteCodeBtn" onClick={handleToggleInviteCode}>
+                    {showInviteCode ? 'Hide Invite Code' : 'Show Invite Code'}
                   </button>
                 </div>
-                <div className="inviteCodeSection">
-                  <p className="inviteCodeLabel">Invite Code:</p>
-                  <div className="inviteCodeDisplay">
-                    <span className="inviteCode">{inviteCode}</span>
-                    <button className="copyCodeBtn" onClick={handleCopyInviteCode}>
-                      copy
-                    </button>
+                
+                {showInviteCode && (
+                  <div className="inviteCodeSection">
+                    <p className="inviteCodeLabel">Invite Code:</p>
+                    <div className="inviteCodeDisplay">
+                      <span className="inviteCode">{inviteCode}</span>
+                      <button className="copyCodeBtn" onClick={handleCopyInviteCode}>
+                        copy
+                      </button>
+                    </div>
                   </div>
-                </div>
+                )}
               </div>
               <button className="startFoodballBtn" onClick={handleStartFoodball}>
                 Start Foodball

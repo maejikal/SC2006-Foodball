@@ -52,13 +52,27 @@
   opacity: 0.9;
 }
 
-.copyInviteBtn {
+.showInviteCodeBtn {
   background: #3d5a5a;
   color: white;
 }
 
 .inviteCodeSection {
   margin-top: 1rem;
+  animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    max-height: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    max-height: 100px;
+    transform: translateY(0);
+  }
 }
 
 .inviteCodeLabel {
@@ -160,8 +174,6 @@
   margin-left: 0.5rem;
 }
 
-
-/* Back to Groups button */
 .backToGroupsBtn {
   background: transparent;
   border: 1px solid white;

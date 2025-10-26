@@ -26,6 +26,10 @@ def login_route():
 async def join_group(groupID):
     return group_controller.handle_join_grp(request.get_json(), groupID)
 
+@app.route('/api/groups/join', methods=['POST'])
+def join_group_by_code():
+    return group_controller.handle_join_by_invite_code(request.get_json())
+
 @app.route('/foodball/<groupID>')
 async def generate_recommendation(groupID):
     global rec_cons

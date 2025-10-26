@@ -15,7 +15,7 @@ def handle_create_group(data):
         return jsonify({"error": "Username and GroupName required"}), 400
 
     try:
-        result = group_services.create_group(owner, grp_name, photo)
+        result, invite_code = group_services.create_group(owner, grp_name, photo)
         group_id = str(result.inserted_ids[0])
         user_services.join_group(owner, group_id)
 
@@ -27,8 +27,54 @@ def handle_create_group(data):
     return jsonify({
         "message": "Group created successfully.",
         "group_id": group_id,
-        "username": owner
+        "username": owner,
+        "invite_code": invite_code
     }), 200
+
+def handle_join_by_invite_code(data):
+    if not data:
+        return jsonify({"error": "Missing input"}), 400
+    
+    username = data.get("username")
+    invite_code = data.get("inviteCode")
+    
+    if not username or not invite_code:
+        return jsonify({"error": "Username and invite code required"}), 400
+    
+    try:
+        group = group_services.get_grp_by_invite_code(invite_code)
+        
+        if not group:
+            return jsonify({"error": "Invalid invite code"}), 404
+        
+        group_id = str(group["_id"])
+        
+        if username in group.get("users", []):
+            return jsonify({"error": "You are already a member of this group"}), 400
+        
+        group_services.add_usr(username, group_id)
+        user_services.join_group(username, group_id)
+        
+        updated_group = group_services.get_grp_by_id(group_id)
+        member_count = updated_group.get('total_users', len(updated_group.get('users', [])))
+        
+        return jsonify({
+            "message": f"Successfully joined {group['grp_name']}",
+            "group": {
+                "id": group_id,
+                "name": group["grp_name"],
+                "photo": group.get("photo", ""),
+                "membersText": f"{member_count} members"
+            }
+        }), 200
+        
+    except ValueError as e:
+        return jsonify({"error": str(e)}), 400
+    except Exception as e:
+        print(f"Error in handle_join_by_invite_code: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        return jsonify({"error": f"Server error: {str(e)}"}), 500
 
 
 def handle_join_grp(data: dict, groupID: int=None): #dont quite know how to handle joining by link
@@ -102,7 +148,8 @@ def handle_get_group_details(grp_id):
             "photo": group.get("photo", ""),
             "members": members,
             "owner": group.get("owner"),
-            "total_users": group.get("total_users", len(members))
+            "total_users": group.get("total_users", len(members)),
+            "invite_code": group.get("invite_code", "")
         }), 200
     except Exception as e:
         print(f"Error in handle_get_group_details: {str(e)}")

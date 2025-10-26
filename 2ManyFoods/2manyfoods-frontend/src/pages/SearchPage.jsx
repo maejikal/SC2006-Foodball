@@ -223,7 +223,7 @@ export default function SearchPage() {
 
             {/* Price Range Slider */}
             <div className="priceSliderSection">
-              <h4>Price Range</h4>
+              <h3>Price Range: ${priceRange}</h3>
               <input
                 type="range"
                 min="0"
@@ -233,11 +233,8 @@ export default function SearchPage() {
                 className="slider"
               />
               <div className="priceLabels">
-                <span>$5</span>
-                <span>$10</span>
-                <span>$15</span>
-                <span>$50</span>
-                <span>$100</span>
+                <span>0</span>
+                <span>100+</span>
               </div>
             </div>
 
