@@ -164,7 +164,7 @@
   text-transform: lowercase;
 }
 
-.leaderBadge {
+.leaderTag {
   background-color: #FFD700;
   color: black;
   font-size: 0.7rem;
@@ -172,6 +172,12 @@
   padding: 0.2rem 0.5rem;
   border-radius: 4px;
   margin-left: 0.5rem;
+}
+
+.startFoodballBtn.disabled {
+  background-color: gray;
+  cursor: not-allowed;
+  opacity: 0.6;
 }
 
 .backToGroupsBtn {

@@ -18,7 +18,7 @@ export default function GroupDetailsPage() {
   const [error, setError] = useState('');
   const [showInviteCode, setShowInviteCode] = useState(false);
 
-  const currentUserId = localStorage.getItem('userId');
+  const currentUsername = localStorage.getItem('username');
 
   // Fetch group data
   useEffect(() => {
@@ -52,6 +52,8 @@ export default function GroupDetailsPage() {
     fetchGroup();
   }, [groupId]);
 
+  const isLeader = currentUsername === group?.leaderId;
+
   const handleCopyInviteCode = () => {
     navigator.clipboard.writeText(inviteCode)
       .then(() => alert('Invite code copied to clipboard!'));
@@ -63,7 +65,6 @@ export default function GroupDetailsPage() {
 
   const handleStartFoodball = () => {
     if (!group) return;
-    const isLeader = currentUserId === group.leaderId;
     navigate(isLeader ? '/foodball/select-location' : '/foodball/waiting', 
       { state: { groupName: group.name, groupId: group.id } }
     );
@@ -108,7 +109,13 @@ export default function GroupDetailsPage() {
                   </div>
                 )}
               </div>
-              <button className="startFoodballBtn" onClick={handleStartFoodball}>
+              
+              <button
+                className={`startFoodballBtn ${!isLeader ? 'disabled' : ''}`}
+                onClick={handleStartFoodball}
+                disabled={!isLeader} 
+                title={isLeader ? '' : 'Only the group leader can start Foodball'}
+              >
                 Start Foodball
               </button>
             </div>
@@ -118,10 +125,19 @@ export default function GroupDetailsPage() {
               <div className="membersList">
                 {members.map((member) => (
                   <div key={member.id} className="memberCard">
-                    <img src={member.avatar} alt={member.name} className="memberAvatar"/>
+                    <img 
+                      src={member.avatar || 'default-avatar.png'} 
+                      alt={member.name} 
+                      className="memberAvatar"
+                    />
                     <div className="memberInfo">
-                      <h3>{member.name}</h3>
-                      <p>likes {member.preferences?.join(', ')}</p>
+                      <h3>
+                        {member.name}
+                        {member.id === group.leaderId && (
+                          <span className="leaderTag">Leader</span>
+                        )}
+                      </h3>
+                      <p>likes {member.preferences?.join(', ') || 'no preferences'}</p>
                     </div>
                   </div>
                 ))}
