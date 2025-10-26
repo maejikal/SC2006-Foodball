@@ -7,8 +7,7 @@ import './LoginPage.css';
 
 export default function LoginPage() {
   const navigate = useNavigate();
-
-  //store the form input values
+  
   const [form, setForm] = useState({
     usernameOrEmail: '',
     password: '',
@@ -17,12 +16,14 @@ export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [authError, setAuthError] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [showForgotPasswordModal, setShowForgotPasswordModal] = useState(false);
+  const [resetEmail, setResetEmail] = useState('');
+  const [resetMessage, setResetMessage] = useState('');
 
   const handleChange = (e) => {
-    const { name, value } = e.target; //get which field changed and it new value
-    setForm((prev) => ({ ...prev, [name]: value })); //update it
-
-    //clear error message
+    const { name, value } = e.target;
+    setForm((prev) => ({ ...prev, [name]: value }));
+    
     if (errors[name]) {
       setErrors((prev) => ({ ...prev, [name]: '' }));
     }
@@ -30,7 +31,7 @@ export default function LoginPage() {
 
   const validateForm = () => {
     const newErrors = {};
-
+    
     if (!form.usernameOrEmail.trim()) {
       newErrors.usernameOrEmail = 'Email or username is required';
     }
@@ -43,95 +44,125 @@ export default function LoginPage() {
     
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
-
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault(); //prevent page refresh
-    console.log('Login form submitted', form); // can remove later one
+    e.preventDefault();
     setAuthError('');
+    
+    if (!validateForm()) {
+      return;
+    }
+    
+    setIsLoading(true);
+    
+    try {
+      const response = await fetch('http://localhost:8080/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: form.usernameOrEmail,
+          password: form.password
+        })
+      });
+      
+      const data = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(data.error || 'Login failed');
+      }
+      
+      console.log('Login successful:', data);
+      
+      if (data.username) {
+        localStorage.setItem('username', data.username);
+      }
+      
+      navigate('/search');
+    } catch (error) {
+      console.error('Login error:', error);
+      setAuthError(error.message || 'Invalid email or password. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
-    if(!validateForm()){
+  const handleForgotPassword = () => {
+    setShowForgotPasswordModal(true);
+    setResetEmail('');
+    setResetMessage('');
+  };
+
+  const handleResetPassword = async () => {
+    if (!resetEmail.trim()) {
+      setResetMessage('Please enter your email address');
       return;
     }
 
-    setIsLoading(true);
+    // Email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(resetEmail)) {
+      setResetMessage('Please enter a valid email address');
+      return;
+    }
 
     try {
-    const response = await fetch('http://localhost:8080/login', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        email: form.usernameOrEmail, 
-        password: form.password
-      })
-    });
+      // TODO: Replace with actual API call to send reset link
+      const response = await fetch('http://localhost:8080/forgot-password', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email: resetEmail })
+      });
 
-    const data = await response.json();
+      const data = await response.json();
 
-    if (!response.ok) {
-      throw new Error(data.error || 'Login failed');
+      if (response.ok) {
+        setResetMessage('Password reset link sent! Please check your email.');
+      } else {
+        setResetMessage(data.error || 'Failed to send reset link. Please try again.');
+      }
+    } catch (error) {
+      console.error('Password reset error:', error);
+      setResetMessage('An error occurred. Please try again later.');
     }
+  };
 
-    console.log('Login successful:', data);
-
-    if (data.username) {
-      localStorage.setItem('username', data.username);
-    }
-    
-    navigate('/search');
-
-  } catch (error) {
-    console.error('Login error:', error);
-    setAuthError(error.message || 'Invalid email or password. Please try again.');
-  } finally {
-    setIsLoading(false);
-  }
-};
+  const handleCloseModal = () => {
+    setShowForgotPasswordModal(false);
+    setResetEmail('');
+    setResetMessage('');
+  };
 
   return (
     <div className="loginPage">
       <Navbar />
       <div className="loginContainer">
-        <h1>Login</h1>
-
-        <div style={{marginBottom:'0.5rem'}}>
-          <img
-            src="/assets/2manyfoods-logo.png"
-            alt="2manyfoods"
-            style={{width:'150px', height: '150px'}}
-          />
-        </div>
-        {/*if logn fails, show error message*/}
-        {authError && (
-          <div className="authError" style={{color: 'red', marginBottom: '1rem'}}>
-            {authError}
-          </div>
-        )}
-
+        <h1>login</h1>
+        <img src="/assets/2manyfoods-logo.png" alt="2manyfoods" />
+        
         <form onSubmit={handleSubmit}>
+          {authError && <div className="error-message">{authError}</div>}
+          
           <FormInput
             type="text"
             name="usernameOrEmail"
-            placeholder="email"
+            placeholder="Email or Username"
             value={form.usernameOrEmail}
             onChange={handleChange}
-            required // make sure field is not empty
+            error={errors.usernameOrEmail}
           />
-          {errors.usernameOrEmail && (
-            <div className="error">{errors.usernameOrEmail}</div>
-          )}
-
+          
           <div className="passwordInputWrapper">
-            <FormInput
-              type={showPassword ? 'text' : 'password'}
+            <input
+              type={showPassword ? "text" : "password"}
               name="password"
-              placeholder="password"
+              placeholder="Password"
               value={form.password}
               onChange={handleChange}
-              required // make sure field is not empty
             />
             <button
               type="button"
@@ -139,33 +170,67 @@ export default function LoginPage() {
               onClick={() => setShowPassword(!showPassword)}
             >
               <img 
-                src={showPassword ? '/assets/icons8-eye-50.png' : '/assets/icons8-closed-eye-50.png'}
-                alt={showPassword ? 'Hide password' : 'Show password'}
+                src={showPassword ? "/assets/icons8-eye-50.png" : "/assets/icons8-closed-eye-50.png"} 
+                alt="Toggle password visibility"
               />
             </button>
           </div>
-          {errors.password && (
-            <div className="error">{errors.password}</div>
-          )}
-
+          {errors.password && <div className="error-message">{errors.password}</div>}
+          
           <div className="forgotLink">
-            <a href="/forgot">forgot password?</a>
+            <a href="#" onClick={(e) => { e.preventDefault(); handleForgotPassword(); }}>
+              forgot password?
+            </a>
           </div>
-
-          <Button
-            text={isLoading ? "Logging in..." : "login"}
-            type="submit"
-            disabled={isLoading}
-            style={{ width: '100%', backgroundColor: '#7f56d9', color: 'white' }}
-          />
-
+          
+          <Button type="submit" disabled={isLoading}>
+            {isLoading ? 'logging in...' : 'login'}
+          </Button>
         </form>
-
+        
         <p>
           don't have an account?{' '}
           <a href="/signup">sign up</a>
         </p>
       </div>
+
+      {/* Forgot Password Modal */}
+      {showForgotPasswordModal && (
+        <div className="modalOverlay" onClick={handleCloseModal}>
+          <div className="modalContent" onClick={(e) => e.stopPropagation()}>
+            <h2>Reset Password</h2>
+            <p className="modalInstructions">
+              Please enter your email in the box below. We will send you a link to access further instructions.
+            </p>
+            
+            <input
+              type="email"
+              className="resetEmailInput"
+              placeholder="Enter your email"
+              value={resetEmail}
+              onChange={(e) => {
+                setResetEmail(e.target.value);
+                setResetMessage('');
+              }}
+            />
+            
+            {resetMessage && (
+              <p className={`resetMessage ${resetMessage.includes('sent') ? 'success' : 'error'}`}>
+                {resetMessage}
+              </p>
+            )}
+            
+            <div className="modalButtons">
+              <button className="backBtn" onClick={handleCloseModal}>
+                back to login
+              </button>
+              <button className="resetBtn" onClick={handleResetPassword}>
+                reset password
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
