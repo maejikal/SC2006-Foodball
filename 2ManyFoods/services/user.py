@@ -137,4 +137,8 @@ def update_cuisine_preferences(username: str, new_preferences:dict):
 def update_budget(username: str, new_budget: float):
     return run(updatedb(COL, "Username", username, "Budget", new_budget))
 
+def update_hunger(username: str, new_hunger: int):
+    return run(updatedb(COL, "Username", username, "Hunger", new_hunger))
+
+
     

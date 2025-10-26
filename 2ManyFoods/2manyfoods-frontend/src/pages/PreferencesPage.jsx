@@ -16,6 +16,7 @@ export default function PreferencesPage() {
   const [rank2, setRank2] = useState('');
   const [rank3, setRank3] = useState('');
   const [budget, setBudget] = useState(50);
+  const [hunger, setHunger] = useState(1);
 
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -66,6 +67,7 @@ export default function PreferencesPage() {
         setRank3(prefs.rank3 || '');
         
         setBudget(data.budget || 50);
+        setHunger(data.hunger || 1);
         
         setIsLoading(false);
 
@@ -111,7 +113,8 @@ export default function PreferencesPage() {
         rank2: rank2,
         rank3: rank3
       },
-      budget: budget
+      budget: budget,
+      hunger: hunger
     };
     
     console.log('Sending to backend:', JSON.stringify(requestBody, null, 2));
@@ -269,6 +272,25 @@ export default function PreferencesPage() {
             <span>$100+</span>
           </div>
         </div>
+
+        <div className="hungerSliderSection">
+          <label htmlFor="hungerSlider">Hunger Level: {hunger}</label>
+          <input
+            type="range"
+            id="hungerSlider"
+            min="1"
+            max="10"
+            value={hunger}
+            onChange={(e) => setHunger(parseInt(e.target.value))}
+            className="hungerSlider"
+            disabled={isSaving}
+          />
+          <div className="hungerLabels">
+            <span>Not Hungry (1)</span>
+            <span>Very Hungry (10)</span>
+          </div>
+        </div>
+
 
         <button className="saveBtn" onClick={handleSave} disabled={isSaving}>
           {isSaving ? 'Saving...' : (isOnboarding ? 'Finish & Start Exploring' : 'Save Preferences')}
