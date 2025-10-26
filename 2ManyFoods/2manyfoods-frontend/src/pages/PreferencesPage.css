@@ -90,59 +90,6 @@
   margin-top: 0.5rem;
 }
 
-.hungerSliderSection {
-  width: 100%;
-  max-width: 450px;
-  margin-top: 1.5rem;
-  margin-bottom: 1rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.hungerSliderSection label {
-  font-size: 1rem;
-  font-weight: 600;
-  color: #fff;
-  margin: 0;
-}
-
-.hungerSlider {
-  width: 100%;
-  height: 6px;
-  border-radius: 5px;
-  background: #3d4a5a;
-  outline: none;
-  margin-top: 0.5rem;
-}
-
-.hungerSlider::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  appearance: none;
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  background: #d2542f;
-  cursor: pointer;
-}
-
-.hungerSlider::-moz-range-thumb {
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  background: #d2542f;
-  cursor: pointer;
-  border: none;
-}
-
-.hungerLabels {
-  display: flex;
-  justify-content: space-between;
-  font-size: 0.8rem;
-  color: #bbb;
-  margin-top: 0.5rem;
-}
-
 .saveBtn {
   padding: 0.9rem 3rem;
   border: 2px solid white;

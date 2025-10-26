@@ -29,8 +29,6 @@ def update_user_profile(data, section):
                     user_services.update_cuisine_preferences(username, data["cuisine_preferences"])
                 if "budget" in data:
                     user_services.update_budget(username, data["budget"])
-                if "hunger" in data:
-                    user_services.update_hunger(username, data["hunger"])
     except Exception as e:
         return jsonify({"error":f"Failed to update field: {str(e)}"}), 500
     
@@ -67,7 +65,6 @@ def get_cuisine_preferences(username):
     user = user_services.get_user_by_username(username)
     return jsonify({
         "preferences": user.get("Preferences", {}),
-        "budget": user.get("Budget", 50),
-        "hunger": user.get("Hunger", 1)
+        "budget": user.get("Budget", 50)
     }), 200
 
