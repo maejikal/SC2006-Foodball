@@ -7,62 +7,59 @@ export default function FoodReviewPage() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Get restaurant data from FoodHistoryPage
   const restaurantData = location.state?.restaurant;
 
   const [rating, setRating] = useState(0);
   const [hover, setHover] = useState(0);
   const [review, setReview] = useState('');
-  const [file, setFile] = useState(null); //stores the uploaded file
+  const [file, setFile] = useState(null);
   const [filePreview, setFilePreview] = useState(null);
-
   const [isLoading, setIsLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState('');
   const [fileError, setFileError] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
 
-  // loading existing review (for edit)
   useEffect(() => {
-    if (!restaurantData) {
-      navigate('/account/history');
-      return;
-    }
-
-    if (restaurantData.isEdit) {
+    // Only try to load existing review if editing
+    if (restaurantData && restaurantData.isEdit) {
       const loadExistingReview = async () => {
         setIsLoading(true);
-        
         try {
-
-          //Api call
-
-          setTimeout(() => {
-            setRating(restaurantData.currentRating || 0);
-            setReview(''); // Load existing review text from backend
-            setIsLoading(false);
-          }, 500);
+          const username = localStorage.getItem('username');
+          const response = await fetch(
+            `http://localhost:8080/api/review/get?username=${username}&restaurant_id=${restaurantData.id}`
+          );
           
+          if (response.ok) {
+            const data = await response.json();
+            setRating(data.review.rating || 0);
+            setReview(data.review.comment || '');
+            if (data.review.photo) {
+              setFilePreview(data.review.photo);
+            }
+          }
+          
+          setIsLoading(false);
         } catch (error) {
           console.error('Error loading review:', error);
           setError('Failed to load existing review');
           setIsLoading(false);
         }
       };
-      
       loadExistingReview();
     }
-  }, [restaurantData, navigate]);
+  }, [restaurantData]);
 
   const handleFileUpload = (e) => {
     const selectedFile = e.target.files[0];
     setFileError('');
-    
+
     if (selectedFile) {
       const validImageTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
       const validVideoTypes = ['video/mp4', 'video/mov', 'video/avi'];
       const validTypes = [...validImageTypes, ...validVideoTypes];
-      
+
       if (!validTypes.includes(selectedFile.type)) {
         setFileError('Please upload a valid image (JPEG, PNG, GIF) or video (MP4, MOV, AVI)');
         return;
@@ -75,7 +72,7 @@ export default function FoodReviewPage() {
       }
 
       setFile(selectedFile);
-      
+
       const reader = new FileReader();
       reader.onloadend = () => {
         setFilePreview(reader.result);
@@ -105,8 +102,7 @@ export default function FoodReviewPage() {
     return true;
   };
 
-  // save review to backend
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
     setSuccessMessage('');
@@ -116,25 +112,79 @@ export default function FoodReviewPage() {
     }
 
     setIsSaving(true);
-
     try {
+      const username = localStorage.getItem('username');
       
-      //Api Call
+      const reviewData = {
+        Username: username,
+        EateryID: restaurantData.id,
+        Rating: rating,
+        Comment: review,
+        Date: new Date().toISOString(),
+        Photo: filePreview || ''
+      };
 
-      setTimeout(() => {
-        setIsSaving(false);
-        setSuccessMessage(restaurantData.isEdit ? 'Review updated successfully!' : 'Review submitted successfully!');
+      const endpoint = restaurantData.isEdit 
+        ? 'http://localhost:8080/api/review/update'
+        : 'http://localhost:8080/api/review/create';
+      
+      const method = restaurantData.isEdit ? 'PUT' : 'POST';
+
+      const response = await fetch(endpoint, {
+        method: method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(reviewData)
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setSuccessMessage(
+          restaurantData.isEdit 
+            ? 'Review updated successfully!' 
+            : 'Review submitted successfully!'
+        );
         
         setTimeout(() => {
           navigate('/account/history');
         }, 2000);
-      }, 1000);
-
+      } else {
+        throw new Error(data.error || 'Failed to submit review');
+      }
+      
+      setIsSaving(false);
     } catch (error) {
       console.error('Error submitting review:', error);
-      setError('Network error. Please try again.');
+      setError('Failed to submit review. Please try again.');
       setIsSaving(false);
     }
+  };
+
+  // Render SVG stars for rating
+  const renderStars = (currentRating) => {
+    return Array.from({ length: 5 }, (_, i) => {
+      const ratingValue = i + 1;
+      const isFilled = ratingValue <= (hover || currentRating);
+      return (
+        <svg
+          key={i}
+          onClick={() => setRating(ratingValue)}
+          onMouseEnter={() => setHover(ratingValue)}
+          onMouseLeave={() => setHover(0)}
+          width="40"
+          height="40"
+          viewBox="0 0 24 24"
+          xmlns="http://www.w3.org/2000/svg"
+          style={{
+            fill: isFilled ? '#ffc107' : '#e4e5e9',
+            cursor: 'pointer',
+            marginRight: '4px'
+          }}
+        >
+          <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+        </svg>
+      );
+    });
   };
 
   if (!restaurantData) {
@@ -153,154 +203,75 @@ export default function FoodReviewPage() {
       <div className="reviewPage">
         <Navbar />
         <div className="reviewContent">
-          <h1>{restaurantData.isEdit ? 'Edit Review' : 'Review'}</h1>
-          <p style={{ textAlign: 'center', fontSize: '1.2rem', marginTop: '2rem' }}>
-            Loading...
-          </p>
+          <p>Loading...</p>
         </div>
       </div>
     );
   }
 
-
   return (
     <div className="reviewPage">
       <Navbar />
       <div className="reviewContent">
-        <h1>{restaurantData.isEdit ? 'Edit Review' : 'Review'}</h1>
-        
-        {/* Restaurant Info */}
+        <h1>{restaurantData.isEdit ? 'Edit Review' : 'Write a Review'}</h1>
+
         <div className="restaurantInfo">
           <img 
             src={restaurantData.image} 
             alt={restaurantData.name} 
-            className="restaurantImage" 
+            className="restaurantImage"
           />
-          <span className="restaurantName">{restaurantData.name}</span>
-        </div>
-
-        {/* Error Message */}
-        {error && (
-          <div 
-            className="errorMessage" 
-            style={{
-              color: '#721c24',
-              backgroundColor: '#f8d7da',
-              padding: '0.75rem',
-              borderRadius: '8px',
-              marginBottom: '1rem',
-              textAlign: 'center'
-            }}
-          >
-            {error}
-          </div>
-        )}
-
-        {/* Success Message */}
-        {successMessage && (
-          <div 
-            className="successMessage" 
-            style={{
-              color: 'green',
-              backgroundColor: '#d4edda',
-              padding: '0.75rem',
-              borderRadius: '8px',
-              marginBottom: '1rem',
-              textAlign: 'center'
-            }}
-          >
-            {successMessage}
-          </div>
-        )}
-
-        {/* Star Rating with SVG */}
-        <div className="starRating">
-          {[...Array(5)].map((_, index) => {
-            const ratingValue = index + 1;
-            const isFilled = ratingValue <= (hover || rating);
-            
-            return (
-              <label key={ratingValue}>
-                <input
-                  type="radio"
-                  name="rating"
-                  value={ratingValue}
-                  onClick={() => setRating(ratingValue)}
-                  style={{ display: 'none' }}
-                  disabled={isSaving}
-                />
-                <svg
-                  className={`star ${isFilled ? 'filled' : 'empty'}`}
-                  width="40"
-                  height="40"
-                  viewBox="0 0 24 24"
-                  xmlns="http://www.w3.org/2000/svg"
-                  onMouseEnter={() => !isSaving && setHover(ratingValue)}
-                  onMouseLeave={() => setHover(0)}
-                  style={{
-                    fill: isFilled ? '#ffd700' : '#e0e0e0',
-                    cursor: isSaving ? 'not-allowed' : 'pointer',
-                    transition: 'all 0.2s'
-                  }}
-                > 
-                  {/*star shape path*/} 
-                  <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" /> 
-                </svg> 
-              </label>
-            );
-          })}
+          <h2 className="restaurantName">{restaurantData.name}</h2>
         </div>
 
         <form onSubmit={handleSubmit}>
-          <textarea
-            placeholder="Share your review of the eatery (minimum 10 characters)"
-            rows={8}
-            value={review}
-            onChange={(e) => {
-              setReview(e.target.value);
-              setError('');
-            }}
-            disabled={isSaving}
-            maxLength={1000}
-          />
-          {/*character counter*/}
-          <small style={{ color: '#666', marginTop: '0.25rem', display: 'block' }}> 
-            {review.length}/1000 characters
-          </small>
+          {/* Star Rating */}
+          <div className="starRating">
+            {renderStars(rating)}
+          </div>
 
+          {/* Review Textarea */}
+          <textarea
+            value={review}
+            onChange={(e) => setReview(e.target.value)}
+            placeholder="Share your experience at this restaurant..."
+            rows="6"
+          />
+          <p style={{ fontSize: '0.9rem', color: '#ccc', marginTop: '-0.5rem' }}>
+            {review.length} characters (min 10)
+          </p>
+
+          {/* File Upload */}
           <label className="fileUploadLabel">
-            Add photos/videos (optional, max 10MB):
+            Add Photo or Video (Optional)
             <input
               type="file"
-              accept="image/jpeg,image/jpg,image/png,image/gif,video/mp4,video/mov,video/avi"
+              accept="image/*,video/*"
               onChange={handleFileUpload}
-              disabled={isSaving}
             />
           </label>
+          {fileError && <p style={{ color: 'red', fontSize: '0.9rem' }}>{fileError}</p>}
           
-          {/* File Error */}
-          {fileError && (
-            <p style={{ color: 'red', fontSize: '0.875rem', marginTop: '0.5rem' }}>
-              {fileError}
-            </p>
-          )}
-
-          {/* File Preview */}
           {filePreview && (
-            <div className="filePreview" style={{ marginTop: '1rem' }}>
-              {file && file.type.startsWith('video/') ? (
-                <video src={filePreview} controls style={{ maxWidth: '100%', maxHeight: '200px' }} />
+            <div style={{ marginTop: '1rem', maxWidth: '300px' }}>
+              {file && file.type.startsWith('video') ? (
+                <video src={filePreview} controls style={{ width: '100%', borderRadius: '10px' }} />
               ) : (
-                <img src={filePreview} alt="Preview" style={{ maxWidth: '100%', maxHeight: '200px' }} />
+                <img src={filePreview} alt="Preview" style={{ width: '100%', borderRadius: '10px' }} />
               )}
             </div>
           )}
 
-          <button 
-            type="submit"
-            disabled={isSaving || !!fileError}
-          >
-            {isSaving ? 'Submitting...' : (restaurantData.isEdit ? 'Update Review' : 'Submit Review')}
+          {/* Error & Success Messages */}
+          {error && <p style={{ color: 'red' }}>{error}</p>}
+          {successMessage && <p style={{ color: '#4caf50' }}>{successMessage}</p>}
+
+          {/* Submit Button */}
+          <button type="submit" disabled={isSaving}>
+            {isSaving 
+              ? (restaurantData.isEdit ? 'Updating...' : 'Submitting...') 
+              : (restaurantData.isEdit ? 'Update Review' : 'Submit Review')
+            }
           </button>
         </form>
       </div>

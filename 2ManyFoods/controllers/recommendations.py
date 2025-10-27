@@ -1,6 +1,8 @@
 from models import *
 import random
 import api
+from services import eatery as eatery_services
+from flask import request, jsonify
 
 class RecommendationController:
     def __init__(self, group: Group, location: Location, radius: int = 500):
@@ -61,3 +63,47 @@ class RecommendationController:
             self.FilterRecommendations()
             return True
         return False
+    
+def handle_solo_search():
+    """Handle solo restaurant search"""
+    try:
+        username = request.args.get('username')
+        selected_cuisines = request.args.getlist('cuisines')
+        price_range = request.args.get('price_range', type=int)
+        dietary_filters = request.args.getlist('dietary')
+        
+        if not username:
+            return jsonify({"error": "Username is required"}), 400
+        
+        places = eatery_services.search_eateries(
+            username=username,
+            selected_cuisines=selected_cuisines,
+            price_range=price_range,
+            dietary_filters=dietary_filters
+        )
+        
+        formatted_eateries = []
+        for place in places:
+            
+            formatted_eateries.append({
+                "_id": place.get('id', ''),
+                "name": place.get('displayName', {}).get('text', 'Unknown Restaurant'),
+                "location": {
+                    "address": "Near NTU",  
+                    "latitude": place.get('location', {}).get('latitude', 0),
+                    "longitude": place.get('location', {}).get('longitude', 0)
+                },
+                "price_range": price_range if price_range else 15,
+                "image": "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=400",
+                "cuisine": selected_cuisines[0] if selected_cuisines else "restaurant"
+            })
+        
+        return jsonify({
+            "message": "Search successful",
+            "count": len(formatted_eateries),
+            "eateries": formatted_eateries
+        }), 200
+        
+    except Exception as e:
+        print(f"Search error: {e}")
+        return jsonify({"error": f"Search failed: {str(e)}"}), 500

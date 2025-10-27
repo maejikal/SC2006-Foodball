@@ -137,4 +137,22 @@ def update_cuisine_preferences(username: str, new_preferences:dict):
 def update_budget(username: str, new_budget: float):
     return run(updatedb(COL, "Username", username, "Budget", new_budget))
 
+def update_foodhistory(username: str, eatery):
+    """Update user's food history with restaurant details"""
+    user = get_user_by_username(username)
+    if not user:
+        print("User not found.")
+        return
+    
+    current_history = user.get("FoodHistory", [])
+    
+    # Keep only last 10 entries
+    if len(current_history) >= 10:
+        current_history = current_history[1:]
+    
+    current_history.append(eatery)
+    
+    return run(updatedb(COL, "Username", username, "FoodHistory", current_history))
+
+
     

@@ -3,6 +3,8 @@ from flask_cors import CORS
 from __init__ import *
 from db import *
 from models import *
+from controllers import recommendations as recommendations_controller
+from datetime import datetime
 app = Flask(__name__)
 CORS(app)
 
@@ -130,8 +132,121 @@ def get_group_details(grp_id):
 def leave_group():
     return group_controller.handle_leave_group(request.get_json())
 
+@app.route('/api/search', methods=['GET'])
+def solo_search():
+    return recommendations_controller.handle_solo_search()
 
+from datetime import datetime
 
+@app.route('/api/history/add', methods=['POST'])
+def add_to_history():
+    """Add restaurant to user's food history"""
+    try:
+        data = request.get_json()
+        username = data.get('username')
+        restaurant = data.get('restaurant')
+        
+        if not username or not restaurant:
+            return jsonify({"error": "Missing required fields"}), 400
+        
+        # Create history entry with restaurant details
+        history_entry = {
+            "restaurant_id": restaurant['id'],
+            "restaurant_name": restaurant['name'],
+            "address": restaurant.get('address', 'N/A'),
+            "price_range": restaurant.get('price_range', 0),
+            "cuisine": restaurant.get('cuisine', 'Unknown'),
+            "visited_date": datetime.now().isoformat(),
+            "image": restaurant.get('image', '')
+        }
+        
+        # Use existing service to update food history
+        from services import user as user_services
+        user_services.update_foodhistory(username, history_entry)
+        
+        return jsonify({
+            "message": "Restaurant added to history successfully",
+            "restaurant": restaurant['name']
+        }), 200
+        
+    except Exception as e:
+        print(f"Error adding to history: {e}")
+        return jsonify({"error": str(e)}), 500
+
+    
+@app.route('/api/history/get', methods=['GET'])
+def get_food_history():
+    """Get user's food history"""
+    try:
+        username = request.args.get('username')
+        
+        if not username:
+            return jsonify({"error": "Username is required"}), 400
+        
+        # Use existing service to get user
+        from services import user as user_services
+        user_doc = user_services.get_user_by_username(username)
+        
+        if not user_doc:
+            return jsonify({"error": "User not found"}), 404
+        
+        # Get food history (returns array)
+        food_history = user_doc.get("FoodHistory", [])
+        
+        return jsonify({
+            "success": True,
+            "history": food_history
+        }), 200
+        
+    except Exception as e:
+        print(f"Error getting food history: {e}")
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/api/review/create', methods=['POST'])
+def create_review():
+    return review_controller.handle_create_review()
+
+@app.route('/api/review/update', methods=['PUT'])
+def update_review():
+    return review_controller.handle_update_review()
+
+@app.route('/api/review/get', methods=['GET'])
+def get_review():
+    """Get user's reviews"""
+    try:
+        username = request.args.get('username')
+        restaurant_id = request.args.get('restaurant_id')
+        
+        if not username or not restaurant_id:
+            return jsonify({"error": "Missing parameters"}), 400
+        
+        # Get reviews from services
+        from services import review as review_services
+        reviews = review_services.get_user_reviews(username)
+        
+        # Find specific restaurant review
+        restaurant_review = None
+        for review in reviews:
+            if review.get("EateryID") == restaurant_id:
+                restaurant_review = review
+                break
+        
+        if not restaurant_review:
+            return jsonify({"error": "Review not found"}), 404
+        
+        return jsonify({
+            "success": True,
+            "review": {
+                "rating": restaurant_review.get("Rating"),
+                "comment": restaurant_review.get("Comment"),
+                "photo": restaurant_review.get("Photo"),
+                "date": restaurant_review.get("Date")
+            }
+        }), 200
+        
+    except Exception as e:
+        print(f"Error getting review: {e}")
+        return jsonify({"error": str(e)}), 500
 
 if __name__ == "__main__":
     app.run(port=8080, debug=True)

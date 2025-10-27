@@ -5,58 +5,49 @@ import './FoodHistoryPage.css';
 
 export default function FoodHistoryPage() {
   const navigate = useNavigate();
-
   const [history, setHistory] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
   const [sortBy, setSortBy] = useState('recent');
 
-  // load food history
+  // Load food history from backend
   useEffect(() => {
     const loadFoodHistory = async () => {
       setIsLoading(true);
       setError('');
-
+      
       try {
+        const username = localStorage.getItem('username');
         
-        //Api call 
-
-        setTimeout(() => {
-          setHistory([
-            {
-              id: 1,
-              restaurantId: 101,
-              name: "Mamma Mia Trattoria E Caffe",
-              image: "/assets/restaurants/mamma-mia.jpg",
-              reviewed: false,
-              rating: 0,
-              visitedDate: "2025-10-15T14:30:00",
-              cuisine: "Italian"
-            },
-            {
-              id: 2,
-              restaurantId: 102,
-              name: "TANG^2 Malatang - 超烫麻辣烫",
-              image: "/assets/restaurants/tang2.jpg",
-              reviewed: true,
-              rating: 4,
-              visitedDate: "2025-10-10T18:00:00",
-              cuisine: "Chinese"
-            },
-            {
-              id: 3,
-              restaurantId: 103,
-              name: "DIN TAI FUNG",
-              image: "/assets/restaurants/dintaifung.jpg",
-              reviewed: true,
-              rating: 5,
-              visitedDate: "2025-10-05T12:00:00",
-              cuisine: "Chinese"
-            }
-          ]);
+        if (!username) {
+          setError('Please log in to view your history');
           setIsLoading(false);
-        }, 800);
+          return;
+        }
 
+        const response = await fetch(`http://localhost:8080/api/history/get?username=${username}`);
+        const data = await response.json();
+        
+        if (response.ok) {
+          const formattedHistory = data.history.map((item, index) => ({
+            id: index + 1,
+            restaurantId: item.restaurant_id,
+            name: item.restaurant_name,
+            image: item.image || '/assets/placeholder-restaurant.jpg',
+            reviewed: false,
+            rating: 0,
+            visitedDate: item.visited_date,
+            cuisine: item.cuisine,
+            address: item.address,
+            priceRange: item.price_range
+          }));
+          
+          setHistory(formattedHistory);
+        } else {
+          throw new Error(data.error || 'Failed to load history');
+        }
+        
+        setIsLoading(false);
       } catch (error) {
         console.error('Error loading food history:', error);
         setError('Network error. Please try again.');
@@ -80,12 +71,10 @@ export default function FoodHistoryPage() {
     }
   });
 
-  // create a svg stars (so easier to change color)
   const renderStars = (rating) => {
-    const stars = [];
-    for (let i = 1; i <= 5; i++) {
-      const isFilled = i <= rating;
-      stars.push(
+    return Array.from({ length: 5 }, (_, i) => {
+      const isFilled = i < rating;
+      return (
         <svg
           key={i}
           className={`star ${isFilled ? 'filled' : 'empty'}`}
@@ -100,9 +89,8 @@ export default function FoodHistoryPage() {
         >
           <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
         </svg>
-    );
-  }
-    return stars;
+      );
+    });
   };
 
   const formatDate = (dateString) => {
@@ -124,7 +112,6 @@ export default function FoodHistoryPage() {
   };
 
   const handleReviewClick = (restaurant) => {
-    // Pass restaurant data to review page
     navigate('/account/review', {
       state: {
         restaurant: {
@@ -139,7 +126,7 @@ export default function FoodHistoryPage() {
     });
   };
 
-   if (isLoading) {
+  if (isLoading) {
     return (
       <div className="foodHistoryPage">
         <Navbar />
@@ -255,7 +242,6 @@ export default function FoodHistoryPage() {
             ))}
           </ul>
         )}
-
       </div>
     </div>
   );
