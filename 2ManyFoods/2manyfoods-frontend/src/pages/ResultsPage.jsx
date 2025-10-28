@@ -6,7 +6,14 @@ import './ResultsPage.css';
 export default function ResultsPage() {
   const navigate = useNavigate();
   const location = useLocation();
-  const { groupId, groupName, winner, allVotes = [] } = location.state || {};
+  const { 
+    groupId, 
+    groupName, 
+    winner, 
+    allVotes = [],
+    totalVotes,
+    voteDetails 
+  } = location.state || {};
   
   const [isSaving, setIsSaving] = useState(false);
   const [hasSaved, setHasSaved] = useState(false);
@@ -67,8 +74,7 @@ export default function ResultsPage() {
     );
   }
 
-  // Count number of users who voted
-  const totalVotes = allVotes.length;
+  const voteCount = totalVotes || allVotes.length || 1;
 
   return (
     <div className="resultsPage">
@@ -89,14 +95,14 @@ export default function ResultsPage() {
             <p>{winner.vicinity || winner.formatted_address || winner.location?.address || 'Near NTU'}</p>
             
             {winner.rating && (
-              <p>{winner.rating} / 5</p>
+              <p>⭐ {winner.rating} / 5</p>
             )}
             
             {winner.price_level && (
               <p>{'$'.repeat(winner.price_level)}</p>
             )}
             
-            <p>Total Votes: {totalVotes}</p>
+            <p>Total Votes: {voteCount}</p>
           </div>
 
           <div className="membersVotes">

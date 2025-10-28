@@ -5,8 +5,6 @@ import './SearchPage.css';
 export default function SearchPage() {
   const [selectedCuisines, setSelectedCuisines] = useState([]);
   const [priceRange, setPriceRange] = useState(50);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [userPreferences, setUserPreferences] = useState({ rank1: '', rank2: '', rank3: '' });
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [restaurants, setRestaurants] = useState([]);
@@ -15,25 +13,53 @@ export default function SearchPage() {
 
   const mealCuisines = ['western', 'italian', 'chinese', 'malay', 'indian', 'japanese', 'korean'];
 
+  const capitalize = (str) => str.charAt(0).toUpperCase() + str.slice(1);
+
   useEffect(() => {
-    const loadUserPreferences = async () => {
-      try {
-        const preferences = {
-          rank1: 'italian',
-          rank2: 'japanese',
-          rank3: 'korean'
-        };
-        setUserPreferences(preferences);
-        setSelectedCuisines([preferences.rank1, preferences.rank2, preferences.rank3]);
+    const loadPreferences = async () => {
+      setIsLoading(true);
+
+      const username = localStorage.getItem('username');
+      
+      if (!username) {
+        console.error('No username found');
         setIsLoading(false);
+        return;
+      }
+
+      try {
+        const response = await fetch(`http://localhost:8080/account/cuisine/${username}`, {
+          method: 'GET',
+          headers: { 'Content-Type': 'application/json' }
+        });
+
+        const data = await response.json();
+
+        if (response.ok && data.preferences) {
+          const prefs = data.preferences;
+          
+          if (prefs.rank1 && prefs.rank2 && prefs.rank3) {
+            const cuisines = [
+              prefs.rank1.toLowerCase(),
+              prefs.rank2.toLowerCase(),
+              prefs.rank3.toLowerCase()
+            ];
+            setSelectedCuisines(cuisines);
+            await fetchRestaurants(cuisines, data.budget || 50);
+          }
+          
+          setPriceRange(data.budget || 50);
+        }
         
-        await fetchRestaurants([preferences.rank1, preferences.rank2, preferences.rank3], 50);
+        setIsLoading(false);
+
       } catch (error) {
-        console.error('Error loading preferences:', error);
+        console.error('Failed to load preferences:', error);
         setIsLoading(false);
       }
     };
-    loadUserPreferences();
+
+    loadPreferences();
   }, []);
 
   const fetchRestaurants = async (cuisines, price) => {
@@ -44,7 +70,7 @@ export default function SearchPage() {
         `http://localhost:8080/api/search?username=${username}&${cuisineParams}&price_range=${price}`
       );
       const data = await response.json();
-      
+
       if (response.ok && data.eateries) {
         setRestaurants(data.eateries);
       }
@@ -55,14 +81,14 @@ export default function SearchPage() {
 
   const getCuisineRank = (cuisine) => {
     const index = selectedCuisines.indexOf(cuisine.toLowerCase());
-    if (index === -1) return null;
-    return index + 1;
+    return index !== -1 ? index + 1 : null;
   };
 
   const toggleCuisine = (cuisine) => {
     const lowerCuisine = cuisine.toLowerCase();
+    
     if (selectedCuisines.includes(lowerCuisine)) {
-      if (selectedCuisines.length <= 3) return;
+      setSelectedCuisines(selectedCuisines.filter(c => c !== lowerCuisine));
     } else {
       if (selectedCuisines.length >= 3) {
         setSelectedCuisines([lowerCuisine, ...selectedCuisines.slice(0, 2)]);
@@ -79,23 +105,19 @@ export default function SearchPage() {
     }
 
     const username = localStorage.getItem('username');
-    if (!username) {
-      alert('Please log in to save preferences');
-      return;
-    }
-
     setIsSaving(true);
-    try {
-      const requestBody = {
-        username: username,
-        preferences: {
-          rank1: selectedCuisines[0],
-          rank2: selectedCuisines[1],
-          rank3: selectedCuisines[2]
-        },
-        budget: priceRange
-      };
 
+    const requestBody = {
+      username: username,
+      cuisine_preferences: {
+        rank1: capitalize(selectedCuisines[0]),
+        rank2: capitalize(selectedCuisines[1]),
+        rank3: capitalize(selectedCuisines[2])
+      },
+      budget: priceRange
+    };
+
+    try {
       const response = await fetch('http://localhost:8080/account/cuisine', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -103,18 +125,14 @@ export default function SearchPage() {
       });
 
       const data = await response.json();
+
       if (!response.ok) {
         throw new Error(data.error || 'Failed to save preferences');
       }
 
-      setUserPreferences({
-        rank1: selectedCuisines[0],
-        rank2: selectedCuisines[1],
-        rank3: selectedCuisines[2]
-      });
-
       await fetchRestaurants(selectedCuisines, priceRange);
       alert('Preferences saved successfully!');
+
     } catch (error) {
       console.error('Error saving preferences:', error);
       alert('Failed to save preferences. Please try again.');
@@ -137,7 +155,7 @@ export default function SearchPage() {
 
   const handleSaveToHistory = async () => {
     const username = localStorage.getItem('username');
-    
+
     try {
       const response = await fetch('http://localhost:8080/api/history/add', {
         method: 'POST',
@@ -154,31 +172,23 @@ export default function SearchPage() {
         })
       });
 
-      const data = await response.json();
-      
       if (response.ok) {
-        alert('Restaurant added to your food history! Enjoy your meal! 🍽️');
-        setShowConfirmModal(false);
-        setSelectedRestaurant(null);
-      } else {
-        throw new Error(data.error || 'Failed to save to history');
+        alert('Restaurant added to history!');
       }
     } catch (error) {
       console.error('Error saving to history:', error);
-      alert('Failed to save to history. Please try again.');
+    } finally {
+      setShowConfirmModal(false);
+      setSelectedRestaurant(null);
     }
   };
-
-  const filteredRestaurants = restaurants.filter((restaurant) =>
-    restaurant.name.toLowerCase().includes(searchQuery.toLowerCase())
-  );
 
   if (isLoading) {
     return (
       <div className="searchPage">
         <Navbar />
         <div className="searchContent">
-          <h2>Loading your preferences...</h2>
+          <p>Loading your preferences...</p>
         </div>
       </div>
     );
@@ -190,124 +200,115 @@ export default function SearchPage() {
       <div className="searchContent">
         <div className="searchTop">
           <div className="mapContainer">
-            <img src="https://via.placeholder.com/600x350?text=Map+Placeholder" alt="Map" />
+            <img 
+              src="https://via.placeholder.com/600x350?text=Map+View" 
+              alt="Map"
+            />
           </div>
-
           <div className="filtersSection">
-            <div>
-              <h3>Meal Preference</h3>
-              <div className="cuisineTags">
-                {mealCuisines.map((cuisine) => {
-                  const rank = getCuisineRank(cuisine);
-                  return (
-                    <button
-                      key={cuisine}
-                      onClick={() => toggleCuisine(cuisine)}
-                      className={`cuisineTag ${rank ? 'selected' : ''}`}
-                    >
-                      {cuisine}
-                      {rank && <span className="rankBadge">{rank}</span>}
-                    </button>
-                  );
-                })}
-              </div>
+            <h3>Select Your Cuisine</h3>
+            <div className="cuisineTags">
+              {mealCuisines.map((cuisine) => {
+                const rank = getCuisineRank(cuisine);
+                const isSelected = selectedCuisines.includes(cuisine.toLowerCase());
+                
+                return (
+                  <button
+                    key={cuisine}
+                    className={`cuisineTag ${isSelected ? 'selected' : ''}`}
+                    onClick={() => toggleCuisine(cuisine)}
+                  >
+                    {cuisine.charAt(0).toUpperCase() + cuisine.slice(1)}
+                    {rank && <span className="rankBadge">{rank}</span>}
+                  </button>
+                );
+              })}
             </div>
 
             <div className="priceSliderSection">
-              <h3>Price Range</h3>
+              <h3>Budget: ${priceRange}</h3>
               <input
                 type="range"
                 min="10"
                 max="100"
                 value={priceRange}
-                onChange={(e) => setPriceRange(parseInt(e.target.value))}
+                onChange={(e) => setPriceRange(Number(e.target.value))}
                 className="slider"
               />
               <div className="priceLabels">
                 <span>$10</span>
-                <span>${priceRange}</span>
-                <span>$100+</span>
+                <span>$100</span>
               </div>
             </div>
 
-            <button 
-              onClick={handleConfirmChoice} 
+            <button
+              onClick={handleConfirmChoice}
+              disabled={isSaving || selectedCuisines.length !== 3}
               className="confirmBtn"
-              disabled={isSaving}
             >
               {isSaving ? 'Saving...' : 'Confirm Choice'}
             </button>
           </div>
         </div>
 
-        <div className="searchBarContainer">
-          <div className="searchBar">
-            <input
-              type="text"
-              placeholder="Search restaurants..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
-          </div>
-        </div>
-
-        <div className="restaurantList">
-          {filteredRestaurants.length > 0 ? (
-            filteredRestaurants.map((restaurant) => (
-              <div
-                key={restaurant._id}
-                className={`restaurantCard ${selectedRestaurant?._id === restaurant._id ? 'selected' : ''}`}
-                onClick={() => handleRestaurantClick(restaurant)}
-                style={{ cursor: 'pointer' }}
-              >
-                <img
-                  src={restaurant.image}
-                  alt={restaurant.name}
-                  className="restaurantImage"
-                />
-                <div className="restaurantInfo">
-                  <h3>{restaurant.name}</h3>
-                  <p className="address">{restaurant.location.address}</p>
-                  <p className="price">${restaurant.price_range}</p>
-                  <p className="status">You've never eaten here before!</p>
+        {restaurants.length > 0 && (
+          <div className="restaurantList">
+            {restaurants.map((restaurant, index) => {
+              const isSelected = selectedRestaurant?._id === restaurant._id;
+              
+              return (
+                <div
+                  key={restaurant._id || index}
+                  className={`restaurantCard ${isSelected ? 'selected' : ''}`}
+                  onClick={() => handleRestaurantClick(restaurant)}
+                >
+                  <img
+                    src={restaurant.image || 'https://via.placeholder.com/150'}
+                    alt={restaurant.name}
+                    className="restaurantImage"
+                  />
+                  <div className="restaurantInfo">
+                    <h3>{restaurant.name}</h3>
+                    <p className="address">{restaurant.location.address}</p>
+                    <p className={`price ${restaurant.price_range <= 30 ? 'low' : restaurant.price_range <= 60 ? 'medium' : 'high'}`}>
+                      ${restaurant.price_range}
+                    </p>
+                    <p className="status">Click to add to history</p>
+                  </div>
                 </div>
-              </div>
-            ))
-          ) : (
-            <p>No restaurants found. Try different preferences!</p>
-          )}
-        </div>
+              );
+            })}
+          </div>
+        )}
 
-        {selectedRestaurant && (
-          <button 
-            onClick={handleConfirmRestaurant} 
+        {restaurants.length > 0 && (
+          <button
+            onClick={handleConfirmRestaurant}
+            disabled={!selectedRestaurant}
             className="confirmBtn"
-            style={{ marginTop: '1rem' }}
           >
-            Confirm Restaurant: {selectedRestaurant.name}
+            Confirm Restaurant
           </button>
         )}
-      </div>
 
-      {showConfirmModal && (
-        <div className="modalOverlay" onClick={() => setShowConfirmModal(false)}>
-          <div className="modalContent" onClick={(e) => e.stopPropagation()}>
-            <h2>Confirm Your Visit</h2>
-            <p>
-              Are you sure you're going to <strong>{selectedRestaurant.name}</strong> to eat?
-            </p>
-            <p>This restaurant will be added to your food history.</p>
-            <div className="modalButtons">
-              <button onClick={handleSaveToHistory} className="confirmBtn">
-                Yes, I'm Going!
-              </button>
-              <button onClick={() => setShowConfirmModal(false)} className="cancelBtn">
-                Cancel
-              </button>
+        {showConfirmModal && selectedRestaurant && (
+          <div className="modalOverlay" onClick={() => setShowConfirmModal(false)}>
+            <div className="modalContent" onClick={(e) => e.stopPropagation()}>
+              <h2>Add to Food History?</h2>
+              <p><strong>{selectedRestaurant.name}</strong></p>
+              <p>This restaurant will be added to your food history.</p>
+              <div className="modalButtons">
+                <button onClick={handleSaveToHistory} className="confirmBtn">
+                  Yes, I'm going!
+                </button>
+                <button onClick={() => setShowConfirmModal(false)} className="cancelBtn">
+                  Cancel
+                </button>
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 }

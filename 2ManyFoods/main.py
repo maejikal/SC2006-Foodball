@@ -7,6 +7,7 @@ from controllers import recommendations as recommendations_controller
 from datetime import datetime
 from controllers import group as group_cons
 from controllers import eatery as eatery_cons
+from bson.objectid import ObjectId
 app = Flask(__name__)
 CORS(app)
 
@@ -53,23 +54,94 @@ async def generate_recommendation(groupID):
 @app.route('/refresh/<groupID>')
 def refresh_group(groupID):
     global rec_cons
+    
+    if groupID not in rec_cons:
+        print(f"GroupID {groupID} not in cache - returning empty")
+        return jsonify({
+            "recommendations": [], 
+            "votingStatus": {},
+            "voteDetails": {}
+        }), 200
+    
     try:
         con = rec_cons[groupID]
-        return jsonify({"recommendations": con.recommendations})
-    except:
-        return jsonify({"recommendations": {}}), 400
+        voting_status = {}
+        vote_counts = {}
+        
+        if hasattr(con, 'Users') and con.Users:
+            for userID, userData in con.Users.items():
+                has_voted = userData.get('vote') is not None
+                voting_status[userID] = has_voted
+                
+                if has_voted:
+                    voted_restaurant = userData.get('vote')
+                    if voted_restaurant:
+                        vote_counts[voted_restaurant] = vote_counts.get(voted_restaurant, 0) + 1
+        
+        winner_id = max(vote_counts, key=vote_counts.get) if vote_counts else None
+        
+        return jsonify({
+            "recommendations": con.recommendations if hasattr(con, 'recommendations') else [],
+            "votingStatus": voting_status,
+            "voteDetails": vote_counts,
+            "winner": winner_id
+        })
+    except Exception as e:
+        print(f"Error: {e}")
+        return jsonify({"recommendations": [], "votingStatus": {}, "voteDetails": {}}), 200
 
-@app.route('/foodball/<groupID>/vote')
-async def group_voting(groupID):
+
+@app.route('/foodball/<groupID>/vote', methods=['POST'])
+def group_voting(groupID):
     global rec_cons
-    userID = request.args['userID']
-    vote = request.args['vote']
+    data = request.get_json()
+    username = data.get('username')
+    restaurant_ids = data.get('restaurant_ids', [])
+    
     try:
+        if groupID not in rec_cons:
+            print(f"Cache miss for {groupID}, initializing from database...")
+            
+            from services import group as group_services
+            group_data = group_services.get_grp_by_id(groupID)
+            
+            if not group_data:
+                return jsonify({"error": "Group not found"}), 404
+            
+            users = {}
+            for user in group_data.get('users', []):
+                users[user] = {'vote': None}
+            
+            rec_cons[groupID] = type('obj', (object,), {
+                'Users': users,
+                'recommendations': group_data.get('restaurants', [])
+            })()
+        
         con = rec_cons[groupID]
-        con.Users[userID]['vote'] = vote
-        return ""
-    except:
-        return "", 400
+        
+        if username not in con.Users:
+            con.Users[username] = {}
+        
+        voted_restaurant = restaurant_ids[0] if restaurant_ids else None
+        con.Users[username]['vote'] = voted_restaurant
+        
+        print(f"Vote cached: {username} -> {voted_restaurant}")
+        print(f"Current cache: {con.Users}")
+        
+        all_voted = all(
+            user.get('vote') is not None 
+            for user in con.Users.values()
+        )
+        
+        return jsonify({
+            "hasVoted": True,
+            "allVotesIn": all_voted
+        }), 200
+    except Exception as e:
+        print(f"Vote error: {e}")
+        import traceback
+        traceback.print_exc()
+        return jsonify({"error": str(e)}), 400
     
 @app.route('/update_prefs', methods=["POST"])
 def update():
@@ -216,11 +288,9 @@ def get_review():
         if not username or not restaurant_id:
             return jsonify({"error": "Missing parameters"}), 400
         
-        # Get reviews from services
         from services import review as review_services
         reviews = review_services.get_user_reviews(username)
         
-        # Find specific restaurant review
         restaurant_review = None
         for review in reviews:
             if review.get("EateryID") == restaurant_id:
