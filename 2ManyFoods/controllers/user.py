@@ -2,7 +2,6 @@ from flask import request, jsonify
 from services import user as user_services, group as group_services
 from bson import ObjectId
 
-
 ## fetching user's profile, updating settings, getting lists associated with logged in users
 
 def update_user_profile(data, section):
@@ -34,37 +33,25 @@ def update_user_profile(data, section):
     
     return jsonify({"message":f"Profile updated successfully"}), 200
 
-def get_account_info(username):
 
+def get_user_profile(username):
     if not username:
-        return jsonify({"error":"Username is required"}), 400
+        return jsonify({"error": "Username is required"}), 400
     
     try:
         user = user_services.get_user_by_username(username)
-        
         if not user:
-            return jsonify({"error":"User not found"}), 404
+            return jsonify({"error": "User not found"}), 404
         
         return jsonify({
             "username": user.get("Username"),
             "email": user.get("Email"),
-            "profilePhoto": user.get("ProfilePhoto", "")
+            "profilePhoto": user.get("ProfilePhoto", ""),
+            "dietaryRequirements": user.get("DietaryRequirements", {}),
+            "preferences": user.get("Preferences", {}),
+            "budget": user.get("Budget", 50),
+            "groups": user.get("Groups", []),
+            "foodHistory": user.get("FoodHistory", [])
         }), 200
-    
     except Exception as e:
-        return jsonify({"error":f"Failed to get account info: {str(e)}"}), 500
-
-
-def get_dietary_preferences(username):
-    user = user_services.get_user_by_username(username)
-    return jsonify({
-        "dietaryRequirements": user.get("DietaryRequirements", {})
-    }), 200
-
-def get_cuisine_preferences(username):
-    user = user_services.get_user_by_username(username)
-    return jsonify({
-        "preferences": user.get("Preferences", {}),
-        "budget": user.get("Budget", 50)
-    }), 200
-
+        return jsonify({"error": f"Failed to get user profile: {str(e)}"}), 500

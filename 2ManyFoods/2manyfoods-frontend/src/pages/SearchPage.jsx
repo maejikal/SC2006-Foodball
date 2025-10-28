@@ -28,7 +28,7 @@ export default function SearchPage() {
       }
 
       try {
-        const response = await fetch(`http://localhost:8080/account/cuisine/${username}`, {
+        const response = await fetch(`http://localhost:8080/account/${username}`, {
           method: 'GET',
           headers: { 'Content-Type': 'application/json' }
         });

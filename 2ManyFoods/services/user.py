@@ -45,19 +45,6 @@ def login_user(email:str, password:str):
         return
     return user
 
-def update_foodhistory(username: str, eatery: str):
-    user = get_user_by_username(username)
-    if not user:
-        print("User not found.")
-        return
-
-    current_history= user["FoodHistory"]
-    if len(current_history) >= 10:
-        current_history = current_history[1:]
-    current_history.append(eatery)
-    
-    return run(updatedb(COL, "Username", username, "FoodHistory", current_history))
-
 def store_review(username:str, review_id:int):
     user = get_user_by_username(username)
     reviews = user["Reviews"]
@@ -68,7 +55,7 @@ def delete_review(username:str, review_id:int):
     user = get_user_by_username(username)
     reviews = user["Reviews"]
     reviews.remove(review_id)
-    return run(updatedb(COL, "Username", username, "Reviws", reviews))
+    return run(updatedb(COL, "Username", username, "Reviews", reviews))
 
 def join_group(username:str, group_id:int):
     user = get_user_by_username(username)
@@ -138,7 +125,6 @@ def update_budget(username: str, new_budget: float):
     return run(updatedb(COL, "Username", username, "Budget", new_budget))
 
 def update_foodhistory(username: str, eatery):
-    """Update user's food history with restaurant details"""
     user = get_user_by_username(username)
     if not user:
         print("User not found.")
@@ -146,7 +132,6 @@ def update_foodhistory(username: str, eatery):
     
     current_history = user.get("FoodHistory", [])
     
-    # Keep only last 10 entries
     if len(current_history) >= 10:
         current_history = current_history[1:]
     

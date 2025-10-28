@@ -88,5 +88,14 @@ async def getdb():
     await client.close()
     return (user_collection, group_collection, eatery_collection, review_collection)
 
+async def deletedb(collection: str, identifierfield: str, identifier): #added to do stuff like delete group
+    client = pymongo.AsyncMongoClient('127.0.0.1', 27017) 
+    db = client["2ManyFoods_db"]
+    coll = db[collection]
+    result = await coll.delete_one({identifierfield: identifier})
+    await client.close()
+    return result
+
+
 # asyncio.run(viewdb())
 user_collection, group_collection, eatery_collection, review_collection = asyncio.run(getdb())   

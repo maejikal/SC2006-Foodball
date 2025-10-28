@@ -14,7 +14,6 @@ export default function DietaryPreferencesPage() {
   const [selectedPreferences, setSelectedPreferences] = useState([]);
   const location = useLocation();
   const isOnboarding = location.state?.isOnboarding || false;
-
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState('');
@@ -28,6 +27,7 @@ export default function DietaryPreferencesPage() {
     { id: 'milk', label: 'Milk' },
     { id: 'egg', label: 'Egg'}
   ];
+
   const dietaryIcons = {
     halal: halalIcon,
     vegetarian: vegetarianIcon,
@@ -51,7 +51,6 @@ export default function DietaryPreferencesPage() {
       setError('');
 
       const username = localStorage.getItem('username');
-
       if (!username) {
         setError('Please log in to view preferences');
         setIsLoading(false);
@@ -59,15 +58,12 @@ export default function DietaryPreferencesPage() {
       }
 
       try {
-        
-        const response = await fetch(`http://localhost:8080/account/dietary/${username}`, 
-          {
-            method: 'GET',
-            headers: {
-              'Content-Type': 'application/json',
-            }
+        const response = await fetch(`http://localhost:8080/account/${username}`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
           }
-        );
+        });
 
         const data = await response.json();
 
@@ -75,17 +71,13 @@ export default function DietaryPreferencesPage() {
           throw new Error(data.error || 'Failed to load preferences');
         }
 
-        // Convert dict back to array for display
-        // Backend sends: {Halal: true, Vegetarian: true}
-        // Frontend needs: ['Halal', 'Vegetarian']
         const dietaryDict = data.dietaryRequirements || {};
         const preferencesArray = Object.keys(dietaryDict).filter(
           key => dietaryDict[key]
         );
-        
+
         setSelectedPreferences(preferencesArray);
         setIsLoading(false);
-
       } catch (error) {
         setError('Failed to load preferences. Please try again.');
         setIsLoading(false);
@@ -101,17 +93,15 @@ export default function DietaryPreferencesPage() {
     } else {
       setSelectedPreferences([...selectedPreferences, label]);
     }
-
     setError('');
   };
 
   const handleSave = async () => {
-    const username = localStorage.getItem('username');  
-    
+    const username = localStorage.getItem('username');
     if (!username) {
-    setError('Username not found. Please sign up or log in again.'); 
-    return;
-  }
+      setError('Username not found. Please sign up or log in again.');
+      return;
+    }
 
     setError('');
     setSuccessMessage('');
@@ -123,7 +113,7 @@ export default function DietaryPreferencesPage() {
     }, {});
 
     const requestBody = {
-      username: username,  
+      username: username,
       dietary_requirements: dietaryDict
     };
 
@@ -153,7 +143,6 @@ export default function DietaryPreferencesPage() {
           navigate('/account');
         }, 2000);
       }
-
     } catch (error) {
       console.error('Error saving dietary preferences:', error);
       setError(error.message || 'An error occurred. Please try again.');
@@ -166,96 +155,47 @@ export default function DietaryPreferencesPage() {
       <div className="dietaryPage">
         <Navbar />
         <div className="dietaryContent">
-          <h1>Dietary Preferences</h1>
-          <p style={{ textAlign: 'center', fontSize: '1.2rem', marginTop: '2rem' }}>
-            Loading your preferences...
-          </p>
+          <p>Loading your preferences...</p>
         </div>
       </div>
     );
   }
 
-
   return (
     <div className="dietaryPage">
       <Navbar />
       <div className="dietaryContent">
-        <h1>
-          {isOnboarding ? 'Set Your Dietary Preferences' : 'Dietary Preferences'}
-        </h1>
+        <h1>{isOnboarding ? 'Select any dietary restrictions or preferences (Step 1 of 2)' : 'Select your dietary restrictions and preferences'}</h1>
         
-        {isOnboarding ? (
-          <p style={{ marginBottom: '1.5rem', color: '#666' }}>
-            Select any dietary restrictions or preferences (Step 1 of 2)
-          </p>
-        ) : (
-          <p style={{ marginBottom: '1.5rem', color: '#666' }}>
-            Select your dietary restrictions and preferences
-          </p>
-        )}
-
         {/* Error Message */}
-        {error && (
-          <div 
-            className="errorMessage" 
-            style={{
-              color: '#721c24',
-              backgroundColor: '#f8d7da',
-              padding: '0.75rem',
-              borderRadius: '8px',
-              marginBottom: '1rem',
-              textAlign: 'center'
-            }}
-          >
-            {error}
-          </div>
-        )}
+        {error && <div className="error-message">{error}</div>}
 
         {/* Success Message */}
-        {successMessage && (
-          <div 
-            className="successMessage" 
-            style={{
-              color: 'green',
-              backgroundColor: '#d4edda',
-              padding: '0.75rem',
-              borderRadius: '8px',
-              marginBottom: '1rem',
-              textAlign: 'center'
-            }}
-          >
-            {successMessage}
-          </div>
-        )}
-        
+        {successMessage && <div className="success-message">{successMessage}</div>}
+
         <div className="dietaryOptions">
           {dietaryOptions.map((option) => (
             <div key={option.id} className="dietaryOption">
-              <div className="dietaryLabel">
-                <img
-                  src={dietaryIcons[option.id]}
-                  alt={`${option.label} icon`}
-                  className="dietaryIcon"
-                />
+              <label className="dietaryLabel">
+                <img src={dietaryIcons[option.id]} alt={option.label} className="dietaryIcon" />
                 <span>{option.label}</span>
-              </div>
+              </label>
               <input
                 type="checkbox"
                 className="customCheckbox"
                 checked={selectedPreferences.includes(option.label)}
                 onChange={() => togglePreference(option.label)}
-                disabled={isSaving}
               />
             </div>
           ))}
         </div>
 
-        <button
+        <button 
           className="saveBtn"
           onClick={handleSave}
           disabled={isSaving}
         >
-          {isSaving ? 'Saving...' : (isOnboarding ? 'Continue' : 'Save Preferences')}
+          {isSaving ? 'Saving...' : (isOnboarding ? 'Next' : 'Save')}
         </button>
       </div>
     </div>

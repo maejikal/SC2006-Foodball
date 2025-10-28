@@ -37,7 +37,7 @@ export default function AccountPage() {
       try {
         
         const response = await fetch(
-          `http://localhost:8080/account/info/${username}`,
+          `http://localhost:8080/account/${username}`,
           {
             method: 'GET',
             headers: {

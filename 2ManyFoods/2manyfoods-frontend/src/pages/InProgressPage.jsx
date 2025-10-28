@@ -26,7 +26,7 @@ export default function InProgressPage() {
       try {
         const username = localStorage.getItem('username');
         
-        const response = await fetch(`http://localhost:8080/account/cuisine/${username}`);
+        const response = await fetch(`http://localhost:8080/account/${username}`);
         const data = await response.json();
         
         if (response.ok && data.preferences) {
