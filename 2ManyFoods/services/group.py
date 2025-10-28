@@ -40,7 +40,21 @@ def create_group(owner: str, grp_name: str, photo: str):
         "users": [owner],
         "total_users": 1,
         "photo": photo,
-        "invite_code": invite_code
+        "invite_code": invite_code,
+        "members": [
+            {
+                "username": owner,
+                "is_leader": True,
+                "preferences_set": False,
+                "cuisines": [],
+                "price_range": 50,
+                "hunger_level": 5,
+                "has_voted": False
+            }
+        ],
+        "voting_started": False,
+        "restaurants": [],
+        "votes": []
     }
     
     inserted_docs = run(insertdb("Groups", [grp_doc]))
@@ -48,15 +62,12 @@ def create_group(owner: str, grp_name: str, photo: str):
 
 def remove_usr(username: str, grp_id: str):
     """Remove user from group. If owner leaves, transfer ownership or delete group."""
-    
-    # Create a fresh async client for this operation
     async def _remove_user_async():
         client = pymongo.AsyncMongoClient('127.0.0.1', 27017)
         try:
             db = client["2ManyFoods_db"]
             group_collection = db["Groups"]
             
-            # Find the group
             group = await searchdb("Groups", "_id", ObjectId(grp_id))
             
             if not group:
@@ -70,7 +81,6 @@ def remove_usr(username: str, grp_id: str):
                     await updatedb("Groups", "_id", ObjectId(grp_id), "users", [])
                     return None
                 else:
-                    # Transfer ownership to first remaining user
                     new_owner = remaining_users[0]
                     
                     result = await updatedb("Groups", "_id", ObjectId(grp_id), "owner", new_owner)
@@ -81,15 +91,12 @@ def remove_usr(username: str, grp_id: str):
                 result = await updatedb("Groups", "_id", ObjectId(grp_id), "total_users", len(remaining_users))
                 return result
         finally:
-            # Always close the client
             await client.close()
     
-    # Run the async function
     return run(_remove_user_async())
 
 def add_usr(username: str, grp_id: str):
     group = run(searchdb("Groups", "_id", ObjectId(grp_id)))
-    
     if not group:
         raise ValueError("Group does not exist.")
     
@@ -97,9 +104,34 @@ def add_usr(username: str, grp_id: str):
         raise ValueError("User already in group.")
     
     updated_users = group.get("users", []) + [username]
+    
     run(updatedb("Groups", "_id", ObjectId(grp_id), "users", updated_users))
     run(updatedb("Groups", "_id", ObjectId(grp_id), "total_users", len(updated_users)))
+    ''
+    async def _add_member_async():
+        client = pymongo.AsyncMongoClient('127.0.0.1', 27017)
+        try:
+            db = client["2ManyFoods_db"]
+            await db["Groups"].update_one(
+                {"_id": ObjectId(grp_id)},
+                {
+                    "$push": {
+                        "members": {
+                            "username": username,
+                            "is_leader": False,
+                            "preferences_set": False,
+                            "cuisines": [],
+                            "price_range": 50,
+                            "hunger_level": 5,
+                            "has_voted": False
+                        }
+                    }
+                }
+            )
+        finally:
+            await client.close()
     
+    run(_add_member_async())
     return True
 
 def get_user_groups(username: str):
@@ -117,5 +149,4 @@ def get_user_groups(username: str):
                 "membersText": f"{len(grp['users'])} members",
                 "photo": grp.get("photo", "")
             })
-    
     return groups

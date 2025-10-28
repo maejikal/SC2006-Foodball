@@ -7,135 +7,60 @@
   font-family: 'Poppins', sans-serif;
 }
 
-.progressContent {
+.inProgressPage .content {
   flex: 1;
   padding: 3rem 5rem;
 }
 
-.progressHeader {
-  display: flex;
-  gap: 1rem;
-  margin-bottom: 2rem;
-}
-
-.groupNamePill {
-  background: white;
-  color: black;
-  padding: 0.7rem 2rem;
-  border-radius: 50px;
-  font-size: 1.1rem;
-  font-weight: 600;
-}
-
-.copyInviteBtn {
-  background: #3d5a5a;
-  color: white;
-  padding: 0.7rem 1.5rem;
-  border: none;
-  border-radius: 25px;
-  font-family: 'Poppins', sans-serif;
-  font-size: 0.95rem;
-  cursor: pointer;
-  text-transform: lowercase;
-  font-weight: 500;
-  transition: opacity 0.2s;
-}
-
-.copyInviteBtn:hover {
-  opacity: 0.9;
-}
-
-.progressTitle {
-  background: white;
-  color: black;
-  padding: 1rem 3rem;
-  border-radius: 50px;
-  font-size: 1.8rem;
-  font-weight: 600;
+.inProgressPage .header {
   text-align: center;
-  margin-bottom: 2rem;
-  text-transform: capitalize;
+  margin-bottom: 2.5rem;
 }
 
-.contentGrid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 3rem;
-  margin-bottom: 3rem;
+.inProgressPage .header h1 {
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+  color: white;
+  font-weight: 600;
 }
 
-.mapContainer {
-  background: #1e2a3a;
-  border-radius: 20px;
-  height: 350px;
-  overflow: hidden;
-  position: relative;
+.inProgressPage .subtitle {
+  font-size: 1rem;
+  color: #bbb;
 }
 
-.mapContainer img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.preferencesSection {
+.inProgressPage .preferenceSection {
   display: flex;
   flex-direction: column;
   gap: 2rem;
+  margin-bottom: 2rem;
 }
 
-.foodTypes {
-  display: flex;
-  gap: 1rem;
-  margin-bottom: 1.5rem;
-}
-
-.foodTypeBtn {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.5rem;
-  cursor: pointer;
-  background: #f5d9b8;
-  border: 3px solid transparent;
-  border-radius: 15px;
-  padding: 0.8rem 1rem;
-  transition: all 0.2s;
-  min-width: 70px;
-}
-
-.foodTypeBtn:hover {
-  transform: translateY(-2px);
-}
-
-.foodTypeBtn.selected {
-  border-color: #d2542f;
-  background: #ffecd9;
-}
-
-.foodTypeBtn .icon {
-  font-size: 2rem;
-}
-
-.foodTypeBtn img.foodIcon {
-  width: 32px;
-  height: 32px;
-}
-
-.foodTypeBtn span {
-  font-size: 0.75rem;
-  text-transform: lowercase;
-  color: #5a3a1a;
+.inProgressPage .preferenceSection h3 {
+  font-size: 1.1rem;
   font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: white;
+  text-transform: capitalize;
 }
 
-.cuisineTags {
+.inProgressPage .hint {
+  font-size: 0.85rem;
+  color: #bbb;
+  margin-bottom: 1rem;
+}
+
+.inProgressPage .cuisineTags {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 0.8rem;
 }
 
-.cuisineTag {
+.inProgressPage .cuisineTag {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   padding: 0.6rem 1rem;
   border-radius: 25px;
   border: none;
@@ -145,42 +70,37 @@
   text-transform: capitalize;
   font-weight: 500;
   transition: all 0.2s;
+  gap: 0.5rem;
 }
 
-.cuisineTag.selected {
+.inProgressPage .cuisineTag.selected {
   background: #d2542f;
   color: white;
 }
 
-.cuisineTag:not(.selected) {
+.inProgressPage .cuisineTag:not(.selected) {
   background: #f5d9b8;
   color: #5a3a1a;
 }
 
-.cuisineTag:hover {
+.inProgressPage .cuisineTag:hover {
   opacity: 0.9;
 }
 
-.sliderSection {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
+.inProgressPage .rankBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.3);
+  color: white;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 0.15rem 0.4rem;
+  border-radius: 10px;
+  margin-left: 0.3rem;
 }
 
-.sliderSection h3 {
-  font-size: 0.95rem;
-  margin-bottom: 0.5rem;
-}
-
-.priceLabels {
-  display: flex;
-  justify-content: space-between;
-  font-size: 0.85rem;
-  color: #bbb;
-  margin-top: 0.5rem;
-}
-
-.slider {
+.inProgressPage .slider {
   width: 100%;
   height: 6px;
   border-radius: 5px;
@@ -188,7 +108,7 @@
   outline: none;
 }
 
-.slider::-webkit-slider-thumb {
+.inProgressPage .slider::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
   width: 20px;
@@ -198,7 +118,7 @@
   cursor: pointer;
 }
 
-.slider::-moz-range-thumb {
+.inProgressPage .slider::-moz-range-thumb {
   width: 20px;
   height: 20px;
   border-radius: 50%;
@@ -207,78 +127,215 @@
   border: none;
 }
 
-.hungerSection h2 {
-  font-size: 1.8rem;
-  text-transform: capitalize;
-  font-weight: 600;
-  margin-bottom: 1.5rem;
+.inProgressPage .sliderLabels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.85rem;
+  color: #bbb;
+  margin-top: 0.8rem;
+  align-items: center;
 }
 
-.submitBtn {
-  background: #7b6bae;
-  color: white;
-  padding: 0.9rem 2.5rem;
-  border: none;
-  border-radius: 30px;
-  font-family: 'Poppins', sans-serif;
+.inProgressPage .currentValue {
+  color: #d2542f;
+  font-weight: 700;
   font-size: 1rem;
-  font-weight: 500;
+}
+
+.inProgressPage .saveBtn {
+  padding: 0.6rem 1.5rem;
+  background: #667eea;
+  color: white;
+  border: none;
+  border-radius: 20px;
+  font-family: 'Poppins', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 600;
   cursor: pointer;
-  text-transform: capitalize;
-  margin: 2rem auto;
+  transition: all 0.3s;
+  margin-top: 1rem;
+  margin-left: auto;
+  margin-bottom: 1rem;
   display: block;
-  transition: opacity 0.2s;
+  width: fit-content;
+  text-transform: capitalize;
 }
 
-.submitBtn:hover {
-  opacity: 0.9;
+.inProgressPage .saveBtn:hover:not(:disabled) {
+  background: #5568d3;
+  transform: translateY(-2px);
 }
 
-.membersSection {
+.inProgressPage .saveBtn:disabled {
+  background: #999;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.inProgressPage .membersSection {
   margin-top: 3rem;
 }
 
-.membersSection h2 {
+.inProgressPage .membersSection h3 {
   font-size: 1.5rem;
-  text-transform: capitalize;
   font-weight: 600;
-  margin-bottom: 2rem;
+  margin-bottom: 1.5rem;
+  color: white;
+  text-align: center;
+  text-transform: capitalize;
 }
 
-.memberStatusList {
+.inProgressPage .membersList {
+  background: rgba(100, 120, 140, 0.3);
+  border-radius: 30px;
+  padding: 2rem;
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
+  max-height: 500px;
+  overflow-y: auto;
 }
 
-.memberStatus {
-  background: linear-gradient(90deg, rgba(173, 216, 230, 0.3) 0%, rgba(147, 112, 219, 0.3) 100%);
-  padding: 1.5rem;
-  border-radius: 50px;
+.inProgressPage .memberCard {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.2rem 1.5rem;
+  border-radius: 15px;
+  transition: all 0.3s;
+  border: 2px solid transparent;
+}
+
+.inProgressPage .memberCard:hover {
+  background: rgba(255, 255, 255, 0.05);
+  transform: translateX(5px);
+}
+
+.inProgressPage .memberInfo {
   display: flex;
   align-items: center;
-  gap: 1.5rem;
+  gap: 1rem;
 }
 
-.memberStatus.submitted {
-  opacity: 0.8;
-}
-
-.memberStatus img {
-  width: 60px;
-  height: 60px;
-  border-radius: 50%;
-}
-
-.memberStatus .memberInfo h3 {
-  font-size: 1.2rem;
-  margin: 0 0 0.3rem 0;
+.inProgressPage .memberName {
+  font-size: 1.1rem;
   font-weight: 600;
+  color: white;
 }
 
-.memberStatus .memberInfo p {
+.inProgressPage .leaderBadge {
+  background: #f6ad55;
+  color: white;
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  margin-left: 0.5rem;
+}
+
+.inProgressPage .status {
   font-size: 0.9rem;
-  margin: 0;
-  color: #ddd;
+  font-weight: 500;
+  padding: 0.5rem 1rem;
+  border-radius: 16px;
+}
+
+.inProgressPage .status.ready {
+  background: #48bb78;
+  color: white;
+}
+
+.inProgressPage .status.deciding {
+  background: #f6ad55;
+  color: white;
+}
+
+.inProgressPage .membersList::-webkit-scrollbar {
+  width: 8px;
+}
+
+.inProgressPage .membersList::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+}
+
+.inProgressPage .membersList::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 10px;
+}
+
+.inProgressPage .membersList::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.5);
+}
+
+.inProgressPage .startVotingBtn {
+  padding: 0.6rem 1.5rem;
+  background: #667eea;
+  color: white;
+  border: none;
+  border-radius: 20px;
+  font-family: 'Poppins', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+  margin-top: 1rem;
+  margin-left: auto;
+  margin-bottom: 1rem;
+  display: block;
+  width: fit-content;
   text-transform: capitalize;
+}
+
+.inProgressPage .startVotingBtn:hover:not(:disabled) {
+  background: #5568d3;
+  transform: translateY(-2px);
+}
+
+.inProgressPage .startVotingBtn:disabled {
+  background: #999;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.inProgressPage .waitingMessage {
+  text-align: center;
+  margin-top: 2rem;
+  padding: 1.5rem;
+  background: rgba(100, 120, 140, 0.3);
+  border-radius: 20px;
+}
+
+.inProgressPage .waitingMessage p {
+  color: white;
+  font-size: 1.1rem;
+  font-weight: 500;
+  margin: 0;
+}
+
+.inProgressPage .content h2 {
+  color: white;
+  text-align: center;
+  font-size: 1.5rem;
+}
+
+@media (max-width: 768px) {
+  .inProgressPage .content {
+    padding: 2rem;
+  }
+
+  .inProgressPage .header h1 {
+    font-size: 1.5rem;
+  }
+
+  .inProgressPage .cuisineTags {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .inProgressPage .startVotingBtn,
+  .inProgressPage .saveBtn {
+    font-size: 0.85rem;
+    padding: 0.5rem 1.2rem;
+  }
 }

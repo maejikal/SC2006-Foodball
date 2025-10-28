@@ -34,4 +34,4 @@ testdict = {'places': [{'_id': 'ChIJ063tHqcP2jERA7izPRRnlAE', 'location': {'lati
 
 # for i in testdict.values():
 #     asyncio.run(db.mongoupdate("Eateries", i))
-print(search())
+#print(search())
