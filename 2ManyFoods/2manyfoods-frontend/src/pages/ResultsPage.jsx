@@ -1,44 +1,115 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import Navbar from '../components/AuthenticatedNavbar';
 import './ResultsPage.css';
 
 export default function ResultsPage() {
-  // Simulated data (replace with actual state or props later)
-  const selectedRestaurant = {
-    name: 'Mamma Mia Trattoria E Caffè',
-    image: 'https://prod-gravy-uploads.s3.ap-southeast-1.amazonaws.com/brands/d9eebf4d-a2ad-4308-94fd-0eef568ca8cd/mamma-mia%21-trattoria-e-caffe.jpg_db3297e46c074e8a823070df3304557c.jpg',
-    voters: [
-      { name: 'Jessica', avatar: '/avatars/jessica.png' },
-      { name: 'Draco', avatar: '/avatars/draco.png' },
-      { name: 'You', avatar: '/avatars/you.png' },
-    ],
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { groupId, groupName, winner, allVotes = [] } = location.state || {};
+  
+  const [isSaving, setIsSaving] = useState(false);
+  const [hasSaved, setHasSaved] = useState(false);
+
+  useEffect(() => {
+    if (winner && !hasSaved) {
+      handleSaveToHistory();
+    }
+  }, [winner, hasSaved]);
+
+  const handleSaveToHistory = async () => {
+    const username = localStorage.getItem('username');
+    setIsSaving(true);
+
+    try {
+      const response = await fetch('http://localhost:8080/api/history/add', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          username: username,
+          restaurant: {
+            id: winner.place_id || winner._id,
+            name: winner.name,
+            address: winner.vicinity || winner.formatted_address || 'Unknown location',
+            price_range: winner.price_level || 0,
+            cuisine: winner.types?.[0] || 'Restaurant',
+            image: winner.photos?.[0]?.photo_reference || ''
+          }
+        })
+      });
+
+      const data = await response.json();
+      
+      if (response.ok) {
+        setHasSaved(true);
+        console.log('Saved to food history!');
+      } else {
+        throw new Error(data.error || 'Failed to save to history');
+      }
+    } catch (error) {
+      console.error('Error saving to history:', error);
+    } finally {
+      setIsSaving(false);
+    }
   };
+
+  if (!winner) {
+    return (
+      <div className="resultsPage">
+        <Navbar />
+        <div className="resultsContent">
+          <h1>No Results Available</h1>
+          <button onClick={() => navigate('/groups')}>
+            back to groups
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // Count number of users who voted
+  const totalVotes = allVotes.length;
 
   return (
     <div className="resultsPage">
       <Navbar />
       <div className="resultsContent">
-        <h1>foodball has spoken...</h1>
-
+        <h1>{groupName}</h1>
+        
         <div className="resultCard">
-          <img src={selectedRestaurant.image} />
+          {winner.photos && winner.photos.length > 0 && (
+            <img 
+              src={`https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photo_reference=${winner.photos[0].photo_reference}&key=YOUR_API_KEY`}
+              alt={winner.name}
+            />
+          )}
+          
           <div className="resultDetails">
-            <h2>{selectedRestaurant.name}</h2>
-            <div className="membersVotes">
-              {selectedRestaurant.voters.map((member, index) => (
-                <img
-                  key={index}
-                  src={member.avatar}
-                  alt={member.name}
-                  className="memberAvatar"
-                />
-              ))}
-            </div>
+            <h2>{winner.name}</h2>
+            <p>{winner.vicinity || winner.formatted_address || winner.location?.address || 'Near NTU'}</p>
+            
+            {winner.rating && (
+              <p>{winner.rating} / 5</p>
+            )}
+            
+            {winner.price_level && (
+              <p>{'$'.repeat(winner.price_level)}</p>
+            )}
+            
+            <p>Total Votes: {totalVotes}</p>
+          </div>
+
+          <div className="membersVotes">
+            {allVotes.map((vote, index) => (
+              <div key={index} className="memberAvatar" title={vote.username}>
+                {vote.username.charAt(0).toUpperCase()}
+              </div>
+            ))}
           </div>
         </div>
 
-        <button onClick={() => window.location.href = '/foodball/in-progress'}>
-          retry foodball
+        <button onClick={() => navigate('/groups')}>
+          back to groups
         </button>
       </div>
     </div>
