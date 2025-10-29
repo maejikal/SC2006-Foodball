@@ -1,47 +1,41 @@
 .waitingPage {
-  background: linear-gradient(135deg, #1a2332 0%, #2d3e52 100%);
-  display: flex;
-  flex-direction: column;
   min-height: 100vh;
-  color: white;
-  font-family: 'Poppins', sans-serif;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
 }
 
 .waitingContent {
-  flex: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 3rem 5rem;
-  text-align: center;
-}
-
-.spinningGlobe {
-  margin-bottom: 3rem;
-  position: relative;
-  width: 250px;
-  height: 250px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.globeImage {
-  width: 500px;
-  height: 500px;
-  object-fit: contain;
-  filter: drop-shadow(0 0 30px rgba(87, 180, 209, 0.4));
+  min-height: calc(100vh - 80px);
+  padding: 2rem;
+  color: white;
 }
 
 .waitingContent h1 {
   font-size: 2.5rem;
   margin-bottom: 1rem;
-  font-weight: 600;
+  text-align: center;
 }
 
-.waitingContent p {
-  font-size: 1.1rem;
-  color: #ddd;
-  max-width: 600px;
+.waitingText {
+  font-size: 1.3rem;
+  margin-bottom: 2rem;
+  text-align: center;
+  min-height: 2rem;
+}
+
+.loadingSpinner {
+  width: 50px;
+  height: 50px;
+  border: 5px solid rgba(255, 255, 255, 0.3);
+  border-top: 5px solid white;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }

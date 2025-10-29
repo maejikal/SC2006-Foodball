@@ -13,39 +13,26 @@
 }
 
 .searchTop {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 3rem;
   margin-bottom: 2rem;
-}
-
-.mapContainer {
-  background: #1e2a3a;
-  border-radius: 20px;
-  height: 350px;
-  overflow: hidden;
-  position: relative;
-}
-
-.mapContainer img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
 }
 
 .filtersSection {
   display: flex;
   flex-direction: column;
   gap: 2rem;
+  background: rgba(30, 42, 58, 0.5);
+  padding: 2rem;
+  border-radius: 20px;
 }
 
 .filtersSection h3 {
   text-transform: capitalize;
+  font-size: 1.5rem;
 }
 
 .cuisineTags {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(7, 1fr);
   gap: 0.8rem;
 }
 
@@ -149,6 +136,8 @@
 
 .searchBar {
   width: 100%;
+  max-width: 600px;
+  margin: 0 auto;
   background: white;
   border-radius: 50px;
   padding: 1rem 2rem;
@@ -171,9 +160,25 @@
 }
 
 .searchIcon {
+  font-size: 1.2rem;
+}
+
+.clearBtn {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  color: #999;
+  cursor: pointer;
+  padding: 0;
   width: 24px;
   height: 24px;
-  color: #333;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.clearBtn:hover {
+  color: #666;
 }
 
 .restaurantList {
@@ -192,6 +197,21 @@
   display: flex;
   gap: 2rem;
   align-items: flex-start;
+  padding: 1.5rem;
+  border-radius: 15px;
+  transition: all 0.3s;
+  border: 3px solid transparent;
+  cursor: pointer;
+}
+
+.restaurantCard:hover {
+  background: rgba(255, 255, 255, 0.05);
+  transform: translateX(5px);
+}
+
+.restaurantCard.selected {
+  background: rgba(102, 126, 234, 0.2);
+  border: 3px solid #667eea;
 }
 
 .restaurantImage {
@@ -266,22 +286,18 @@
 }
 
 .confirmBtn {
-  padding: 0.6rem 1.5rem;
+  padding: 0.8rem 2rem;
   background: #667eea;
   color: white;
   border: none;
-  border-radius: 20px;
+  border-radius: 25px;
   font-family: 'Poppins', sans-serif;
-  font-size: 0.9rem;
+  font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s;
-  margin-top: 1rem;
-  margin-left: auto;
-  margin-bottom: 1rem;
-  display: block;
-  width: fit-content;
-  text-transform: capitalize;
+  text-transform: lowercase;
+  align-self: center;
 }
 
 .confirmBtn:hover:not(:disabled) {
@@ -293,26 +309,6 @@
   background: #999;
   cursor: not-allowed;
   opacity: 0.6;
-}
-
-.restaurantCard {
-  display: flex;
-  gap: 2rem;
-  align-items: flex-start;
-  padding: 1.5rem;
-  border-radius: 15px;
-  transition: all 0.3s;
-  border: 3px solid transparent;
-}
-
-.restaurantCard:hover {
-  background: rgba(255, 255, 255, 0.05);
-  transform: translateX(5px);
-}
-
-.restaurantCard.selected {
-  background: rgba(102, 126, 234, 0.2);
-  border: 3px solid #667eea;
 }
 
 .modalOverlay {
@@ -370,5 +366,3 @@
 .cancelBtn:hover {
   background: rgba(102, 126, 234, 0.1);
 }
-
-
