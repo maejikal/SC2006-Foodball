@@ -293,7 +293,9 @@ def add_to_history():
         
         
         user_services.update_foodhistory(username, history_entry)
-        del rec_cons[data.get("groupName")]
+        group_name = data.get("groupName")
+        if group_name and group_name in rec_cons:
+            del rec_cons[group_name]
         return jsonify({
             "message": "Restaurant added to history successfully",
             "restaurant": restaurant['name']

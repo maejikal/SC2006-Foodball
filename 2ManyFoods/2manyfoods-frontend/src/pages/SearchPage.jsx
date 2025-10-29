@@ -238,12 +238,13 @@ export default function SearchPage() {
 
     const requestBody = {
       username: username,
+      type:'cuisine',
       newValue: {
         rank1: tags[selectedCuisines[0]],
         rank2: tags[selectedCuisines[1]],
         rank3: tags[selectedCuisines[2]]
       },
-      budget: priceRange
+      field: "preferences"
     };
 
     try {
@@ -276,7 +277,7 @@ export default function SearchPage() {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             username: username,
-            restaurant_id: selectedRestaurant._id,
+            restaurant_id: selectedRestaurant.id,
             hunger: hungerLevel
           })
         });
@@ -475,7 +476,7 @@ export default function SearchPage() {
         {filteredRestaurants.length > 0 ? (
           <div className="restaurantList">
             {filteredRestaurants.map((restaurant, index) => {
-              const isSelected = selectedRestaurant?._id === restaurant._id;
+              const isSelected = selectedRestaurant?.id === restaurant._id;
 
               return (
                 <div
