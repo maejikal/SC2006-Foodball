@@ -37,7 +37,8 @@ def join_group_by_code():
 async def generate_recommendation(groupName):
     global rec_cons
     if groupName not in rec_cons.keys():
-        location = request.args['location']
+        latitude = request.args['lat']
+        longitude = request.args['long']
         radius = 500
         group_rec = await searchdb('Groups', 'group_name',groupName)
         if group_rec != None:
@@ -51,7 +52,7 @@ async def generate_recommendation(groupName):
             users = await searchdb('Username', 'username', groupName)
             id = users["_id"]
         group = Group(groupName, users, None, id)
-        con = recommendation_controller(group, Location(location), radius)
+        con = recommendation_controller(group, Location(latitude, longitude), radius)
         rec_cons[groupName] = con 
     else:
         con = rec_cons[groupName]
