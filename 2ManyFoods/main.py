@@ -8,6 +8,8 @@ from datetime import datetime
 from controllers import group as group_cons
 from controllers import eatery as eatery_cons
 from bson.objectid import ObjectId
+from services import group as group_services
+import traceback
 app = Flask(__name__)
 CORS(app)
 
@@ -25,6 +27,8 @@ def signup_route():
 def login_route():
     return auth_controller.login(request.get_json())
 
+
+
 @app.route('/joingroup/<groupID>', methods=['GET'])
 async def join_group(groupID):
     return group_controller.handle_join_grp(request.get_json(), groupID)
@@ -38,18 +42,18 @@ async def generate_recommendation(groupID):
     global rec_cons
     if groupID not in rec_cons.keys():
         location = request.args['location']
-        radius = request.args['location']
+        radius = 500
         group_rec = await group_collection.find_one({"groupID": groupID})
         users = {}
         for userID in group_rec.users:
             user_rec = await user_collection.find_one({"ID": userID})
             users[userID] = user_rec
         group = Group(group_rec.name, users, group_rec.GroupPhoto, group_rec.id)
-        con = recommendation_controller(group, Location(location), radius)
+        con = recommendation_controller.RecommendationController(group, Location(location), radius)
         rec_cons[groupID] = con 
     else:
         con = rec_cons[groupID]
-    return con.getRecommendations()
+    return jsonify({"recommendations": con.getRecommendations()}), 200
 
 @app.route('/refresh/<groupID>')
 def refresh_group(groupID):
@@ -64,27 +68,8 @@ def refresh_group(groupID):
         }), 200
     
     try:
-        con = rec_cons[groupID]
-        voting_status = {}
-        vote_counts = {}
-        
-        if hasattr(con, 'Users') and con.Users:
-            for userID, userData in con.Users.items():
-                has_voted = userData.get('vote') is not None
-                voting_status[userID] = has_voted
-                
-                if has_voted:
-                    voted_restaurant = userData.get('vote')
-                    if voted_restaurant:
-                        vote_counts[voted_restaurant] = vote_counts.get(voted_restaurant, 0) + 1
-        
-        winner_id = max(vote_counts, key=vote_counts.get) if vote_counts else None
-        
         return jsonify({
-            "recommendations": con.recommendations if hasattr(con, 'recommendations') else [],
-            "votingStatus": voting_status,
-            "voteDetails": vote_counts,
-            "winner": winner_id
+            "recommendations": rec_cons[groupID].recommendations
         })
     except Exception as e:
         print(f"Error: {e}")
@@ -96,37 +81,18 @@ def group_voting(groupID):
     global rec_cons
     data = request.get_json()
     username = data.get('username')
-    restaurant_ids = data.get('restaurant_ids', [])
+    restaurant_id = data.get('restaurant_ids')
     
     try:
         if groupID not in rec_cons:
-            print(f"Cache miss for {groupID}, initializing from database...")
-            
-            from services import group as group_services
-            group_data = group_services.get_grp_by_id(groupID)
-            
-            if not group_data:
-                return jsonify({"error": "Group not found"}), 404
-            
-            users = {}
-            for user in group_data.get('users', []):
-                users[user] = {'vote': None}
-            
-            rec_cons[groupID] = type('obj', (object,), {
-                'Users': users,
-                'recommendations': group_data.get('restaurants', [])
-            })()
+            return jsonify({"error": "Group not found"}), 404
         
         con = rec_cons[groupID]
         
         if username not in con.Users:
             con.Users[username] = {}
         
-        voted_restaurant = restaurant_ids[0] if restaurant_ids else None
-        con.Users[username]['vote'] = voted_restaurant
-        
-        print(f"Vote cached: {username} -> {voted_restaurant}")
-        print(f"Current cache: {con.Users}")
+        con.Users[username]['vote'] = restaurant_id
         
         all_voted = all(
             user.get('vote') is not None 
@@ -139,7 +105,7 @@ def group_voting(groupID):
         }), 200
     except Exception as e:
         print(f"Vote error: {e}")
-        import traceback
+        
         traceback.print_exc()
         return jsonify({"error": str(e)}), 400
     
@@ -349,68 +315,68 @@ def update_group_preferences(group_id):
 
 
 # Start voting
-@app.route('/api/group/<group_id>/start-voting', methods=['POST'])
-def start_voting(group_id):
-    try:
-        data = request.json
-        restaurants = data.get('restaurants', [])
+# @app.route('/api/group/<group_id>/start-voting', methods=['POST'])
+# def start_voting(group_id):
+#     try:
+#         data = request.json
+#         restaurants = data.get('restaurants', [])
         
-        group_cons.start_voting(group_id, restaurants)
+#         group_cons.start_voting(group_id, restaurants)
         
-        return jsonify({'message': 'Voting started'}), 200
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
+#         return jsonify({'message': 'Voting started'}), 200
+#     except Exception as e:
+#         return jsonify({'error': str(e)}), 500
 
-@app.route('/api/group/<group_id>/vote', methods=['POST'])
-def submit_vote(group_id):
-    try:
-        data = request.json
-        username = data.get('username')
-        restaurant_ids = data.get('restaurant_ids', [])
+# @app.route('/api/group/<group_id>/vote', methods=['POST'])
+# def submit_vote(group_id):
+#     try:
+#         data = request.json
+#         username = data.get('username')
+#         restaurant_ids = data.get('restaurant_ids', [])
         
-        if not restaurant_ids or len(restaurant_ids) == 0:
-            return jsonify({'error': 'Must select one restaurant'}), 400
+#         if not restaurant_ids or len(restaurant_ids) == 0:
+#             return jsonify({'error': 'Must select one restaurant'}), 400
         
-        group = group_cons.get_group_by_id(group_id)
-        if any(v['username'] == username for v in group.get('votes', [])):
-            return jsonify({'error': 'Already voted'}), 400
+#         group = group_cons.get_group_by_id(group_id)
+#         if any(v['username'] == username for v in group.get('votes', [])):
+#             return jsonify({'error': 'Already voted'}), 400
         
-        group_cons.add_vote(group_id, username, restaurant_ids)
+#         group_cons.add_vote(group_id, username, restaurant_ids)
         
-        group = group_cons.get_group_by_id(group_id)
-        all_voted = all(m.get('has_voted', False) for m in group.get('members', []))
+#         group = group_cons.get_group_by_id(group_id)
+#         all_voted = all(m.get('has_voted', False) for m in group.get('members', []))
         
-        if all_voted:
-            winner = group_cons.calculate_winner(group_id)
-            return jsonify({'message': 'Vote submitted', 'voting_complete': True, 'winner': winner}), 200
+#         if all_voted:
+#             winner = group_cons.calculate_winner(group_id)
+#             return jsonify({'message': 'Vote submitted', 'voting_complete': True, 'winner': winner}), 200
         
-        return jsonify({'message': 'Vote submitted', 'voting_complete': False}), 200
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
+#         return jsonify({'message': 'Vote submitted', 'voting_complete': False}), 200
+#     except Exception as e:
+#         return jsonify({'error': str(e)}), 500
 
-# Get voting results
-@app.route('/api/group/<group_id>/votes', methods=['GET'])
-def get_votes(group_id):
-    try:
-        group = group_cons.get_group_by_id(group_id)
-        if not group:
-            return jsonify({'error': 'Group not found'}), 404
+# # Get voting results
+# @app.route('/api/group/<group_id>/votes', methods=['GET'])
+# def get_votes(group_id):
+#     try:
+#         group = group_cons.get_group_by_id(group_id)
+#         if not group:
+#             return jsonify({'error': 'Group not found'}), 404
         
-        votes = group.get('votes', [])
-        all_voted = all(m.get('has_voted', False) for m in group.get('members', []))
+#         votes = group.get('votes', [])
+#         all_voted = all(m.get('has_voted', False) for m in group.get('members', []))
         
-        winner = None
-        if all_voted and votes:
-            winner = group_cons.calculate_winner(group_id)
+#         winner = None
+#         if all_voted and votes:
+#             winner = group_cons.calculate_winner(group_id)
         
-        return jsonify({
-            'votes': votes,
-            'voting_complete': all_voted,
-            'winner': winner 
-        }), 200
-    except Exception as e:
-        print(f"ERROR: {e}")
-        return jsonify({'error': str(e)}), 500
+#         return jsonify({
+#             'votes': votes,
+#             'voting_complete': all_voted,
+#             'winner': winner 
+#         }), 200
+#     except Exception as e:
+#         print(f"ERROR: {e}")
+#         return jsonify({'error': str(e)}), 500
 
 @app.route('/api/recommendations/group/<group_id>', methods=['POST', 'OPTIONS'])
 def get_group_recommendations(group_id):
