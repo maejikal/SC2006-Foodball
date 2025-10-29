@@ -94,14 +94,14 @@ export default function PreferencesPage() {
     }
 
     setIsSaving(true);
-    tags = {
+    var tags = {
       'western': "bar_and_grill", 'italian': "italian_restaurant",
       'chinese': "chinese_restaurant", 'indonesian': "indonesian_restaurant",
       'indian': "indian_restaurant", 'japanese': "japanese_restaurant", 'korean': "korean_restaurant"
     };
     const requestBody = {
       username: username, type:'cuisine',
-      cuisine_preferences: {
+      newValue: {
         rank1: tags[rank1.toLowerCase()],
         rank2: tags[rank2.toLowerCase()],
         rank3: tags[rank3.toLowerCase()]

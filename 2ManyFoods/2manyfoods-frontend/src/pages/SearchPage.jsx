@@ -227,7 +227,7 @@ export default function SearchPage() {
 
     const requestBody = {
       username: username,
-      cuisine_preferences: {
+      newValue: {
         rank1: tags[selectedCuisines[0]],
         rank2: tags[selectedCuisines[1]],
         rank3: tags[selectedCuisines[2]]
