@@ -87,7 +87,7 @@ export default function SearchPage() {
       const locationParam = selectedLocation?.name || 'Default Location';
       
       const response = await fetch(
-        `http://localhost:8080/foodball/${groupName}?long=${selectedLocation[latLng][lng]}&lat=${selectedLocation[latLng][lat]}`,
+        `http://localhost:8080/foodball/${groupName}?long=${selectedLocation['latLng']['lng']}&lat=${selectedLocation['latLng']['lat']}`,
         { method: 'GET' }
       );
       

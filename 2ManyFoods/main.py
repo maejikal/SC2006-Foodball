@@ -34,27 +34,26 @@ def join_group_by_code():
     return group_controller.handle_join_by_invite_code(request.get_json())
 
 @app.route('/foodball/<groupName>')
-async def generate_recommendation(groupName):
+def generate_recommendation(groupName):
     global rec_cons
     if groupName not in rec_cons.keys():
         latitude = request.args['lat']
         longitude = request.args['long']
         radius = 500
-        group_rec = await searchdb('Groups', 'group_name', groupName)
-        print(groupName)
+        group_rec = asyncio.run(searchdb('Groups', 'group_name', groupName))
         if group_rec != None:
             users = {}
             id = group_rec["_id"]
             for userID in group_rec['users']:
-                user_rec = await searchdb('Users', 'Username', userID)
+                user_rec = asyncio.run(searchdb('Users', 'Username', userID))
                 users[userID] = user_rec
             
         else:
-            users = await searchdb('Users', 'Username', groupName)
+            users = asyncio.run(searchdb('Users', 'Username', groupName))
             users = {groupName: users}
             id = users[groupName]["_id"]
         group = Group(groupName, users, None, id)
-        con = recommendation_controller(group, Location(latitude, longitude), radius)
+        con = recommendation_controller.RecommendationController(group, Location(latitude, longitude), radius)
         rec_cons[groupName] = con 
     else:
         con = rec_cons[groupName]
