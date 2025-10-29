@@ -53,11 +53,10 @@ class RecommendationController:
     def finishVoting(self) -> int:
         votes = {i: 0 for i in self.recommendations}
         for user in self.Users:
-            for eatery, score in user['vote']:
-                try:
-                    votes[eatery] += score
-                except:
-                    votes[eatery] = score
+            try:
+                votes[user['vote']] += user['Hunger']
+            except:
+                votes[user['vote']] = user['Hunger']
        
         highest = max(votes.values())
         return random.choice([i for i in votes if votes[i] == highest]).EateryID
