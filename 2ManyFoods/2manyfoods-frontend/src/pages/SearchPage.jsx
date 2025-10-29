@@ -7,11 +7,10 @@ export default function SearchPage() {
   const location = useLocation();
   const navigate = useNavigate();
   
-  // Get location data from navigation state
-  const groupId = location.state?.groupId;
+  // Get data from navigation state
   const groupName = location.state?.groupName;
   const selectedLocation = location.state?.location;
-  const isGroupMode = !!groupId;
+  const isIndividual = location.state?.isIndividual || false;
   
   const [selectedCuisines, setSelectedCuisines] = useState([]);
   const [priceRange, setPriceRange] = useState(50);
@@ -24,7 +23,7 @@ export default function SearchPage() {
   // Track if preferences have been modified from saved profile
   const [preferencesModified, setPreferencesModified] = useState(false);
   
-  // Group voting state
+  // Group voting state (for real groups)
   const [hasVoted, setHasVoted] = useState(false);
   const [isPolling, setIsPolling] = useState(false);
 
@@ -66,11 +65,9 @@ export default function SearchPage() {
             const budget = data.budget || 50;
             setPriceRange(budget);
             
-            // Auto-fetch initial recommendations with profile preferences and location
+            // Auto-fetch initial recommendations
             await fetchRestaurants(cuisines, budget);
           }
-
-          setPriceRange(data.budget || 50);
         }
 
         setIsLoading(false);
@@ -81,68 +78,46 @@ export default function SearchPage() {
     };
 
     loadPreferencesAndFetch();
-  }, [isGroupMode, groupId]);
+  }, [groupName]);
 
   const fetchRestaurants = async (cuisines = selectedCuisines, price = priceRange) => {
     try {
-      const username = localStorage.getItem('username');
+      // Call /foodball/{groupName} with location
+      // Backend handles both real groups and individual users (username as groupName)
+      const locationParam = selectedLocation?.name || 'Default Location';
       
-      if (isGroupMode) {
-        // Group mode: call /foodball/{groupId} with location
-        const queryParams = selectedLocation 
-          ? `?location=${encodeURIComponent(selectedLocation.name)}`
-          : '';
-        
-        const response = await fetch(
-          `http://localhost:8080/foodball/${groupId}${queryParams}`,
-          { method: 'GET' }
-        );
-        
-        const data = await response.json();
-        
-        if (response.ok && data.recommendations) {
-          setRestaurants(data.recommendations);
-        } else {
-          console.error('Failed to get group recommendations');
-        }
+      const response = await fetch(
+        `http://localhost:8080/foodball/${groupName}?long=${selectedLocation[latLng][lng]}&lat=${selectedLocation[latLng][lat]}`,
+        { method: 'GET' }
+      );
+      
+      const data = await response.json();
+      
+      if (response.ok) {
+        // Backend returns recommendations directly or as array
+        const recs = Array.isArray(data) ? data : data.recommendations || [];
+        setRestaurants(recs);
       } else {
-        // Individual mode: call /foodball/{username} with location
-        const queryParams = selectedLocation 
-          ? `?location=${encodeURIComponent(selectedLocation.name)}`
-          : '';
-        
-        const response = await fetch(
-          `http://localhost:8080/foodball/${username}${queryParams}`,
-          { method: 'GET' }
-        );
-        
-        const data = await response.json();
-        
-        if (response.ok && data.recommendations) {
-          setRestaurants(data.recommendations);
-        } else {
-          console.error('Failed to get recommendations');
-        }
+        console.error('Failed to get recommendations');
       }
     } catch (error) {
       console.error('Error fetching restaurants:', error);
     }
   };
 
-  // Poll for voting status in group mode
+  // Poll for voting status (only for real groups, not individuals)
   useEffect(() => {
-    if (!isGroupMode || !hasVoted) return;
+    if (isIndividual || !hasVoted) return;
 
     const pollVotingStatus = async () => {
       try {
-        const response = await fetch(`http://localhost:8080/refresh/${groupId}`);
+        const response = await fetch(`http://localhost:8080/refresh/${groupName}`);
         const data = await response.json();
 
         if (data.allVotesIn || data.votingComplete) {
           setIsPolling(false);
           navigate('/result', { 
             state: { 
-              groupId: groupId,
               groupName: groupName,
               winner: data.winner 
             } 
@@ -157,7 +132,7 @@ export default function SearchPage() {
     const interval = setInterval(pollVotingStatus, 3000);
 
     return () => clearInterval(interval);
-  }, [groupId, hasVoted, isGroupMode, navigate, groupName]);
+  }, [groupName, hasVoted, isIndividual, navigate]);
 
   const getCuisineRank = (cuisine) => {
     const index = selectedCuisines.indexOf(cuisine.toLowerCase());
@@ -165,7 +140,7 @@ export default function SearchPage() {
   };
 
   const toggleCuisine = (cuisine) => {
-    if (isGroupMode && hasVoted) return;
+    if (!isIndividual && hasVoted) return;
     
     const lowerCuisine = cuisine.toLowerCase();
 
@@ -179,8 +154,8 @@ export default function SearchPage() {
       }
     }
     
-    // Mark preferences as modified
-    if (!isGroupMode) {
+    // Mark preferences as modified (for individuals only)
+    if (isIndividual) {
       setPreferencesModified(true);
     }
   };
@@ -188,8 +163,8 @@ export default function SearchPage() {
   const handlePriceChange = (e) => {
     setPriceRange(Number(e.target.value));
     
-    // Mark preferences as modified
-    if (!isGroupMode) {
+    // Mark preferences as modified (for individuals only)
+    if (isIndividual) {
       setPreferencesModified(true);
     }
   };
@@ -205,7 +180,7 @@ export default function SearchPage() {
     try {
       await fetchRestaurants(selectedCuisines, priceRange);
       
-      if (!isGroupMode) {
+      if (isIndividual) {
         alert('Recommendations updated! Preferences will be saved when you add a restaurant to history.');
       }
     } catch (error) {
@@ -217,7 +192,7 @@ export default function SearchPage() {
   };
 
   const handleRestaurantClick = (restaurant) => {
-    if (isGroupMode && hasVoted) return;
+    if (!isIndividual && hasVoted) return;
     setSelectedRestaurant(restaurant);
   };
 
@@ -232,10 +207,14 @@ export default function SearchPage() {
   const savePreferencesToProfile = async () => {
     const username = localStorage.getItem('username');
     
-    tags = {
-      'western': "bar_and_grill", 'italian': "italian_restaurant",
-      'chinese': "chinese_restaurant", 'indonesian': "indonesian_restaurant",
-      'indian': "indian_restaurant", 'japanese': "japanese_restaurant", 'korean': "korean_restaurant"
+    const tags = {
+      'western': "bar_and_grill", 
+      'italian': "italian_restaurant",
+      'chinese': "chinese_restaurant", 
+      'indonesian': "indonesian_restaurant",
+      'indian': "indian_restaurant", 
+      'japanese': "japanese_restaurant", 
+      'korean': "korean_restaurant"
     };
 
     const requestBody = {
@@ -271,9 +250,9 @@ export default function SearchPage() {
     const username = localStorage.getItem('username');
     
     try {
-      if (isGroupMode) {
+      if (!isIndividual) {
         // Group mode: submit vote
-        const response = await fetch(`http://localhost:8080/foodball/${groupId}/vote`, {
+        const response = await fetch(`http://localhost:8080/foodball/${groupName}/vote`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -292,7 +271,6 @@ export default function SearchPage() {
           if (data.allVotesIn || data.votingComplete) {
             navigate('/result', { 
               state: { 
-                groupId: groupId,
                 groupName: groupName,
                 winner: data.winner 
               } 
@@ -342,7 +320,7 @@ export default function SearchPage() {
       }
     } catch (error) {
       console.error('Error:', error);
-      alert(`Failed to ${isGroupMode ? 'vote' : 'save'}. Please try again.`);
+      alert(`Failed to ${isIndividual ? 'save' : 'vote'}. Please try again.`);
     }
   };
 
@@ -363,7 +341,7 @@ export default function SearchPage() {
       
       <div className="searchContent">
         <div className="searchTop">
-          {/* Map Container - Shows selected location */}
+          {/* Map Container */}
           <div className="mapContainer">
             {selectedLocation ? (
               <div style={{ 
@@ -393,19 +371,19 @@ export default function SearchPage() {
           {/* Filters Section */}
           <div className="filtersSection">
             <h3>
-              {isGroupMode 
-                ? `${groupName} - Select Your Preferences` 
-                : 'Customize Your Search'}
+              {isIndividual 
+                ? 'Customize Your Search' 
+                : `${groupName} - Select Your Preferences`}
             </h3>
             
-            {isGroupMode && hasVoted && (
+            {!isIndividual && hasVoted && (
               <p style={{ color: '#90ee90', fontWeight: 'bold' }}>
                 ✓ Vote submitted! Waiting for others...
                 {isPolling && ' (Checking votes...)'}
               </p>
             )}
             
-            {!isGroupMode && preferencesModified && (
+            {isIndividual && preferencesModified && (
               <p style={{ color: '#f4a460', fontSize: '0.85rem', fontStyle: 'italic' }}>
                 * Preferences will be saved when you add a restaurant to history
               </p>
@@ -415,16 +393,15 @@ export default function SearchPage() {
             <div className="cuisineTags">
               {mealCuisines.map((cuisine) => {
                 const rank = getCuisineRank(cuisine);
-                const isSelected = selectedCuisines.includes(cuisine.toLowerCase());
 
                 return (
                   <button
                     key={cuisine}
                     className={`cuisineTag ${rank ? 'selected' : ''} ${
-                      isGroupMode && hasVoted ? 'disabled' : ''
+                      !isIndividual && hasVoted ? 'disabled' : ''
                     }`}
                     onClick={() => toggleCuisine(cuisine)}
-                    disabled={isGroupMode && hasVoted}
+                    disabled={!isIndividual && hasVoted}
                   >
                     {capitalize(cuisine)}
                     {rank && <span className="rankBadge">{rank}</span>}
@@ -444,7 +421,7 @@ export default function SearchPage() {
                 value={priceRange}
                 onChange={handlePriceChange}
                 className="slider"
-                disabled={isGroupMode && hasVoted}
+                disabled={!isIndividual && hasVoted}
               />
               <div className="priceLabels">
                 <span>$10</span>
@@ -452,10 +429,10 @@ export default function SearchPage() {
               </div>
             </div>
 
-            {/* Confirm Button */}
+            {/* Update Button */}
             <button 
               onClick={handleUpdateRecommendations}
-              disabled={isSaving || selectedCuisines.length !== 3 || (isGroupMode && hasVoted)}
+              disabled={isSaving || selectedCuisines.length !== 3 || (!isIndividual && hasVoted)}
               className="confirmBtn"
             >
               {isSaving ? 'Loading...' : 'update recommendations'}
@@ -466,33 +443,6 @@ export default function SearchPage() {
         {/* Restaurant List */}
         {restaurants.length > 0 ? (
           <div className="restaurantList">
-            {restaurants.map((restaurant) => (
-              <div
-                key={restaurant._id}
-                className={`restaurantCard ${
-                  selectedRestaurant?._id === restaurant._id ? 'selected' : ''
-                }`}
-                onClick={() => handleRestaurantClick(restaurant)}
-              >
-                <img 
-                  src={restaurant.image || 'https://via.placeholder.com/150'} 
-                  alt={restaurant.name}
-                  className="restaurantImage"
-                />
-                <div className="restaurantInfo">
-                  <h3>{restaurant.name}</h3>
-                  <p className="address">{restaurant.location?.address || 'Address not available'}</p>
-                  <p className={`price ${
-                    restaurant.price_range <= 30 ? 'low' : 
-                    restaurant.price_range <= 60 ? 'medium' : 'high'
-                  }`}>
-                    ${restaurant.price_range}
-                  </p>
-                  <p className="status">
-                    {isGroupMode && !hasVoted ? 'Click to vote' : 
-                     isGroupMode && hasVoted ? 'Voting closed' :
-                     'Click to add to history'}
-                  </p>
             {restaurants.map((restaurant, index) => {
               const isSelected = selectedRestaurant?._id === restaurant._id;
 
@@ -509,22 +459,29 @@ export default function SearchPage() {
                   />
                   <div className="restaurantInfo">
                     <h3>{restaurant.name}</h3>
-                    <p className="address">{restaurant.location.address}</p>
-                    <p className={`price ${restaurant.price_range <= 30 ? 'low' : restaurant.price_range <= 60 ? 'medium' : 'high'}`}>
+                    <p className="address">{restaurant.location?.address || 'Address not available'}</p>
+                    <p className={`price ${
+                      restaurant.price_range <= 30 ? 'low' : 
+                      restaurant.price_range <= 60 ? 'medium' : 'high'
+                    }`}>
                       ${restaurant.price_range}
                     </p>
-                    <p className="status">Click to add to history</p>
+                    <p className="status">
+                      {!isIndividual && !hasVoted ? 'Click to vote' : 
+                       !isIndividual && hasVoted ? 'Voting closed' :
+                       'Click to add to history'}
+                    </p>
                   </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
             
-            {selectedRestaurant && !hasVoted && (
+            {selectedRestaurant && (isIndividual || !hasVoted) && (
               <button 
                 onClick={handleConfirmRestaurant}
                 className="confirmBtn"
               >
-                {isGroupMode ? 'confirm vote' : 'add to history'}
+                {isIndividual ? 'add to history' : 'confirm vote'}
               </button>
             )}
           </div>
@@ -539,10 +496,10 @@ export default function SearchPage() {
       {showConfirmModal && (
         <div className="modalOverlay" onClick={() => setShowConfirmModal(false)}>
           <div className="modalContent" onClick={(e) => e.stopPropagation()}>
-            <h2>{isGroupMode ? 'Confirm Your Vote' : 'Add to History'}</h2>
+            <h2>{isIndividual ? 'Add to History' : 'Confirm Your Vote'}</h2>
             <p><strong>{selectedRestaurant.name}</strong></p>
             <p>
-              {isGroupMode 
+              {!isIndividual 
                 ? 'Cast your vote for this restaurant?' 
                 : preferencesModified
                   ? 'This restaurant will be added to your food history and your preferences will be saved.'
