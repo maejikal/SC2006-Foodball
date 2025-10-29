@@ -125,7 +125,9 @@ export default function SecurityPage() {
     }
 
     try {
-      const requestBody = { username, field, newValue}; 
+      const backendField = field === 'name' ? 'username' : field;
+      
+      const requestBody = { username, field: backendField, newValue}; 
 
       const response = await fetch('http://localhost:8080/account/security', {
         method: 'POST',

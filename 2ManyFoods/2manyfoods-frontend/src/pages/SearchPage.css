@@ -193,7 +193,6 @@
   width: 100%;
 }
 
-/* Restaurant Card */
 .restaurantCard {
   display: flex;
   flex-direction: column;
@@ -215,7 +214,6 @@
   background: rgba(167, 139, 250, 0.1);
 }
 
-/* Restaurant Info */
 .restaurantInfo {
   width: 100%;
   display: flex;
