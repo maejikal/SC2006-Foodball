@@ -36,13 +36,11 @@ export default function ResultsPage() {
           username: username,
           groupName: groupName,
           restaurant: {
-            id: winner.place_id || winner._id,
-            name: winner.name,
-            address: winner.vicinity || winner.formatted_address || 'Unknown location',
-            price_range: winner.price_level || 0,
-            cuisine: winner.types?.[0] || 'Restaurant',
-            image: winner.photos?.[0]?.photo_reference || ''
-          }
+              id: selectedRestaurant.id,
+              name: selectedRestaurant.displayName?.text,
+              address: selectedRestaurant.shortFormattedAddress || '',
+              cuisine: selectedRestaurant.types
+            }
         })
       });
 

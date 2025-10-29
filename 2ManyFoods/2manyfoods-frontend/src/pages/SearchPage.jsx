@@ -85,9 +85,17 @@ export default function SearchPage() {
       // Call /foodball/{groupName} with location
       // Backend handles both real groups and individual users (username as groupName)
       const locationParam = selectedLocation?.name || 'Default Location';
-      
+      var cuisine_tag = ["","",""];
+      var tags = {
+      'western': "bar_and_grill", 'italian': "italian_restaurant",
+      'chinese': "chinese_restaurant", 'indonesian': "indonesian_restaurant",
+      'indian': "indian_restaurant", 'japanese': "japanese_restaurant", 'korean': "korean_restaurant"
+    };
+    for (let i=0;i<cuisines.length;i++){
+      cuisine_tag[i] = tags[cuisines[i]];
+    }
       const response = await fetch(
-        `http://localhost:8080/foodball/${groupName}?long=${selectedLocation['latLng']['lng']}&lat=${selectedLocation['latLng']['lat']}`,
+        `http://localhost:8080/foodball/${groupName}?long=${selectedLocation['latLng']['lng']}&lat=${selectedLocation['latLng']['lat']}&cuisines=${cuisine_tag}&username=${localStorage.getItem('username')}`,
         { method: 'GET' }
       );
       
@@ -297,11 +305,10 @@ export default function SearchPage() {
           body: JSON.stringify({
             username: username,
             restaurant: {
-              id: selectedRestaurant._id,
-              name: selectedRestaurant.name,
-              address: selectedRestaurant.location?.address || '',
-              price_range: selectedRestaurant.price_range,
-              cuisine: selectedRestaurant.cuisine
+              id: selectedRestaurant.id,
+              name: selectedRestaurant.displayName?.text,
+              address: selectedRestaurant.shortFormattedAddress || '',
+              cuisine: selectedRestaurant.types
             }
           })
         });

@@ -45,10 +45,9 @@ class RecommendationController:
                 if category in eatery['types']:
                     out.append(eatery)
                     results.remove(eatery)
-        out+=results
-        print(out[0])
         # https://developers.google.com/maps/documentation/places/web-service/reference/rest/v1/places
         # https://developers.google.com/maps/documentation/places/web-service/place-types
+        self.recommendations = out
         return out
 
     def finishVoting(self) -> int:
@@ -67,6 +66,7 @@ class RecommendationController:
         return self._group  
     
     def getRecommendations(self):
+        self.FilterRecommendations()
         return self.recommendations
 
     def setRadius(self, rad: int):

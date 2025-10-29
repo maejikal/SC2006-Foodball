@@ -8,6 +8,8 @@ from datetime import datetime
 from controllers import group as group_cons
 from controllers import eatery as eatery_cons
 from bson.objectid import ObjectId
+from services import user as user_services
+
 app = Flask(__name__)
 CORS(app)
 
@@ -57,6 +59,8 @@ def generate_recommendation(groupName):
         rec_cons[groupName] = con 
     else:
         con = rec_cons[groupName]
+        cuisines = request.args['cuisines'].split(",")
+        con._group.Users[request.args['username']]['Preferences'] = {"rank1": cuisines[0],"rank2": cuisines[1],"rank3": cuisines[2],}
     return jsonify({"recommendations":con.getRecommendations()})
 
 @app.route('/refresh/<groupID>')
@@ -76,7 +80,7 @@ def refresh_group(groupID):
         
         
         return jsonify({
-            "recommendations": con.recommendations
+            "recommendations": con.getRecommendations()
         })
     except Exception as e:
         print(f"Error: {e}")
@@ -177,13 +181,11 @@ def add_to_history():
             "restaurant_id": restaurant['id'],
             "restaurant_name": restaurant['name'],
             "address": restaurant.get('address', 'N/A'),
-            "price_range": restaurant.get('price_range', 0),
-            "cuisine": restaurant.get('cuisine', 'Unknown'),
+            "cuisine": restaurant.get('cuisine', []),
             "visited_date": datetime.now().isoformat(),
-            "image": restaurant.get('image', '')
         }
         
-        from services import user as user_services
+        
         user_services.update_foodhistory(username, history_entry)
         del rec_cons[data.get("groupName")]
         return jsonify({
