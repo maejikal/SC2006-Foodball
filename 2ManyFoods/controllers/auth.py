@@ -1,7 +1,8 @@
 from flask import request, jsonify
 from services import user as user_services
+from verification import send_email
 
-def signup(data):
+def signup(app, data):
     if not data:
         return jsonify({"error":"Invalid or Missing JSON input"}), 400
 
@@ -16,10 +17,12 @@ def signup(data):
 
     try:
         result = user_services.create_user(username, password, email)
-
+        verified = False
         if result is None:
             return jsonify({"error":"Email already registered"}), 400
-
+        while not verified:
+            code = send_email(app, email)
+            verified = True
     except ValueError as ve:
         return jsonify({"error":str(ve)}), 400
     except Exception as e:
