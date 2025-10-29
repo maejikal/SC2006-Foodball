@@ -1,15 +1,25 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Navbar from '../components/Navbar';
+import AuthenticatedNavbar from '../components/AuthenticatedNavbar';
 import Button from '../components/Button';
-import { useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom';
 import './LandingPage.css';
 
 export default function LandingPage() {
   const navigate = useNavigate();
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  // Check if user is logged in when component mounts
+  useEffect(() => {
+    const username = localStorage.getItem('username');
+    setIsLoggedIn(!!username);
+  }, []);
   
   return (
     <div className="page">
-      <Navbar />
+      {/* Show different navbar based on login status */}
+      {isLoggedIn ? <AuthenticatedNavbar /> : <Navbar />}
+      
       <section className="hero">
         <div className="heroText">
           <h1>having trouble deciding what to eat?</h1>
@@ -35,9 +45,9 @@ export default function LandingPage() {
         </p>
         <h3>how it works</h3>
         <ol>
-          <li>create a group – add friends via username or invite link</li>
+          <li>create a group – add friends via invite link</li>
           <li>set your preferences</li>
-          <li>drop a pin – search nearby eateries</li>
+          <li>search nearby eateries</li>
           <li>get recommendations – best options suggestions, balancing everyone's inputs</li>
           <li>vote & finalize - group members can quickly vote, making decisions seamless</li>
         </ol>
@@ -74,10 +84,12 @@ export default function LandingPage() {
 
       <footer className="footer">
         <h2>too many foods, one simple choice. get started now!</h2>
-        <div className="footerButtons">
-          <Button text="sign up" variant="light" onClick={() => navigate("/signup")} />
-          <Button text="login" variant="light" onClick={() => navigate("/login")} />
-        </div>
+        {!isLoggedIn && (
+          <div className="footerButtons">
+            <Button text="sign up" variant="light" onClick={() => navigate("/signup")} />
+            <Button text="login" variant="light" onClick={() => navigate("/login")} />
+          </div>
+        )}
       </footer>
     </div>
   );

@@ -7,13 +7,11 @@ export default function AuthenticatedNavbar() {
 
   const handleSearchClick = (e) => {
     e.preventDefault();
-    
     const username = localStorage.getItem('username');
     if (!username) {
       alert('Please log in first');
       return;
     }
-
     navigate('/location', {
       state: {
         groupName: username,
@@ -24,7 +22,9 @@ export default function AuthenticatedNavbar() {
 
   return (
     <nav className="auth-navbar">
-      <div className="logo">2manyfoods</div>
+      <Link to="/" className="logo">
+        2manyfoods
+      </Link>
       <ul className="nav-links">
         <li><a href="#" onClick={handleSearchClick}>search</a></li>
         <li><Link to="/groups">groups</Link></li>
