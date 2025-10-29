@@ -16,12 +16,13 @@ import FoodReviewPage from './pages/FoodReviewPage';
 import GroupsPage from './pages/GroupsPage';
 import CreateGroupPage from './pages/CreateGroupPage';
 import GroupDetailsPage from './pages/GroupDetailsPage';
-import LeaderLocationPage from './pages/LeaderLocationPage';
+import MapPage from './pages/MapPage';
 import WaitingForLeaderPage from './pages/WaitingForLeaderPage';
 import InProgressPage from './pages/InProgressPage';
 import ResultsPage from './pages/ResultsPage';
 import VotingPage from './pages/VotingPage';
 import Faqpage from './pages/FaqPage';
+import LeaderLocationPage from './pages/WaitingForLeaderPage';
 
 function App() {
   return (
@@ -39,12 +40,15 @@ function App() {
         <Route path="/account/preferences" element={<PreferencesPage />} />
         <Route path="/account/history" element={<FoodHistoryPage />} />
         <Route path="/account/review" element={<FoodReviewPage />} />
-        <Route path="/groups" element={<GroupsPage />} />
+        <Route path="/foodball" element={<GroupsPage />} />
         <Route path="/groups/create" element={<CreateGroupPage />} />
         <Route path="/groups/:groupId" element={<GroupDetailsPage />} />
+        {/* Location selection for both individual and group */}
+        <Route path="/location" element={<MapPage />} />
         <Route path="/foodball/select-location" element={<LeaderLocationPage />} />
         <Route path="/foodball/waiting" element={<WaitingForLeaderPage />} />
         <Route path="/foodball/in-progress" element={<InProgressPage />} />
+        <Route path="/result" element={<ResultsPage />} />
         <Route path="/foodball/results" element={<ResultsPage />} />
         <Route path="/foodball/voting" element={<VotingPage />} />
         <Route path="/FaqPage" element={<Faqpage />} />

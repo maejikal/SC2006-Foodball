@@ -33,22 +33,24 @@ async def join_group(groupID):
 def join_group_by_code():
     return group_controller.handle_join_by_invite_code(request.get_json())
 
-@app.route('/foodball/<groupID>')
-async def generate_recommendation(groupID):
+@app.route('/foodball/<groupName>')
+async def generate_recommendation(groupName):
     global rec_cons
-    if groupID not in rec_cons.keys():
+    if groupName not in rec_cons.keys():
         location = request.args['location']
         radius = request.args['location']
-        group_rec = await group_collection.find_one({"groupID": groupID})
+        group_rec = await searchdb('Groups', 'group_name',groupName)
+        print(group_rec)
+        print(groupName)
         users = {}
-        for userID in group_rec.users:
-            user_rec = await user_collection.find_one({"ID": userID})
+        for userID in group_rec['users']:
+            user_rec = await searchdb('Username', 'username',userID)
             users[userID] = user_rec
         group = Group(group_rec.name, users, group_rec.GroupPhoto, group_rec.id)
         con = recommendation_controller(group, Location(location), radius)
-        rec_cons[groupID] = con 
+        rec_cons[groupName] = con 
     else:
-        con = rec_cons[groupID]
+        con = rec_cons[groupName]
     return con.getRecommendations()
 
 @app.route('/refresh/<groupID>')

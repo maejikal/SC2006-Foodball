@@ -96,7 +96,7 @@ export default function PreferencesPage() {
     setIsSaving(true);
 
     const requestBody = {
-      username: username,
+      username: username, type:'cuisine',
       cuisine_preferences: {
         rank1: rank1,
         rank2: rank2,

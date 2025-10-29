@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import Navbar from '../components/AuthenticatedNavbar';
-import './LeaderLocationPage.css';
+import './MapPage.css';
 
 export default function LeaderLocationPage() {
   const navigate = useNavigate();
