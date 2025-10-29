@@ -87,7 +87,7 @@ export default function SecurityPage() {
             },
             body: JSON.stringify({
               username: username,
-              profile_photo: newAvatar
+              new_profile_photo: newAvatar
             })
           });
 
@@ -125,13 +125,7 @@ export default function SecurityPage() {
     }
 
     try {
-      const requestBody = { username }; 
-
-      if (field === 'name') {
-        requestBody.new_username = newValue;
-      } else if (field === 'email') {
-        requestBody.new_email = newValue;
-      }
+      const requestBody = { username, field, newValue}; 
 
       const response = await fetch('http://localhost:8080/account/security', {
         method: 'POST',
