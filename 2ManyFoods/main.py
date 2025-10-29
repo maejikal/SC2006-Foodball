@@ -9,6 +9,8 @@ from datetime import datetime, timedelta
 from controllers import group as group_cons
 from controllers import eatery as eatery_cons
 from bson.objectid import ObjectId
+from services import user as user_services
+
 from utils import verification
 import random
 import string
@@ -130,31 +132,32 @@ def join_group_by_code():
     return group_controller.handle_join_by_invite_code(request.get_json())
 
 @app.route('/foodball/<groupName>')
-async def generate_recommendation(groupName):
+def generate_recommendation(groupName):
     global rec_cons
     if groupName not in rec_cons.keys():
         latitude = request.args['lat']
         longitude = request.args['long']
         radius = 500
-        group_rec = await searchdb('Groups', 'group_name', groupName)
-        print(groupName)
+        group_rec = asyncio.run(searchdb('Groups', 'group_name', groupName))
         if group_rec != None:
             users = {}
             id = group_rec["_id"]
             for userID in group_rec['users']:
-                user_rec = await searchdb('Users', 'Username', userID)
+                user_rec = asyncio.run(searchdb('Users', 'Username', userID))
                 users[userID] = user_rec
             
         else:
-            users = await searchdb('Users', 'Username', groupName)
+            users = asyncio.run(searchdb('Users', 'Username', groupName))
             users = {groupName: users}
             id = users[groupName]["_id"]
         group = Group(groupName, users, None, id)
-        con = recommendation_controller(group, Location(latitude, longitude), radius)
+        con = recommendation_controller.RecommendationController(group, Location(latitude, longitude), radius)
         rec_cons[groupName] = con 
     else:
         con = rec_cons[groupName]
-    return con.getRecommendations()
+        cuisines = request.args['cuisines'].split(",")
+        con._group.Users[request.args['username']]['Preferences'] = {"rank1": cuisines[0],"rank2": cuisines[1],"rank3": cuisines[2],}
+    return jsonify({"recommendations":con.getRecommendations()})
 
 @app.route('/refresh/<groupID>')
 def refresh_group(groupID):
@@ -173,7 +176,7 @@ def refresh_group(groupID):
         
         
         return jsonify({
-            "recommendations": con.recommendations
+            "recommendations": con.getRecommendations()
         })
     except Exception as e:
         print(f"Error: {e}")
@@ -274,13 +277,11 @@ def add_to_history():
             "restaurant_id": restaurant['id'],
             "restaurant_name": restaurant['name'],
             "address": restaurant.get('address', 'N/A'),
-            "price_range": restaurant.get('price_range', 0),
-            "cuisine": restaurant.get('cuisine', 'Unknown'),
+            "cuisine": restaurant.get('cuisine', []),
             "visited_date": datetime.now().isoformat(),
-            "image": restaurant.get('image', '')
         }
         
-        from services import user as user_services
+        
         user_services.update_foodhistory(username, history_entry)
         del rec_cons[data.get("groupName")]
         return jsonify({

@@ -27,7 +27,7 @@ export default function AuthenticatedNavbar() {
       <div className="logo">2manyfoods</div>
       <ul className="nav-links">
         <li><a href="#" onClick={handleSearchClick}>search</a></li>
-        <li><Link to="/foodball">groups</Link></li>
+        <li><Link to="/groups">groups</Link></li>
         <li><Link to="/account">account</Link></li>
       </ul>
     </nav>

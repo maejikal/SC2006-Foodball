@@ -20,6 +20,28 @@ export default function PreferencesPage() {
   const [error, setError] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
 
+  // Mapping: API format -> Display format (for LOADING)
+  const apiToDisplay = {
+    "bar_and_grill": 'Western',
+    'italian_restaurant': 'Italian',
+    'chinese_restaurant': 'Chinese',
+    'indonesian_restaurant': 'Indonesian',
+    'indian_restaurant': 'Indian',
+    'japanese_restaurant': 'Japanese',
+    'korean_restaurant': 'Korean'
+  };
+
+  // Mapping: Display format -> API format (for SAVING)
+  const displayToApi = {
+    'Western': 'bar_and_grill',
+    'Italian': 'italian_restaurant',
+    'Chinese': 'chinese_restaurant',
+    'Indonesian': 'indonesian_restaurant',
+    'Indian': 'indian_restaurant',
+    'Japanese': 'japanese_restaurant',
+    'Korean': 'korean_restaurant'
+  };
+
   //load current preferences
   useEffect(() => {
     // Skip loading if this is onboarding (new user)
@@ -54,11 +76,11 @@ export default function PreferencesPage() {
           throw new Error(data.error || 'Failed to load preferences');
         }
 
-        // Load cuisine preferences
+        // Load cuisine preferences - convert API format to Display format
         const prefs = data.preferences || {};
-        setRank1(prefs.rank1 || '');
-        setRank2(prefs.rank2 || '');
-        setRank3(prefs.rank3 || '');
+        setRank1(apiToDisplay[prefs.rank1] || '');
+        setRank2(apiToDisplay[prefs.rank2] || '');
+        setRank3(apiToDisplay[prefs.rank3] || '');
         setBudget(data.budget || 50);
 
         setIsLoading(false);
@@ -94,17 +116,15 @@ export default function PreferencesPage() {
     }
 
     setIsSaving(true);
-    tags = {
-      'western': "bar_and_grill", 'italian': "italian_restaurant",
-      'chinese': "chinese_restaurant", 'indonesian': "indonesian_restaurant",
-      'indian': "indian_restaurant", 'japanese': "japanese_restaurant", 'korean': "korean_restaurant"
-    };
+
+    // Convert Display format to API format
     const requestBody = {
-      username: username, type:'cuisine',
-      cuisine_preferences: {
-        rank1: tags[rank1.toLowerCase()],
-        rank2: tags[rank2.toLowerCase()],
-        rank3: tags[rank3.toLowerCase()]
+      username: username,
+      type: 'cuisine',
+      newValue: {
+        rank1: displayToApi[rank1],
+        rank2: displayToApi[rank2],
+        rank3: displayToApi[rank3]
       },
       field: "preferences"
     };

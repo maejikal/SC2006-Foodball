@@ -55,10 +55,15 @@ export default function SearchPage() {
           const prefs = data.preferences;
 
           if (prefs.rank1 && prefs.rank2 && prefs.rank3) {
+            var tags = {
+      "bar_and_grill": 'western', 'italian_restaurant': "italian_restaurant",
+      'chinese_restaurant': "chinese", 'indonesian_restaurant': "indonesian",
+      'indian_restaurant': "indian", 'japanese_restaurant': "japanese", 'korean_restaurant': "korean"
+    };
             const cuisines = [
-              prefs.rank1.toLowerCase(),
-              prefs.rank2.toLowerCase(),
-              prefs.rank3.toLowerCase()
+              tags[prefs.rank1.toLowerCase()],
+              tags[prefs.rank2.toLowerCase()],
+              tags[prefs.rank3.toLowerCase()]
             ];
             setSelectedCuisines(cuisines);
             
@@ -85,9 +90,17 @@ export default function SearchPage() {
       // Call /foodball/{groupName} with location
       // Backend handles both real groups and individual users (username as groupName)
       const locationParam = selectedLocation?.name || 'Default Location';
-      
+      var cuisine_tag = ["","",""];
+      var tags = {
+      'western': "bar_and_grill", 'italian': "italian_restaurant",
+      'chinese': "chinese_restaurant", 'indonesian': "indonesian_restaurant",
+      'indian': "indian_restaurant", 'japanese': "japanese_restaurant", 'korean': "korean_restaurant"
+    };
+    for (let i=0;i<cuisines.length;i++){
+      cuisine_tag[i] = tags[cuisines[i]];
+    }
       const response = await fetch(
-        `http://localhost:8080/foodball/${groupName}?long=${selectedLocation[latLng][lng]}&lat=${selectedLocation[latLng][lat]}`,
+        `http://localhost:8080/foodball/${groupName}?long=${selectedLocation['latLng']['lng']}&lat=${selectedLocation['latLng']['lat']}&cuisines=${cuisine_tag}&username=${localStorage.getItem('username')}`,
         { method: 'GET' }
       );
       
@@ -219,7 +232,7 @@ export default function SearchPage() {
 
     const requestBody = {
       username: username,
-      cuisine_preferences: {
+      newValue: {
         rank1: tags[selectedCuisines[0]],
         rank2: tags[selectedCuisines[1]],
         rank3: tags[selectedCuisines[2]]
@@ -297,11 +310,10 @@ export default function SearchPage() {
           body: JSON.stringify({
             username: username,
             restaurant: {
-              id: selectedRestaurant._id,
-              name: selectedRestaurant.name,
-              address: selectedRestaurant.location?.address || '',
-              price_range: selectedRestaurant.price_range,
-              cuisine: selectedRestaurant.cuisine
+              id: selectedRestaurant.id,
+              name: selectedRestaurant.displayName?.text,
+              address: selectedRestaurant.shortFormattedAddress || '',
+              cuisine: selectedRestaurant.types
             }
           })
         });
@@ -448,24 +460,18 @@ export default function SearchPage() {
 
               return (
                 <div
-                  key={restaurant._id || index}
+                  key={restaurant.id || index}
                   className={`restaurantCard ${isSelected ? 'selected' : ''}`}
                   onClick={() => handleRestaurantClick(restaurant)}
                 >
                   <img
                     src={restaurant.image || 'https://via.placeholder.com/150'}
-                    alt={restaurant.name}
+                    alt={restaurant.displayName?.text}
                     className="restaurantImage"
                   />
                   <div className="restaurantInfo">
-                    <h3>{restaurant.name}</h3>
-                    <p className="address">{restaurant.location?.address || 'Address not available'}</p>
-                    <p className={`price ${
-                      restaurant.price_range <= 30 ? 'low' : 
-                      restaurant.price_range <= 60 ? 'medium' : 'high'
-                    }`}>
-                      ${restaurant.price_range}
-                    </p>
+                    <h3>{restaurant.displayName?.text}</h3>
+                    <p className="address">{restaurant.shortFormattedAddress || 'Address not available'}</p>
                     <p className="status">
                       {!isIndividual && !hasVoted ? 'Click to vote' : 
                        !isIndividual && hasVoted ? 'Voting closed' :

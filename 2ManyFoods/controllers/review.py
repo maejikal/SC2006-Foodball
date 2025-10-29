@@ -11,22 +11,19 @@ def handle_create_review():
         return jsonify({"error":f"Missing fields:{','.join(missing)}"}), 400
     
     user = data["Username"]
-    eatery = data["EateryID"]
+    eatery = data["_id"]
     rating = data["Rating"]
     comment = data["Comment"]
     date = data["Date"]
     photo = data["Photo"]
 
     try:
-        review = review_services.create_review(user, eatery, rating, comment, date, photo)
-        review_id = review.inserted_id
-        user_services.store_review(user, review_id)
-        eatery_services.store_review(eatery, review_id)
+        newid = review_services.create_review(user, eatery, rating, comment, date, photo)
     except ValueError as e:
         return jsonify({"error":str(e)}), 401
     
     return jsonify({
         "message":"Review added successfully.",
-        "review_id":str(review_id),
+        "review_id":str(),
         "username":user
     }),200

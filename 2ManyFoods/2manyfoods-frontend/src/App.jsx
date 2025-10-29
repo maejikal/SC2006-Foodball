@@ -40,7 +40,7 @@ function App() {
         <Route path="/account/preferences" element={<PreferencesPage />} />
         <Route path="/account/history" element={<FoodHistoryPage />} />
         <Route path="/account/review" element={<FoodReviewPage />} />
-        <Route path="/foodball" element={<GroupsPage />} />
+        <Route path="/groups" element={<GroupsPage />} />
         <Route path="/groups/create" element={<CreateGroupPage />} />
         <Route path="/groups/:groupId" element={<GroupDetailsPage />} />
         {/* Location selection for both individual and group */}
