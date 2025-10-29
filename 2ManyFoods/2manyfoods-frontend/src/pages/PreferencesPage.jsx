@@ -106,7 +106,7 @@ export default function PreferencesPage() {
         rank2: tags[rank2.toLowerCase()],
         rank3: tags[rank3.toLowerCase()]
       },
-      budget: budget
+      field: "preferences"
     };
 
     console.log('Sending to backend:', JSON.stringify(requestBody, null, 2));

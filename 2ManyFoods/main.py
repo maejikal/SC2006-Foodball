@@ -129,11 +129,11 @@ def update_security():
 
 @app.route('/account/dietary', methods=['POST'])
 def update_dietary():
-    return user_controller.update_user_profile(request.get_json(), section='dietary')
+    return user_controller.update_user_profile(request.get_json())
 
 @app.route('/account/cuisine', methods=['POST'])
 def update_cuisine():
-    return user_controller.update_user_profile(request.get_json(), section='cuisine')
+    return user_controller.update_user_profile(request.get_json())
 
 @app.route('/account/<username>', methods=['GET']) # one route just to get everything from user
 def get_user_profile(username):
