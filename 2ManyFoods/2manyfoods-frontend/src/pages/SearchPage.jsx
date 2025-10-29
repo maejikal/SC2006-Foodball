@@ -55,10 +55,15 @@ export default function SearchPage() {
           const prefs = data.preferences;
 
           if (prefs.rank1 && prefs.rank2 && prefs.rank3) {
+            var tags = {
+      "bar_and_grill": 'western', 'italian_restaurant': "italian_restaurant",
+      'chinese_restaurant': "chinese", 'indonesian_restaurant': "indonesian",
+      'indian_restaurant': "indian", 'japanese_restaurant': "japanese", 'korean_restaurant': "korean"
+    };
             const cuisines = [
-              prefs.rank1.toLowerCase(),
-              prefs.rank2.toLowerCase(),
-              prefs.rank3.toLowerCase()
+              tags[prefs.rank1.toLowerCase()],
+              tags[prefs.rank2.toLowerCase()],
+              tags[prefs.rank3.toLowerCase()]
             ];
             setSelectedCuisines(cuisines);
             

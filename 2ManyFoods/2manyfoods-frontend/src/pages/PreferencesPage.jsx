@@ -56,9 +56,14 @@ export default function PreferencesPage() {
 
         // Load cuisine preferences
         const prefs = data.preferences || {};
-        setRank1(prefs.rank1 || '');
-        setRank2(prefs.rank2 || '');
-        setRank3(prefs.rank3 || '');
+        var tags = {
+      "bar_and_grill": 'western', 'italian_restaurant': "italian_restaurant",
+      'chinese_restaurant': "chinese", 'indonesian_restaurant': "indonesian",
+      'indian_restaurant': "indian", 'japanese_restaurant': "japanese", 'korean_restaurant': "korean"
+    };
+        setRank1(tags[prefs.rank1] || '');
+        setRank2(tags[prefs.rank2] || '');
+        setRank3(tags[prefs.rank3] || '');
         setBudget(data.budget || 50);
 
         setIsLoading(false);
