@@ -40,20 +40,19 @@ async def generate_recommendation(groupName):
         latitude = request.args['lat']
         longitude = request.args['long']
         radius = 500
-        group_rec = await searchdb('Groups', 'group_name',groupName)
+        group_rec = await searchdb('Groups', 'group_name', groupName)
         print(groupName)
         if group_rec != None:
             users = {}
             id = group_rec["_id"]
             for userID in group_rec['users']:
-                user_rec = await searchdb('Users', 'Username',userID)
+                user_rec = await searchdb('Users', 'Username', userID)
                 users[userID] = user_rec
             
         else:
             users = await searchdb('Users', 'Username', groupName)
             users = {groupName: users}
             id = users[groupName]["_id"]
-        print(users)    
         group = Group(groupName, users, None, id)
         con = recommendation_controller(group, Location(latitude, longitude), radius)
         rec_cons[groupName] = con 
