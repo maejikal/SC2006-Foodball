@@ -5,14 +5,18 @@ from services import user as user_services
 from asyncio import run
 import api
 
+COL = "Eateries"
+
 def get_eatery_by_id(eatery_id:int):
-    return asyncio.run(searchdb("Eateries", "_id", eatery_id))
+    return run(searchdb("COL", "_id", eatery_id))
 
 def store_review(eatery_id:int, review_id:int): # logic needs to be updated. avg rating etc. 
-    return eatery_collection.update_one({"EateryID": eatery_id}, {"$push": {"Reviews": review_id}})
+    eateryreviews = run(searchdb(COL, "_id ", eatery_id))
+    return run(updatedb(COL, "_id", eatery_id, "Reviews", eateryreviews + [review_id]))
+    #return eatery_collection.update_one({"EateryID": eatery_id}, {"$push": {"Reviews": review_id}})
 
 def create_eatery(name:str, dietary_req:dict, cuisine:dict, price_range:tuple, location:Location, openingHours: datetime):
-    if asyncio.run(searchdb("Eateries", "name", name)) is not None:
+    if run(searchdb("Eateries", "name", name)) is not None:
         raise ValueError("Duplicate name.")
 
     eatery_doc = {
@@ -25,6 +29,7 @@ def create_eatery(name:str, dietary_req:dict, cuisine:dict, price_range:tuple, l
         "reviews" : [],
         "averageRating": 0.0
         }
+    
     return user_collection.insert_one(eatery_doc)
 
 def search_eateries(username: str, selected_cuisines: list, price_range: int, dietary_filters: list):

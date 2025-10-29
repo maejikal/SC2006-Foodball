@@ -11,5 +11,5 @@ def send_email(app, email):
         code = "0" + code
     msg.body = "Your verification code is " + code
     mail = Mail(app)
-    mail.send(msg)
+    mail.connect().send(msg)
     return code

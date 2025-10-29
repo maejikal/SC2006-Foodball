@@ -17,15 +17,15 @@ def create_review(username:str, eatery_id:int, rating:int, comment:str, date:str
         raise ValueError("This user already has 1 review for this restaurant. Either edit or delete this review to add a new one.")
     review_doc = {
         "Username": username,
-        "EateryID": eatery_id,
+        "_id": eatery_id,
         "Rating": rating,
         "Comment": comment,
         "Date": date,
         "Photo": photo
     }
-    eateryreviews = run(searchdb("Eateries","EateryID", eatery_id))['Reviews']
+    eateryreviews = run(searchdb("Eateries","_id", eatery_id))['Reviews']
     run(insertdb(COL,[review_doc]))
-    newreviewid = run(searchdb(COL, "Username", username))["ReviewID"]
+    newreviewid = run(searchdb(COL, "Username", username))["_id"]
     # run(updatedb("Users", "Username", username, "Reviews", reviews + [newreviewid]))
     # run(updatedb("Eateries", "EateryID", eatery_id, "Reviews", reviews + [newreviewid]))
     return newreviewid
