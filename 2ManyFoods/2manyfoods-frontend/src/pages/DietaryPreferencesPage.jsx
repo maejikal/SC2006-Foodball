@@ -114,8 +114,9 @@ export default function DietaryPreferencesPage() {
 
     const requestBody = {
       username: username,
-      dietary_requirements: dietaryDict,
-      field: "dietary_requirements"
+      // dietary_requirements: dietaryDict,
+      field: "DietaryRequirements",
+      newValue: dietaryDict
     };
 
     try {
