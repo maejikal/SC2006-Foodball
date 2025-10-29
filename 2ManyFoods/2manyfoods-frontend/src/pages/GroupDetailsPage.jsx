@@ -177,7 +177,6 @@ export default function GroupDetailsPage() {
               <button 
                 className={`startFoodballBtn ${!isLeader ? 'disabled' : ''}`}
                 onClick={handleStartFoodball}
-                disabled={!isLeader}
                 title={!isLeader ? 'Only the group leader can start Foodball' : ''}
               >
                 Start Foodball

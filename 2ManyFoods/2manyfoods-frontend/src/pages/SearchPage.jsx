@@ -142,6 +142,9 @@ export default function SearchPage() {
             } 
           });
         }
+        else{
+          restaurants = data.recommendations;
+        }
       } catch (error) {
         console.error('Error polling votes:', error);
       }
@@ -296,6 +299,9 @@ export default function SearchPage() {
                 winner: data.finalVote
               } 
             });
+          }
+          else{
+            restaurants = data.recommendations;
           }
         } else {
           throw new Error(data.error || 'Failed to submit vote');

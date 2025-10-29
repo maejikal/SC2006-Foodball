@@ -24,7 +24,6 @@ def get_user_profile(username):
         user = user_services.get_user_by_username(username)
         if not user:
             return jsonify({"error": "User not found"}), 404
-        
         return jsonify({
             "username": user.get("Username"),
             "email": user.get("Email"),
@@ -34,6 +33,6 @@ def get_user_profile(username):
             "budget": user.get("Budget", 50),
             "groups": user.get("Groups", []),
             "foodHistory": user.get("FoodHistory", [])
-        }), 200
+        })
     except Exception as e:
         return jsonify({"error": f"Failed to get user profile: {str(e)}"}), 500

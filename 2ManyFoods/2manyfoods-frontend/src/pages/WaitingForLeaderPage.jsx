@@ -23,7 +23,7 @@ export default function WaitingForLeaderPage() {
   useEffect(() => {
     const pollSessionStart = async () => {
       try {
-        const response = await fetch(`http://localhost:8080/api/foodball/status/${groupId}`);
+        const response = await fetch(`http://localhost:8080/api/foodball/status/${groupName}`);
         const data = await response.json();
         
         if (data.status === 'ready' && data.location) {

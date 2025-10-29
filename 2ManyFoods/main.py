@@ -27,15 +27,19 @@ rec_cons = {}
 verification_codes = {}
 foodball_sessions = {}
 
+
 @app.route('/')
 def root():
     return "placeholder"
+
 
 '''
 @app.route('/signup', methods=['POST'])
 def signup_route():
     return auth_controller.signup(request.get_json())
 '''
+
+
 @app.route('/signup', methods=['POST', 'OPTIONS'])
 def signup_route():
     if request.method == 'OPTIONS':
@@ -44,8 +48,9 @@ def signup_route():
         response.headers.add('Access-Control-Allow-Headers', 'Content-Type')
         response.headers.add('Access-Control-Allow-Methods', 'POST, OPTIONS')
         return response, 200
-    
+
     return auth_controller.signup(app, request.get_json())
+
 
 mail = Mail(app)
 
@@ -56,36 +61,36 @@ def send_verification():
     try:
         data = request.get_json()
         email = data.get('email')
-        
+
         if not email:
             return jsonify({"error": "Email is required"}), 400
-        
+
         # Check if email already exists in database
         from services import user as user_services
         existing_user = user_services.get_user_by_email(email)
         if existing_user:
             return jsonify({"error": "Email already registered"}), 400
-        
+
         # Generate 6-digit verification code
         # code = ''.join(random.choices(string.digits, k=6))
-        
+
         code = verification.mail(app, email)
         # Store code with expiration (10 minutes)
         verification_codes[email] = {
             'code': code,
             'expires_at': datetime.now() + timedelta(minutes=10)
         }
-        
+
         # TODO: Send email with verification code
         # For now, just print it (in production, use email service)
         # verification.mail(app, email)
         # print(f"Verification code for {email}: {code}")
-        
+
         return jsonify({
             "message": "Verification code sent successfully",
             "email": email,
         }), 200
-        
+
     except Exception as e:
         print(f"Error sending verification: {e}")
         return jsonify({"error": str(e)}), 500
@@ -98,48 +103,52 @@ def verify_email():
         data = request.get_json()
         email = data.get('email')
         code = data.get('code')
-        
+
         if not email or not code:
             return jsonify({"error": "Email and code are required"}), 400
-        
+
         # Check if code exists
         if email not in verification_codes:
             return jsonify({"error": "No verification code found for this email"}), 400
-        
+
         stored_data = verification_codes[email]
-        
+
         # Check if code expired
         if datetime.now() > stored_data['expires_at']:
             del verification_codes[email]
             return jsonify({"error": "Verification code expired. Please request a new one"}), 400
-        
+
         # Check if code matches
         if stored_data['code'] != code:
             return jsonify({"error": "Invalid verification code"}), 400
-        
+
         # Code is valid - remove it
         del verification_codes[email]
-        
+
         return jsonify({
             "message": "Email verified successfully",
             "email": email
         }), 200
-        
+
     except Exception as e:
         print(f"Error verifying email: {e}")
         return jsonify({"error": str(e)}), 500
+
 
 @app.route('/login', methods=['POST'])
 def login_route():
     return auth_controller.login(request.get_json())
 
+
 @app.route('/joingroup/<groupID>', methods=['GET'])
 async def join_group(groupID):
     return group_controller.handle_join_grp(request.get_json(), groupID)
 
+
 @app.route('/api/groups/join', methods=['POST'])
 def join_group_by_code():
     return group_controller.handle_join_by_invite_code(request.get_json())
+
 
 @app.route('/foodball/<groupName>')
 def generate_recommendation(groupName):
@@ -155,65 +164,55 @@ def generate_recommendation(groupName):
             for userID in group_rec['users']:
                 user_rec = asyncio.run(searchdb('Users', 'Username', userID))
                 users[userID] = user_rec
-            
+
         else:
             users = asyncio.run(searchdb('Users', 'Username', groupName))
             users = {groupName: users}
             id = users[groupName]["_id"]
         group = Group(groupName, users, None, id)
-        con = recommendation_controller.RecommendationController(group, Location(latitude, longitude), radius)
-        rec_cons[groupName] = con 
+        con = recommendation_controller.RecommendationController(
+            group, Location(latitude, longitude), radius)
+        rec_cons[groupName] = con
     else:
         con = rec_cons[groupName]
         cuisines = request.args['cuisines'].split(",")
-        con._group.Users[request.args['username']]['Preferences'] = {"rank1": cuisines[0],"rank2": cuisines[1],"rank3": cuisines[2],}
-    return jsonify({"recommendations":con.getRecommendations()})
-
-@app.route('/refresh/<groupID>')
-def refresh_group(groupID):
-    global rec_cons
-    
-    if groupID not in rec_cons:
-        print(f"GroupID {groupID} not in cache - returning empty")
-        return jsonify({
-            "recommendations": [], 
-            "votingStatus": {},
-            "voteDetails": {}
-        }), 200
-    
-    try:
-        con = rec_cons[groupID]
-        
-        
-        return jsonify({
-            "recommendations": con.getRecommendations()
-        })
-    except Exception as e:
-        print(f"Error: {e}")
-        return jsonify({"recommendations": [], "votingStatus": {}, "voteDetails": {}}), 200
+        con._group.Users[request.args['username']]['Preferences'] = {
+            "rank1": cuisines[0], "rank2": cuisines[1], "rank3": cuisines[2], }
+    return jsonify({"recommendations": con.getRecommendations()})
 
 
-@app.route('/foodball/<groupID>/vote', methods=['POST'])
-def group_voting(groupID):
+@app.route('/foodball/<groupName>/vote', methods=['POST'])
+def group_voting(groupName):
     global rec_cons
     data = request.get_json()
     username = data.get('username')
-    restaurant_id = data.get('restaurant_ids', [])
-    
+    restaurant_id = data.get('restaurant_id', "")
+
     try:
-        
-        con = rec_cons[groupID]
-        con.Users["username"]["vote"] = restaurant_id
-        voted = None in [i["vote"] for i in rec_cons[groupID].Users]
-        if voted:
-            return jsonify({"finalVote": rec_cons[groupID].finishVoting()}) 
-        return jsonify({"recommendations": rec_cons[groupID].getRecommendations()})
-    
+
+        con = rec_cons[groupName]
+        con._group.Users[username]["vote"] = restaurant_id
+        done = None not in [user["vote"] for user in rec_cons[groupName]._group.Users.values()]
+        if done:
+            return jsonify({"finalVote": rec_cons[groupName].finishVoting()})
+        return jsonify({"recommendations": rec_cons[groupName].getRecommendations()})
+
     except Exception as e:
         print(f"Vote error: {e}")
         import traceback
         traceback.print_exc()
         return jsonify({"error": str(e)}), 400
+
+@app.route('/refresh/<groupName>', methods=['GET'])
+def refresh(groupName):
+    global rec_cons
+    if groupName in rec_cons.keys():
+        voted = None not in [user["vote"] for user in rec_cons[groupName]._group.Users.values()]
+        if voted:
+            return jsonify({"finalVote": rec_cons[groupName].finishVoting()})
+        return jsonify({"recommendations": rec_cons[groupName].getRecommendations()})
+    else:
+        return jsonify({"recommendations": ""})
     
 @app.route('/update_prefs', methods=["POST"])
 def update():
@@ -225,52 +224,52 @@ def update():
         rec_cons[groupID].updatePref(userID, pref)
         return jsonify({"recommendations": rec_cons[groupID].getRecommendations()})
 
-@app.route('/refresh', methods=['GET'])
-def refresh():
-    global rec_cons
-    groupID = request.args['groupID']
-    if groupID in rec_cons.keys():
-        voted = None in [i["vote"] for i in rec_cons[groupID].Users]
-        if voted:
-            return jsonify({"finalVote": rec_cons[groupID].finishVoting()}) 
-        return jsonify({"recommendations": rec_cons[groupID].getRecommendations()})
-    
 @app.route('/account/security', methods=['POST'])
 def update_security():
     return user_controller.update_user_profile(request.get_json())
+
 
 @app.route('/account/dietary', methods=['POST'])
 def update_dietary():
     return user_controller.update_user_profile(request.get_json())
 
+
 @app.route('/account/cuisine', methods=['POST'])
 def update_cuisine():
     return user_controller.update_user_profile(request.get_json())
 
-@app.route('/account/<username>', methods=['GET']) # one route just to get everything from user
+
+# one route just to get everything from user
+@app.route('/account/<username>', methods=['GET'])
 def get_user_profile(username):
     return user_controller.get_user_profile(username)
+
 
 @app.route('/api/groups/create', methods=['POST'])
 def create_group_route():
     data = request.get_json()
     return group_controller.handle_create_group(data)
 
+
 @app.route('/api/groups/user/<username>', methods=['GET'])
 def get_user_groups(username):
     return group_controller.handle_get_user_groups(username)
+
 
 @app.route('/api/groups/<grp_id>', methods=['GET'])
 def get_group_details(grp_id):
     return group_controller.handle_get_group_details(grp_id)
 
+
 @app.route('/api/groups/leave', methods=['POST'])
 def leave_group():
     return group_controller.handle_leave_group(request.get_json())
 
+
 @app.route('/api/search', methods=['GET'])
 def solo_search():
     return recommendations_controller.handle_solo_search()
+
 
 @app.route('/api/history/add', methods=['POST'])
 def add_to_history():
@@ -279,10 +278,10 @@ def add_to_history():
         data = request.get_json()
         username = data.get('username')
         restaurant = data.get('restaurant')
-        
+
         if not username or not restaurant:
             return jsonify({"error": "Missing required fields"}), 400
-        
+
         history_entry = {
             "restaurant_id": restaurant['id'],
             "restaurant_name": restaurant['name'],
@@ -290,8 +289,7 @@ def add_to_history():
             "cuisine": restaurant.get('cuisine', []),
             "visited_date": datetime.now().isoformat(),
         }
-        
-        
+
         user_services.update_foodhistory(username, history_entry)
         group_name = data.get("groupName")
         if group_name and group_name in rec_cons:
@@ -300,7 +298,7 @@ def add_to_history():
             "message": "Restaurant added to history successfully",
             "restaurant": restaurant['name']
         }), 200
-        
+
     except Exception as e:
         print(f"Error adding to history: {e}")
         return jsonify({"error": str(e)}), 500
@@ -311,36 +309,39 @@ def get_food_history():
     """Get user's food history"""
     try:
         username = request.args.get('username')
-        
+
         if not username:
             return jsonify({"error": "Username is required"}), 400
-        
+
         # Use existing service to get user
         from services import user as user_services
         user_doc = user_services.get_user_by_username(username)
-        
+
         if not user_doc:
             return jsonify({"error": "User not found"}), 404
-        
+
         # Get food history (returns array)
         food_history = user_doc.get("FoodHistory", [])
-        
+
         return jsonify({
             "success": True,
             "history": food_history
         }), 200
-        
+
     except Exception as e:
         print(f"Error getting food history: {e}")
         return jsonify({"error": str(e)}), 500
+
 
 @app.route('/api/review/create', methods=['POST'])
 def create_review():
     return review_controller.handle_create_review()
 
+
 @app.route('/api/review/update', methods=['PUT'])
 def update_review():
     return review_controller.handle_update_review()
+
 
 @app.route('/api/review/get', methods=['GET'])
 def get_review():
@@ -348,22 +349,22 @@ def get_review():
     try:
         username = request.args.get('username')
         restaurant_id = request.args.get('restaurant_id')
-        
+
         if not username or not restaurant_id:
             return jsonify({"error": "Missing parameters"}), 400
-        
+
         from services import review as review_services
         reviews = review_services.get_user_reviews(username)
-        
+
         restaurant_review = None
         for review in reviews:
             if review.get("EateryID") == restaurant_id:
                 restaurant_review = review
                 break
-        
+
         if not restaurant_review:
             return jsonify({"error": "Review not found"}), 404
-        
+
         return jsonify({
             "success": True,
             "review": {
@@ -373,7 +374,7 @@ def get_review():
                 "date": restaurant_review.get("Date")
             }
         }), 200
-        
+
     except Exception as e:
         print(f"Error getting review: {e}")
         return jsonify({"error": str(e)}), 500
@@ -386,7 +387,7 @@ def get_group_status(group_id):
         group = group_cons.get_group_by_id(group_id)
         if not group:
             return jsonify({'error': 'Group not found'}), 404
-        
+
         return jsonify({
             'members': group.get('members', []),
             'all_ready': all(m.get('preferences_set', False) for m in group.get('members', [])),
@@ -406,33 +407,35 @@ def update_group_preferences(group_id):
         cuisines = data.get('cuisines', [])
         price_range = data.get('price_range', 50)
         hunger_level = data.get('hunger_level', 5)
-        
+
         group_cons.update_member_preferences(
-            group_id, 
-            username, 
-            cuisines, 
-            price_range, 
+            group_id,
+            username,
+            cuisines,
+            price_range,
             hunger_level
         )
-        
+
         return jsonify({'message': 'Preferences updated'}), 200
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
 # Leader starts session when clicking "Start Foodball"
+
+
 @app.route('/api/foodball/start', methods=['POST'])
 def start_foodball():
     """Leader initiates Foodball session"""
     global foodball_sessions
-    
+
     try:
         data = request.get_json()
         group_id = data.get('groupId')
         leader_username = data.get('username')
-        
+
         if not group_id or not leader_username:
             return jsonify({"error": "Missing required fields"}), 400
-        
+
         # Create session entry (location not set yet)
         foodball_sessions[group_id] = {
             'status': 'pending_location',  # Leader hasn't selected location yet
@@ -440,12 +443,12 @@ def start_foodball():
             'location': None,
             'started_at': datetime.now().isoformat()
         }
-        
+
         return jsonify({
             "message": "Foodball session started",
             "groupId": group_id
         }), 200
-        
+
     except Exception as e:
         print(f"Error starting foodball: {e}")
         return jsonify({"error": str(e)}), 500
@@ -456,56 +459,51 @@ def start_foodball():
 def set_foodball_location():
     """Leader sets location (called from MapPage before navigating to SearchPage)"""
     global foodball_sessions
-    
+
     try:
         data = request.get_json()
         group_id = data.get('groupId')
         location = data.get('location')
-        
+
         if not group_id or not location:
             return jsonify({"error": "Missing required fields"}), 400
-        
+
         if group_id not in foodball_sessions:
             return jsonify({"error": "Session not found"}), 404
-        
+
         # Update session with location
         foodball_sessions[group_id]['status'] = 'location_set'
         foodball_sessions[group_id]['location'] = location
-        
+
         return jsonify({
             "message": "Location set successfully"
         }), 200
-        
+
     except Exception as e:
         print(f"Error setting location: {e}")
         return jsonify({"error": str(e)}), 500
 
 
 # Members poll for session status
-@app.route('/api/foodball/status/<group_id>', methods=['GET'])
-def get_foodball_status(group_id):
+@app.route('/api/foodball/status/<groupName>', methods=['GET'])
+def get_foodball_status(groupName):
     """Check if Foodball session has started and location is set"""
-    global foodball_sessions
-    
+    global rec_cons
+
     try:
-        if group_id in foodball_sessions:
-            session = foodball_sessions[group_id]
-            
-            # Only return ready when location is set
-            if session['status'] == 'location_set':
-                return jsonify({
-                    "status": "ready",
-                    "location": session['location']
-                }), 200
-            else:
-                return jsonify({
-                    "status": "waiting_for_location"
-                }), 200
+        if groupName in rec_cons:
+            con = rec_cons[groupName]
+
+            return jsonify({
+                "status": "ready",
+                "location": {"latLng":{"lat":con.location.getlatitude(), "lng": con.location.getlongitude()}}
+            }), 200
+
         else:
             return jsonify({
                 "status": "not_started"
             }), 200
-            
+
     except Exception as e:
         print(f"Error checking foodball status: {e}")
         return jsonify({"error": str(e)}), 500
@@ -517,9 +515,9 @@ def get_foodball_status(group_id):
 #     try:
 #         data = request.json
 #         restaurants = data.get('restaurants', [])
-        
+
 #         group_cons.start_voting(group_id, restaurants)
-        
+
 #         return jsonify({'message': 'Voting started'}), 200
 #     except Exception as e:
 #         return jsonify({'error': str(e)}), 500
@@ -530,23 +528,23 @@ def get_foodball_status(group_id):
 #         data = request.json
 #         username = data.get('username')
 #         restaurant_ids = data.get('restaurant_ids', [])
-        
+
 #         if not restaurant_ids or len(restaurant_ids) == 0:
 #             return jsonify({'error': 'Must select one restaurant'}), 400
-        
+
 #         group = group_cons.get_group_by_id(group_id)
 #         if any(v['username'] == username for v in group.get('votes', [])):
 #             return jsonify({'error': 'Already voted'}), 400
-        
+
 #         group_cons.add_vote(group_id, username, restaurant_ids)
-        
+
 #         group = group_cons.get_group_by_id(group_id)
 #         all_voted = all(m.get('has_voted', False) for m in group.get('members', []))
-        
+
 #         if all_voted:
 #             winner = group_cons.calculate_winner(group_id)
 #             return jsonify({'message': 'Vote submitted', 'voting_complete': True, 'winner': winner}), 200
-        
+
 #         return jsonify({'message': 'Vote submitted', 'voting_complete': False}), 200
 #     except Exception as e:
 #         return jsonify({'error': str(e)}), 500
@@ -558,18 +556,18 @@ def get_foodball_status(group_id):
 #         group = group_cons.get_group_by_id(group_id)
 #         if not group:
 #             return jsonify({'error': 'Group not found'}), 404
-        
+
 #         votes = group.get('votes', [])
 #         all_voted = all(m.get('has_voted', False) for m in group.get('members', []))
-        
+
 #         winner = None
 #         if all_voted and votes:
 #             winner = group_cons.calculate_winner(group_id)
-        
+
 #         return jsonify({
 #             'votes': votes,
 #             'voting_complete': all_voted,
-#             'winner': winner 
+#             'winner': winner
 #         }), 200
 #     except Exception as e:
 #         print(f"ERROR: {e}")
@@ -583,7 +581,7 @@ def get_foodball_status(group_id):
 #         response.headers.add('Access-Control-Allow-Headers', 'Content-Type')
 #         response.headers.add('Access-Control-Allow-Methods', 'POST, OPTIONS')
 #         return response, 200
-    
+
 #     try:
 #         eateries = recommendations_controller.handle_group_search(group_id)
 #         return jsonify({
@@ -599,4 +597,3 @@ def get_foodball_status(group_id):
 
 if __name__ == "__main__":
     app.run(port=8080, debug=True)
-

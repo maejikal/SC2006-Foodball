@@ -16,7 +16,7 @@ class RecommendationController:
 
     def FilterRecommendations(self) -> list[Eatery]:
         query_result = api.search(
-            lat_lng={'lat': self.location.getlangitude(), 'long': self.location.getlongitude()},
+            lat_lng={'lat': self.location.getlatitude(), 'long': self.location.getlongitude()},
             radius=self.radius, type=['restaurant'])
         results = query_result['places']
         weights = [user["Hunger"] for user in self._group.Users.values()]
@@ -51,15 +51,15 @@ class RecommendationController:
         return out
 
     def finishVoting(self) -> int:
-        votes = {i: 0 for i in self.recommendations}
-        for user in self.Users:
+        votes = {i['id']: 0 for i in self.recommendations}
+        for user, info in self._group.Users.items():
             try:
-                votes[user['vote']] += user['Hunger']
+                votes[info['vote']] += info['Hunger']
             except:
-                votes[user['vote']] = user['Hunger']
-       
+                votes[info['vote']] = info['Hunger']
+    
         highest = max(votes.values())
-        return random.choice([i for i in votes if votes[i] == highest]).EateryID
+        return random.choice([i for i in votes if votes[i] == highest])
 
     def getGroup(self) -> dict:
         return self._group  
