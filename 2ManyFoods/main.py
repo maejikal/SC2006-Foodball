@@ -41,7 +41,6 @@ def generate_recommendation(groupName):
         longitude = request.args['long']
         radius = 500
         group_rec = asyncio.run(searchdb('Groups', 'group_name', groupName))
-        print(groupName)
         if group_rec != None:
             users = {}
             id = group_rec["_id"]

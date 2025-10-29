@@ -39,9 +39,7 @@ class RecommendationController:
                 groupPreferences[preference["rank3"]] = 0.2
 
         groupPreferences = list(reversed(sorted(groupPreferences, key=groupPreferences.get)))
-        print(groupPreferences)
         out = []
-        print(results)
         for category in groupPreferences:
             for eatery in results:
                 if category in eatery['types']:
