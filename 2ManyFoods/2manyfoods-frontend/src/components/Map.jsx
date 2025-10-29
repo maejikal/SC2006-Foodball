@@ -3,10 +3,10 @@ require('dotenv').config();
 const api_key = process.env.API_KEY;
 
 async function initMap(){
-    const {Map} = await google.maps.importLibrary("maps");
+    const [{Map}, {AdvancedMarkerElement}] = await Promise.all([google.maps.importLibrary("maps"),google.maps.importLibrary("marker"),]);
     const latlang = {lat: 1.3483, lng: 103.6831};
     const map = new google.maps.Map(document.getElementById("map"),{
-        zoom:4,
+        zoom:15,
         center: latlang,
     });
     let infoWindow = new google.maps.InfoWindow({
@@ -27,7 +27,6 @@ async function initMap(){
         );
         infoWindow.open(map);
     });     
-
 }
 
 initMap();
