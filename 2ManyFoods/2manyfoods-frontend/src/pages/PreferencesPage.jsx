@@ -8,7 +8,7 @@ export default function PreferencesPage() {
   const location = useLocation();
   const isOnboarding = location.state?.isOnboarding || false;
 
-  const cuisineOptions = ['Western', 'Italian', 'Chinese', 'Malay', 'Indian', 'Japanese', 'Korean'];
+  const cuisineOptions = ['Western', 'Italian', 'Chinese', 'Indonesian', 'Indian', 'Japanese', 'Korean'];
 
   // where we store the preference
   const [rank1, setRank1] = useState('');
@@ -94,13 +94,17 @@ export default function PreferencesPage() {
     }
 
     setIsSaving(true);
-
+    tags = {
+      'western': "bar_and_grill", 'italian': "italian_restaurant",
+      'chinese': "chinese_restaurant", 'indonesian': "indonesian_restaurant",
+      'indian': "indian_restaurant", 'japanese': "japanese_restaurant", 'korean': "korean_restaurant"
+    };
     const requestBody = {
       username: username, type:'cuisine',
       cuisine_preferences: {
-        rank1: rank1,
-        rank2: rank2,
-        rank3: rank3
+        rank1: tags[rank1.toLowerCase()],
+        rank2: tags[rank2.toLowerCase()],
+        rank3: tags[rank3.toLowerCase()]
       },
       budget: budget
     };

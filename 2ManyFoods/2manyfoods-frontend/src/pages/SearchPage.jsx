@@ -28,7 +28,8 @@ export default function SearchPage() {
   const [hasVoted, setHasVoted] = useState(false);
   const [isPolling, setIsPolling] = useState(false);
 
-  const mealCuisines = ['western', 'italian', 'chinese', 'malay', 'indian', 'japanese', 'korean'];
+  const mealCuisines = ['western', 'italian', 'chinese', 'indonesian', 'indian', 'japanese', 'korean'];
+
   const capitalize = (str) => str.charAt(0).toUpperCase() + str.slice(1);
 
   // Load preferences and fetch initial recommendations
@@ -36,7 +37,7 @@ export default function SearchPage() {
     const loadPreferencesAndFetch = async () => {
       setIsLoading(true);
       const username = localStorage.getItem('username');
-      
+
       if (!username) {
         console.error('No username found');
         setIsLoading(false);
@@ -53,6 +54,7 @@ export default function SearchPage() {
         
         if (response.ok && data.preferences) {
           const prefs = data.preferences;
+
           if (prefs.rank1 && prefs.rank2 && prefs.rank3) {
             const cuisines = [
               prefs.rank1.toLowerCase(),
@@ -67,8 +69,10 @@ export default function SearchPage() {
             // Auto-fetch initial recommendations with profile preferences and location
             await fetchRestaurants(cuisines, budget);
           }
+
+          setPriceRange(data.budget || 50);
         }
-        
+
         setIsLoading(false);
       } catch (error) {
         console.error('Failed to load preferences:', error);
@@ -164,7 +168,7 @@ export default function SearchPage() {
     if (isGroupMode && hasVoted) return;
     
     const lowerCuisine = cuisine.toLowerCase();
-    
+
     if (selectedCuisines.includes(lowerCuisine)) {
       setSelectedCuisines(selectedCuisines.filter(c => c !== lowerCuisine));
     } else {
@@ -228,12 +232,18 @@ export default function SearchPage() {
   const savePreferencesToProfile = async () => {
     const username = localStorage.getItem('username');
     
+    tags = {
+      'western': "bar_and_grill", 'italian': "italian_restaurant",
+      'chinese': "chinese_restaurant", 'indonesian': "indonesian_restaurant",
+      'indian': "indian_restaurant", 'japanese': "japanese_restaurant", 'korean': "korean_restaurant"
+    };
+
     const requestBody = {
       username: username,
       cuisine_preferences: {
-        rank1: capitalize(selectedCuisines[0]),
-        rank2: capitalize(selectedCuisines[1]),
-        rank3: capitalize(selectedCuisines[2])
+        rank1: tags[selectedCuisines[0]],
+        rank2: tags[selectedCuisines[1]],
+        rank3: tags[selectedCuisines[2]]
       },
       budget: priceRange
     };
@@ -405,6 +415,8 @@ export default function SearchPage() {
             <div className="cuisineTags">
               {mealCuisines.map((cuisine) => {
                 const rank = getCuisineRank(cuisine);
+                const isSelected = selectedCuisines.includes(cuisine.toLowerCase());
+
                 return (
                   <button
                     key={cuisine}
@@ -481,6 +493,28 @@ export default function SearchPage() {
                      isGroupMode && hasVoted ? 'Voting closed' :
                      'Click to add to history'}
                   </p>
+            {restaurants.map((restaurant, index) => {
+              const isSelected = selectedRestaurant?._id === restaurant._id;
+
+              return (
+                <div
+                  key={restaurant._id || index}
+                  className={`restaurantCard ${isSelected ? 'selected' : ''}`}
+                  onClick={() => handleRestaurantClick(restaurant)}
+                >
+                  <img
+                    src={restaurant.image || 'https://via.placeholder.com/150'}
+                    alt={restaurant.name}
+                    className="restaurantImage"
+                  />
+                  <div className="restaurantInfo">
+                    <h3>{restaurant.name}</h3>
+                    <p className="address">{restaurant.location.address}</p>
+                    <p className={`price ${restaurant.price_range <= 30 ? 'low' : restaurant.price_range <= 60 ? 'medium' : 'high'}`}>
+                      ${restaurant.price_range}
+                    </p>
+                    <p className="status">Click to add to history</p>
+                  </div>
                 </div>
               </div>
             ))}
