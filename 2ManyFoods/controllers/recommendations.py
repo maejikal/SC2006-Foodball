@@ -10,26 +10,41 @@ class RecommendationController:
     def __init__(self, group: Group, location: Location, radius: int = 500):
         self._group = group
         self.location = location
-        self.recommendations = self.FilterRecommendations(location, radius)
-        self.radius = radius
+        self.radius = 800
+        self.recommendations = self.FilterRecommendations()
+        
 
     def FilterRecommendations(self) -> list[Eatery]:
         query_result = api.search(
-            lat_lng={'lat': self.location.getlangitude, 'lng': self.location.getlongitude},
-            radius=self.radius, types=['restuarant'])
-        results = [Eatery(i) for i in query_result]
-        weights = [user.getHunger() for user in self._group.Users]
+            lat_lng={'lat': self.location.getlangitude(), 'long': self.location.getlongitude()},
+            radius=self.radius, type=['restaurant'])
+        results = query_result['places']
+        weights = [user["Hunger"] for user in self._group.Users.values()]
         if len(weights) == 1:
             weights = [1]
         preferences = self._group.getPreferences()
-        groupPreferences = dict.fromkeys(preferences[0].keys())
-        for key in groupPreferences.keys():
-            groupPreferences[key] = sum(preferences[i][key]*weights[i] for i in range(len(preferences)))
+        groupPreferences = {}
+        for preference in preferences:
+            try:
+                groupPreferences[preference["rank1"]] += 0.5
+            except:
+                groupPreferences[preference["rank1"]] = 0.5
+            try:
+                groupPreferences[preference["rank2"]] += 0.3
+            except:
+                groupPreferences[preference["rank2"]] = 0.3
+            try:
+                groupPreferences[preference["rank3"]] += 0.2
+            except:
+                groupPreferences[preference["rank3"]] = 0.2
+
         groupPreferences = list(reversed(sorted(groupPreferences, key=groupPreferences.get)))
+        print(groupPreferences)
         out = []
+        print(results)
         for category in groupPreferences:
             for eatery in results:
-                if category in eatery.types:
+                if category in eatery['types']:
                     out.append(eatery)
                     results.remove(eatery)
         out.append(results)

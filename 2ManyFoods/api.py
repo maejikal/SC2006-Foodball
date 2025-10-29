@@ -18,7 +18,7 @@ def search(lat_lng={"lat": 1.3483,"long": 103.6831}, radius=800, type=['restaura
                         "latitude" : lat_lng["lat"], 
                         "longitude": lat_lng["long"]}, 
                     'radius': radius}}}
-    
+    print(data)
     data = json.dumps(data)
     headers = {"Content-Type":"application/json","X-Goog-Api-Key": API_KEY,"X-Goog-FieldMask":"places.id,places.displayName,places.location,places.types"}
     places_response = requests.post("https://places.googleapis.com/v1/places:searchNearby", data=data, headers = headers)
