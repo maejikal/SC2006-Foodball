@@ -4,35 +4,17 @@ from bson import ObjectId
 
 ## fetching user's profile, updating settings, getting lists associated with logged in users
 
-def update_user_profile(data, section):
+def update_user_profile(data):
     if not data:
         return jsonify({"error":"Missing or invalid JSON input"}), 400
     
     username = data.get("username")
     try:
-        match section:
-            case "security":
-                if "new_username" in data:
-                    user_services.update_username(username, data["new_username"])
-                if "new_email" in data:
-                    user_services.update_email(username, data["new_email"])
-                if "password" in data:
-                    user_services.update_password(username, data["password"], data.get("current_password"))
-                if "profile_photo" in data:
-                    user_services.update_profile_photo(username, data["profile_photo"])
-            case "dietary":
-                if "dietary_requirements" in data:
-                    user_services.update_dietary_preferences(username, data["dietary_requirements"])
-            case "cuisine":
-                if "cuisine_preferences" in data:
-                    user_services.update_cuisine_preferences(username, data["cuisine_preferences"])
-                if "budget" in data:
-                    user_services.update_budget(username, data["budget"])
+        user_services.update_user(data['field'],data['username'],data['newValue'])
     except Exception as e:
         return jsonify({"error":f"Failed to update field: {str(e)}"}), 500
     
     return jsonify({"message":f"Profile updated successfully"}), 200
-
 
 def get_user_profile(username):
     if not username:
