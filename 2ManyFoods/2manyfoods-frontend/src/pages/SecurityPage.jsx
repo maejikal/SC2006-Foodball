@@ -139,11 +139,11 @@ export default function SecurityPage() {
         throw new Error(data.error || `Failed to update ${field}`);
       }
 
-      setUser({ ...user, [field]: newValue });
-      
       if (field === 'name') {
         localStorage.setItem('username', newValue);
       }
+
+      setUser({ ...user, [field]: newValue });
 
       alert(`${field === 'name' ? 'Username' : 'Email'} updated successfully!`);
 

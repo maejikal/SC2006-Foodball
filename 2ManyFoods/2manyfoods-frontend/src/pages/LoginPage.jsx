@@ -80,7 +80,7 @@ export default function LoginPage() {
         localStorage.setItem('username', data.username);
       }
       
-      navigate('/search');
+      navigate('/');
     } catch (error) {
       console.error('Login error:', error);
       setAuthError(error.message || 'Invalid email or password. Please try again.');

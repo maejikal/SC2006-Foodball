@@ -141,7 +141,7 @@ export default function SearchPage() {
               winner: data.finalVote
             } 
           });
-}
+        }
       } catch (error) {
         console.error('Error polling votes:', error);
       }
@@ -238,12 +238,13 @@ export default function SearchPage() {
 
     const requestBody = {
       username: username,
+      type:'cuisine',
       newValue: {
         rank1: tags[selectedCuisines[0]],
         rank2: tags[selectedCuisines[1]],
         rank3: tags[selectedCuisines[2]]
       },
-      budget: priceRange
+      field: "preferences"
     };
 
     try {
@@ -276,7 +277,7 @@ export default function SearchPage() {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             username: username,
-            restaurant_id: selectedRestaurant._id,
+            restaurant_id: selectedRestaurant.id,
             hunger: hungerLevel
           })
         });
@@ -426,18 +427,21 @@ export default function SearchPage() {
               </div>
             </div>
 
-            <div className="hungerSliderSection">
-              <h3>Hunger Level: {hungerLevel}</h3>
-              <input
-                type="range"
-                min="1"
-                max="10"
-                value={hungerLevel}
-                onChange={(e) => setHungerLevel(Number(e.target.value))}
-                className="slider"
-                disabled={!isIndividual && hasVoted}
-              />
-            </div>
+            {/* Hunger Slider - Only for groups */}
+            {!isIndividual && (
+              <div className="hungerSliderSection">
+                <h3>Hunger Level: {hungerLevel}</h3>
+                <input
+                  type="range"
+                  min="1"
+                  max="10"
+                  value={hungerLevel}
+                  onChange={(e) => setHungerLevel(Number(e.target.value))}
+                  className="slider"
+                  disabled={hasVoted}
+                />
+              </div>
+            )}
 
             {/* Update Button */}
             <button 
@@ -453,7 +457,6 @@ export default function SearchPage() {
         {/* Search Bar for Restaurant List */}
         <div className="searchBarContainer">
           <div className="searchBar">
-            <span className="searchIcon">🔍</span>
             <input
               type="text"
               placeholder="Search restaurants..."
@@ -475,7 +478,7 @@ export default function SearchPage() {
         {filteredRestaurants.length > 0 ? (
           <div className="restaurantList">
             {filteredRestaurants.map((restaurant, index) => {
-              const isSelected = selectedRestaurant?._id === restaurant._id;
+              const isSelected = selectedRestaurant?.id === restaurant.id;
 
               return (
                 <div
@@ -483,19 +486,16 @@ export default function SearchPage() {
                   className={`restaurantCard ${isSelected ? 'selected' : ''}`}
                   onClick={() => handleRestaurantClick(restaurant)}
                 >
-                  <img
-                    src={restaurant.image || 'https://via.placeholder.com/150'}
-                    alt={restaurant.displayName?.text}
-                    className="restaurantImage"
-                  />
                   <div className="restaurantInfo">
-                    <h3>{restaurant.displayName?.text}</h3>
+                    <div className="restaurantHeader">
+                      <h3>{restaurant.displayName?.text}</h3>
+                      <p className="status">
+                        {!isIndividual && !hasVoted ? 'Click to vote' : 
+                        !isIndividual && hasVoted ? 'Voting closed' :
+                        'Click to add to history'}
+                      </p>
+                    </div>
                     <p className="address">{restaurant.shortFormattedAddress || 'Address not available'}</p>
-                    <p className="status">
-                      {!isIndividual && !hasVoted ? 'Click to vote' : 
-                       !isIndividual && hasVoted ? 'Voting closed' :
-                       'Click to add to history'}
-                    </p>
                   </div>
                 </div>
               );

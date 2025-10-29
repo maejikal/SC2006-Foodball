@@ -8,14 +8,12 @@ export default function FoodHistoryPage() {
   const [history, setHistory] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
-  const [sortBy, setSortBy] = useState('recent');
 
-  // Load food history from backend
   useEffect(() => {
     const loadFoodHistory = async () => {
       setIsLoading(true);
       setError('');
-      
+
       try {
         const username = localStorage.getItem('username');
         
@@ -36,10 +34,7 @@ export default function FoodHistoryPage() {
             image: item.image || '/assets/placeholder-restaurant.jpg',
             reviewed: false,
             rating: 0,
-            visitedDate: item.visited_date,
-            cuisine: item.cuisine,
-            address: item.address,
-            priceRange: item.price_range
+            visitedDate: item.visited_date
           }));
           
           setHistory(formattedHistory);
@@ -58,41 +53,6 @@ export default function FoodHistoryPage() {
     loadFoodHistory();
   }, []);
 
-  const sortedHistory = [...history].sort((a, b) => {
-    switch (sortBy) {
-      case 'recent':
-        return new Date(b.visitedDate) - new Date(a.visitedDate);
-      case 'rating':
-        return b.rating - a.rating;
-      case 'name':
-        return a.name.localeCompare(b.name);
-      default:
-        return 0;
-    }
-  });
-
-  const renderStars = (rating) => {
-    return Array.from({ length: 5 }, (_, i) => {
-      const isFilled = i < rating;
-      return (
-        <svg
-          key={i}
-          className={`star ${isFilled ? 'filled' : 'empty'}`}
-          width="20"
-          height="20"
-          viewBox="0 0 24 24"
-          xmlns="http://www.w3.org/2000/svg"
-          style={{
-            fill: isFilled ? '#ffd700' : '#e0e0e0',
-            marginRight: '2px'
-          }}
-        >
-          <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-        </svg>
-      );
-    });
-  };
-
   const formatDate = (dateString) => {
     const date = new Date(dateString);
     const now = new Date();
@@ -109,6 +69,21 @@ export default function FoodHistoryPage() {
       day: 'numeric', 
       year: 'numeric' 
     });
+  };
+
+  const renderStars = (rating) => {
+    return (
+      <div className="stars">
+        {Array.from({ length: 5 }, (_, i) => (
+          <span 
+            key={i} 
+            className={`star ${i < rating ? 'filled' : ''}`}
+          >
+            ★
+          </span>
+        ))}
+      </div>
+    );
   };
 
   const handleReviewClick = (restaurant) => {
@@ -131,10 +106,7 @@ export default function FoodHistoryPage() {
       <div className="foodHistoryPage">
         <Navbar />
         <div className="historySection">
-          <h1>Food history / Foodprints</h1>
-          <p style={{ textAlign: 'center', fontSize: '1.2rem', marginTop: '2rem' }}>
-            Loading your food history...
-          </p>
+          <p>Loading your food history...</p>
         </div>
       </div>
     );
@@ -145,26 +117,7 @@ export default function FoodHistoryPage() {
       <div className="foodHistoryPage">
         <Navbar />
         <div className="historySection">
-          <h1>Food history / Foodprints</h1>
-          <div 
-            className="errorMessage" 
-            style={{
-              color: '#721c24',
-              backgroundColor: '#f8d7da',
-              padding: '1rem',
-              borderRadius: '8px',
-              marginTop: '2rem',
-              textAlign: 'center'
-            }}
-          >
-            {error}
-          </div>
-          <button 
-            onClick={() => window.location.reload()} 
-            style={{ marginTop: '1rem' }}
-          >
-            Retry
-          </button>
+          <p style={{ color: '#ff4444' }}>{error}</p>
         </div>
       </div>
     );
@@ -173,70 +126,35 @@ export default function FoodHistoryPage() {
   return (
     <div className="foodHistoryPage">
       <Navbar />
+      
       <div className="historySection">
-        <h1>Food history / Foodprints</h1>
+        <h1>Food History</h1>
 
-        {/* Sort Options */}
-        <div className="sortOptions" style={{ marginBottom: '1rem' }}>
-          <label>Sort by: </label>
-          <select 
-            value={sortBy} 
-            onChange={(e) => setSortBy(e.target.value)}
-            style={{ padding: '0.5rem', borderRadius: '4px' }}
-          >
-            <option value="recent">Most Recent</option>
-            <option value="rating">Highest Rating</option>
-            <option value="name">Name (A-Z)</option>
-          </select>
-        </div>
-
-        {/* Empty State */}
         {history.length === 0 ? (
-          <div style={{ textAlign: 'center', marginTop: '3rem' }}>
-            <p style={{ fontSize: '1.2rem', color: '#666' }}>
-              No food history yet!
-            </p>
-            <p style={{ color: '#999', marginTop: '0.5rem' }}>
-              Start exploring restaurants and they'll appear here.
-            </p>
-            <button 
-              onClick={() => navigate('/dashboard')}
-              style={{ marginTop: '1.5rem', padding: '0.75rem 1.5rem' }}
-            >
-              Discover Restaurants
-            </button>
-          </div>
+          <p>No food history yet! Start exploring restaurants.</p>
         ) : (
           <ul className="historyList">
-            {sortedHistory.map((item) => (
+            {history.map((item) => (
               <li key={item.id}>
                 <div className="restaurantInfo">
                   <img src={item.image} alt={item.name} />
                   <div>
                     <span>{item.name}</span>
-                    <div className="restaurantMeta">
-                      <small style={{ color: '#666' }}>
-                        {formatDate(item.visitedDate)}
+                    <small style={{ color: '#999', display: 'block', marginTop: '4px' }}>
+                      {formatDate(item.visitedDate)}
+                    </small>
+                    {item.reviewed ? (
+                      renderStars(item.rating)
+                    ) : (
+                      <small style={{ color: '#999', display: 'block', marginTop: '4px' }}>
+                        Not reviewed yet
                       </small>
-                      {item.cuisine && (
-                        <small style={{ color: '#999', marginLeft: '0.5rem' }}>
-                          • {item.cuisine}
-                        </small>
-                      )}
-                    </div>
-                    <div className="stars">
-                      {item.reviewed ? (
-                        renderStars(item.rating)
-                      ) : (
-                        <span style={{ color: '#999', fontSize: '0.9rem' }}>
-                          Not reviewed yet
-                        </span>
-                      )}
-                    </div>
+                    )}
                   </div>
                 </div>
+
                 <button onClick={() => handleReviewClick(item)}>
-                  {item.reviewed ? 'Edit Review' : 'Review'}
+                  {item.reviewed ? 'Edit Review' : 'Write Review'}
                 </button>
               </li>
             ))}

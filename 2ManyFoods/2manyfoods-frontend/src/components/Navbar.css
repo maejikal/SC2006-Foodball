@@ -11,8 +11,15 @@
 
 .logo {
   color: var(--color-white);
-  font-size: 1.8rem;
+  font-size: 1.2rem; /* Changed from 1.8rem - adjust to your preference */
   font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.logo:hover {
+  opacity: 0.8;
 }
 
 .navLinks {

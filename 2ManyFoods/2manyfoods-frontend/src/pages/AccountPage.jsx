@@ -12,12 +12,18 @@ export default function AccountPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
 
+  const handleLogout = () => {
+    localStorage.removeItem('username');
+    navigate('/');
+    window.location.reload(); // Force page refresh to update navbar
+  };
+
   const settings = [
     { name: 'Account & Security', path: '/account/security' },
     { name: 'Dietary Restrictions', path: '/account/dietary' },
     { name: 'Preferences', path: '/account/preferences' },
     { name: 'Food History / Foodprints', path: '/account/history' },
-    { name: 'Logout', path: '/'},
+    { name: 'Logout', action: handleLogout }, // Changed to action instead of path
   ];
 
   //load the user data from backend
@@ -35,7 +41,6 @@ export default function AccountPage() {
       }
 
       try {
-        
         const response = await fetch(
           `http://localhost:8080/account/${username}`,
           {
@@ -55,7 +60,7 @@ export default function AccountPage() {
         setUser({
           name: data.username,
           email: data.email,
-          avatar: data.profilePhoto || '/assets/icons8-crab-50.png', // Default avatar
+          avatar: data.profilePhoto || '/assets/icons8-crab-50.png',
           username: data.username
         });
         setIsLoading(false);
@@ -68,9 +73,7 @@ export default function AccountPage() {
 
     loadUserData();
   }, [navigate]);
-  
 
-  // Show loading message
   if (isLoading) {
     return (
       <div className="accountPage">
@@ -102,7 +105,6 @@ export default function AccountPage() {
           >
             {error}
           </div>
-          {/*button to reload the page if loading data fails*/}
           <button 
             onClick={() => window.location.reload()} 
             style={{ marginTop: '1rem' }}
@@ -131,7 +133,13 @@ export default function AccountPage() {
             <div
               key={s.name}
               className="settingItem"
-              onClick={() => navigate(s.path)}
+              onClick={() => {
+                if (s.action) {
+                  s.action(); // Call logout function
+                } else {
+                  navigate(s.path); // Navigate to page
+                }
+              }}
             >
               <p>{s.name}</p>
               <span>›</span>
