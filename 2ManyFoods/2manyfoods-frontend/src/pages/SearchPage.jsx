@@ -11,7 +11,7 @@ export default function SearchPage() {
   const [selectedRestaurant, setSelectedRestaurant] = useState(null);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
 
-  const mealCuisines = ['western', 'italian', 'chinese', 'malay', 'indian', 'japanese', 'korean'];
+  const mealCuisines = ['western', 'italian', 'chinese', 'indonesian', 'indian', 'japanese', 'korean'];
 
   const capitalize = (str) => str.charAt(0).toUpperCase() + str.slice(1);
 
@@ -20,7 +20,7 @@ export default function SearchPage() {
       setIsLoading(true);
 
       const username = localStorage.getItem('username');
-      
+
       if (!username) {
         console.error('No username found');
         setIsLoading(false);
@@ -37,7 +37,7 @@ export default function SearchPage() {
 
         if (response.ok && data.preferences) {
           const prefs = data.preferences;
-          
+
           if (prefs.rank1 && prefs.rank2 && prefs.rank3) {
             const cuisines = [
               prefs.rank1.toLowerCase(),
@@ -47,10 +47,10 @@ export default function SearchPage() {
             setSelectedCuisines(cuisines);
             await fetchRestaurants(cuisines, data.budget || 50);
           }
-          
+
           setPriceRange(data.budget || 50);
         }
-        
+
         setIsLoading(false);
 
       } catch (error) {
@@ -86,7 +86,7 @@ export default function SearchPage() {
 
   const toggleCuisine = (cuisine) => {
     const lowerCuisine = cuisine.toLowerCase();
-    
+
     if (selectedCuisines.includes(lowerCuisine)) {
       setSelectedCuisines(selectedCuisines.filter(c => c !== lowerCuisine));
     } else {
@@ -106,13 +106,18 @@ export default function SearchPage() {
 
     const username = localStorage.getItem('username');
     setIsSaving(true);
+    tags = {
+      'western': "bar_and_grill", 'italian': "italian_restaurant",
+      'chinese': "chinese_restaurant", 'indonesian': "indonesian_restaurant",
+      'indian': "indian_restaurant", 'japanese': "japanese_restaurant", 'korean': "korean_restaurant"
+    };
 
     const requestBody = {
       username: username,
       cuisine_preferences: {
-        rank1: capitalize(selectedCuisines[0]),
-        rank2: capitalize(selectedCuisines[1]),
-        rank3: capitalize(selectedCuisines[2])
+        rank1: tags[selectedCuisines[0]],
+        rank2: tags[selectedCuisines[1]],
+        rank3: tags[selectedCuisines[2]]
       },
       budget: priceRange
     };
@@ -200,8 +205,8 @@ export default function SearchPage() {
       <div className="searchContent">
         <div className="searchTop">
           <div className="mapContainer">
-            <img 
-              src="https://via.placeholder.com/600x350?text=Map+View" 
+            <img
+              src="https://via.placeholder.com/600x350?text=Map+View"
               alt="Map"
             />
           </div>
@@ -211,7 +216,7 @@ export default function SearchPage() {
               {mealCuisines.map((cuisine) => {
                 const rank = getCuisineRank(cuisine);
                 const isSelected = selectedCuisines.includes(cuisine.toLowerCase());
-                
+
                 return (
                   <button
                     key={cuisine}
@@ -255,7 +260,7 @@ export default function SearchPage() {
           <div className="restaurantList">
             {restaurants.map((restaurant, index) => {
               const isSelected = selectedRestaurant?._id === restaurant._id;
-              
+
               return (
                 <div
                   key={restaurant._id || index}
