@@ -17,6 +17,12 @@ def send_email(app, email):
     app.config["MAIL_USE_SSL"] = True
     app.config["MAIL_USERNAME"] = '2manyfood@gmail.com'  
     app.config["MAIL_PASSWORD"] = 'VerySecret123!'
+
+    app.config["MAIL_DEBUG"] = True
+    app.config["DEBUG"] = True
+    app.config["TESTING"] = False
+    app.config["MAIL_SUPPRESS_SEND"] = False
+    
     mail.init_app(app)
     app.secret_key = "dev2"
     mail.connect().send(msg)
