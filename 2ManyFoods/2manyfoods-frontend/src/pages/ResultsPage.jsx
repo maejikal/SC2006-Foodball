@@ -34,6 +34,7 @@ export default function ResultsPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           username: username,
+          groupName: groupName,
           restaurant: {
             id: winner.place_id || winner._id,
             name: winner.name,
