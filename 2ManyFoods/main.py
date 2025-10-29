@@ -57,7 +57,7 @@ def generate_recommendation(groupName):
         rec_cons[groupName] = con 
     else:
         con = rec_cons[groupName]
-    return con.getRecommendations()
+    return jsonify({"recommendations":con.getRecommendations()})
 
 @app.route('/refresh/<groupID>')
 def refresh_group(groupID):
