@@ -9,6 +9,7 @@ export default function SearchPage() {
   
   // Get data from navigation state
   const groupName = location.state?.groupName;
+  const groupId = location.state?.groupId; // ADDED THIS LINE
   const selectedLocation = location.state?.location;
   const isIndividual = location.state?.isIndividual || false;
   
@@ -125,36 +126,53 @@ export default function SearchPage() {
     }
   };
 
-  // Poll for voting status (only for real groups, not individuals)
+  // UPDATED POLLING LOGIC - checks if everyone has voted
   useEffect(() => {
-    if (isIndividual || !hasVoted) return;
+    if (isIndividual || !hasVoted || !groupId) {
+      return; // Only poll in group mode after user has voted
+    }
+
+    setIsPolling(true);
 
     const pollVotingStatus = async () => {
       try {
-        const response = await fetch(`http://localhost:8080/refresh/${groupName}`);
+        const response = await fetch(`http://localhost:8080/refresh/${groupId}`);
         const data = await response.json();
 
-        if (data.finalVote) {
-          navigate('/result', { 
-            state: { 
-              groupName: groupName,
-              winner: data.finalVote
-            } 
-          });
+        if (response.ok) {
+          // Check if voting is complete
+          if (data.finalVote) {
+            // Everyone voted - navigate to result
+            setIsPolling(false);
+            navigate('/result', {
+              state: {
+                groupName: groupName,
+                winner: data.finalVote,
+                groupId: groupId
+              }
+            });
+          } else if (data.recommendations) {
+            // Update recommendations if someone changed preferences
+            setRestaurants(data.recommendations);
+          }
         }
         else{
           restaurants = data.recommendations;
         }
       } catch (error) {
-        console.error('Error polling votes:', error);
+        console.error('Polling error:', error);
       }
     };
 
-    setIsPolling(true);
-    const interval = setInterval(pollVotingStatus, 3000);
+    // Poll every 2 seconds
+    const interval = setInterval(pollVotingStatus, 2000);
 
-    return () => clearInterval(interval);
-  }, [groupName, hasVoted, isIndividual, navigate]);
+    // Cleanup
+    return () => {
+      clearInterval(interval);
+      setIsPolling(false);
+    };
+  }, [hasVoted, isIndividual, groupId, groupName, navigate]);
 
   const getCuisineRank = (cuisine) => {
     const index = selectedCuisines.indexOf(cuisine.toLowerCase());
