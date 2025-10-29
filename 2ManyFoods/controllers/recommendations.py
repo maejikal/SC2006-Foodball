@@ -45,7 +45,8 @@ class RecommendationController:
                 if category in eatery['types']:
                     out.append(eatery)
                     results.remove(eatery)
-        out.append(results)
+        out+=results
+        print(out[0])
         # https://developers.google.com/maps/documentation/places/web-service/reference/rest/v1/places
         # https://developers.google.com/maps/documentation/places/web-service/place-types
         return out

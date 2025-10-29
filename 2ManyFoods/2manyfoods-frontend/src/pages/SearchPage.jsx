@@ -448,24 +448,18 @@ export default function SearchPage() {
 
               return (
                 <div
-                  key={restaurant._id || index}
+                  key={restaurant.id || index}
                   className={`restaurantCard ${isSelected ? 'selected' : ''}`}
                   onClick={() => handleRestaurantClick(restaurant)}
                 >
                   <img
                     src={restaurant.image || 'https://via.placeholder.com/150'}
-                    alt={restaurant.name}
+                    alt={restaurant.displayName?.text}
                     className="restaurantImage"
                   />
                   <div className="restaurantInfo">
-                    <h3>{restaurant.name}</h3>
-                    <p className="address">{restaurant.location?.address || 'Address not available'}</p>
-                    <p className={`price ${
-                      restaurant.price_range <= 30 ? 'low' : 
-                      restaurant.price_range <= 60 ? 'medium' : 'high'
-                    }`}>
-                      ${restaurant.price_range}
-                    </p>
+                    <h3>{restaurant.displayName?.text}</h3>
+                    <p className="address">{restaurant.shortFormattedAddress || 'Address not available'}</p>
                     <p className="status">
                       {!isIndividual && !hasVoted ? 'Click to vote' : 
                        !isIndividual && hasVoted ? 'Voting closed' :
