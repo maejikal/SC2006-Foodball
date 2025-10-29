@@ -29,22 +29,25 @@
   border-radius: 40px;
   padding: 1.2rem 1.5rem;
   margin-bottom: 1.5rem;
+  text-align: left;
 }
 
-.restaurantInfo {
+.foodHistoryPage .restaurantInfo {
   display: flex;
+  flex-direction: row;
   align-items: center;
   gap: 1rem;
+  text-align: left;
 }
 
-.restaurantInfo img {
+.foodHistoryPage .restaurantInfo img {
   width: 60px;
   height: 60px;
   border-radius: 50%;
   object-fit: cover;
 }
 
-.restaurantInfo span {
+.foodHistoryPage .restaurantInfo span {
   font-weight: 600;
   font-size: 1rem;
   display: block;
