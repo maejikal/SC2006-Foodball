@@ -167,7 +167,7 @@ def refresh():
     
 @app.route('/account/security', methods=['POST'])
 def update_security():
-    return user_controller.update_user_profile(request.get_json(), section='security')
+    return user_controller.update_user_profile(request.get_json())
 
 @app.route('/account/dietary', methods=['POST'])
 def update_dietary():
