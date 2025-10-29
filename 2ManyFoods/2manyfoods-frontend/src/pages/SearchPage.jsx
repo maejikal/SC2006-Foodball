@@ -301,9 +301,7 @@ export default function SearchPage() {
           throw new Error(data.error || 'Failed to submit vote');
         }
       } else {
-        // Individual mode: save preferences first, then add to history
         
-        // Save preferences to profile if they were modified
         if (preferencesModified) {
           const prefsSaved = await savePreferencesToProfile();
           if (!prefsSaved) {
@@ -311,7 +309,6 @@ export default function SearchPage() {
           }
         }
         
-        // Add restaurant to history
         const response = await fetch('http://localhost:8080/api/history/add', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
