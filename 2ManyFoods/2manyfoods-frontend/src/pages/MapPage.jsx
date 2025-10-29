@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import Navbar from '../components/AuthenticatedNavbar';
 import './MapPage.css';
@@ -9,116 +9,52 @@ export default function LeaderLocationPage() {
   
   const groupName = location.state?.groupName || 'supper';
   const groupId = location.state?.groupId;
-  const isGroupMode = !!groupId; // Check if this is group or individual mode
+  const isIndividual = location.state?.isIndividual || false;
+  const isGroupMode = !!groupId;
   
-  const [selectedLocation, setSelectedLocation] = useState(null);
-  const [searchQuery, setSearchQuery] = useState('');
+  // Default to NTU location
+  const [selectedLocation] = useState({
+    name: 'NTU',
+    latLng: {
+      lat: 1.3483,
+      lng: 103.6831
+    }
+  });
 
-  const broadcastLocationSelection = (locationData) => {
-    console.log('Broadcasting location selection:', locationData);
-    // TODO: Implement WebSocket broadcast for group mode
-  };
-
-  const handleLocationClick = (e) => {
-    const rect = e.currentTarget.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-    
-    setSelectedLocation({
-      x,
-      y,
-      name: searchQuery || 'Selected Location',
-      // TODO: Add actual lat/lng from map API
-      lat: null,
-      lng: null
-    });
-  };
-
-  const handleConfirmLocation = () => {
-    if (selectedLocation) {
-      if (isGroupMode) {
-        broadcastLocationSelection(selectedLocation);
-      }
-      
-      // Navigate to SearchPage with location data
+  // Auto-navigate to search page with NTU location
+  useEffect(() => {
+    // Small delay to show the page briefly before navigating
+    const timer = setTimeout(() => {
       navigate('/search', {
         state: {
           groupName,
           groupId,
-          location: selectedLocation
+          location: selectedLocation,
+          isIndividual
         }
       });
-    }
-  };
+    }, 500);
 
-  const handleSearch = (e) => {
-    e.preventDefault();
-    // TODO: Implement actual location search using Google Maps API or similar
-    console.log('Searching for:', searchQuery);
-    alert(`Searching for: ${searchQuery}\n(Search functionality will be implemented with Maps API)`);
-  };
+    return () => clearTimeout(timer);
+  }, [navigate, groupName, groupId, selectedLocation, isIndividual]);
 
   return (
     <div className="leaderLocationPage">
       <Navbar />
       
       <div className="leaderLocationContent">
-        <h1>{isGroupMode ? groupName : 'Find Food'}</h1>
-        <p>Select the area where you want to find food</p>
+        <h1>{isGroupMode && !isIndividual ? groupName : 'Find Food'}</h1>
+        <p>Setting location to NTU...</p>
 
-        {/* Search Bar */}
-        <div className="searchBarContainer">
-          <div className="searchBar">
-            <span className="searchIcon">🔍</span>
-            <input
-              type="text"
-              placeholder="Search for a location..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              onKeyPress={(e) => e.key === 'Enter' && handleSearch(e)}
-            />
-            {searchQuery && (
-              <button 
-                className="clearBtn" 
-                onClick={() => setSearchQuery('')}
-              >
-                ×
-              </button>
-            )}
-          </div>
-          <button className="searchBtn" onClick={handleSearch}>
-            search
-          </button>
-        </div>
-
-        {/* Map Section */}
         <div className="mapSection">
-          <div className="mapWrapper" onClick={handleLocationClick}>
+          <div className="mapWrapper">
             <div className="placeholderMap">
-              Click on the map to select a location
-              {selectedLocation && (
-                <div 
-                  className="locationMarker"
-                  style={{
-                    left: `${selectedLocation.x}px`,
-                    top: `${selectedLocation.y}px`
-                  }}
-                />
-              )}
+              <p style={{ fontSize: '1.2rem' }}>📍 NTU</p>
+              <p style={{ fontSize: '0.9rem', color: '#999' }}>
+                Coordinates: 1.3483, 103.6831
+              </p>
             </div>
           </div>
-
-          {selectedLocation && (
-            <div className="locationInfo">
-              <p>Location selected: {selectedLocation.name}</p>
-              <button 
-                className="confirmBtn" 
-                onClick={handleConfirmLocation}
-              >
-                confirm location
-              </button>
-            </div>
-          )}
         </div>
       </div>
     </div>
