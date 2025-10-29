@@ -23,7 +23,7 @@ def mail(app, email):
     app.config["TESTING"] = False
     app.config["MAIL_SUPPRESS_SEND"] = False
 
-    mail.init_app()
+    mail.init_app(app)
     app.secret_key = "dev"
     app.config["MAIL_SERVER"] = "smtp.gmail.com"
     app.config["MAIL_PORT"] = 465

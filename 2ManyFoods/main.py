@@ -15,7 +15,13 @@ from utils import verification
 import random
 import string
 app = Flask(__name__)
-CORS(app)
+CORS(app, resources={
+    r"/*": {
+        "origins": "*",
+        "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+        "allow_headers": ["Content-Type", "Authorization"]
+    }
+})
 
 rec_cons = {}
 verification_codes = {}
@@ -24,18 +30,22 @@ verification_codes = {}
 def root():
     return "placeholder"
 
+'''
 @app.route('/signup', methods=['POST'])
 def signup_route():
     return auth_controller.signup(request.get_json())
 '''
-# Email configuration
-app.config['MAIL_SERVER'] = 'smtp.gmail.com'  # or your email provider
-app.config['MAIL_PORT'] = 587
-app.config['MAIL_USE_TLS'] = True
-app.config['MAIL_USERNAME'] = 'your-email@gmail.com'
-app.config['MAIL_PASSWORD'] = 'your-app-password'  # Use app-specific password
-app.config['MAIL_DEFAULT_SENDER'] = 'noreply@2manyfood.com'
-'''
+@app.route('/signup', methods=['POST', 'OPTIONS'])
+def signup_route():
+    if request.method == 'OPTIONS':
+        response = jsonify({'status': 'ok'})
+        response.headers.add('Access-Control-Allow-Origin', '*')
+        response.headers.add('Access-Control-Allow-Headers', 'Content-Type')
+        response.headers.add('Access-Control-Allow-Methods', 'POST, OPTIONS')
+        return response, 200
+    
+    return auth_controller.signup(app, request.get_json())
+
 mail = Mail(app)
 
 
@@ -58,17 +68,16 @@ def send_verification():
         # Generate 6-digit verification code
         # code = ''.join(random.choices(string.digits, k=6))
         
+        code = verification.mail(app, email)
         # Store code with expiration (10 minutes)
-        '''
         verification_codes[email] = {
             'code': code,
             'expires_at': datetime.now() + timedelta(minutes=10)
         }
-        '''
         
         # TODO: Send email with verification code
         # For now, just print it (in production, use email service)
-        verification.mail(app, email)
+        # verification.mail(app, email)
         # print(f"Verification code for {email}: {code}")
         
         return jsonify({
