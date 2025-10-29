@@ -198,13 +198,12 @@ def group_voting(groupID):
     global rec_cons
     data = request.get_json()
     username = data.get('username')
-    restaurant_id = data.get('restaurant_ids', [])
+    restaurant_id = data.get('restaurant_id')
     
     try:
-        
         con = rec_cons[groupID]
-        con.Users["username"]["vote"] = restaurant_id
-        voted = None in [i["vote"] for i in rec_cons[groupID].Users]
+        con._group.Users[username]["vote"] = restaurant_id
+        voted = None not in [i["vote"] for i in rec_cons[groupID]._group.Users.values()]
         if voted:
             return jsonify({"finalVote": rec_cons[groupID].finishVoting()}) 
         return jsonify({"recommendations": rec_cons[groupID].getRecommendations()})

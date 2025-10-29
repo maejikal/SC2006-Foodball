@@ -50,16 +50,19 @@ class RecommendationController:
         self.recommendations = out
         return out
 
-    def finishVoting(self) -> int:
-        votes = {i: 0 for i in self.recommendations}
-        for user in self.Users:
+    def finishVoting(self) -> str:
+        votes = {}
+        
+        for user in self._group.Users.values():
             try:
                 votes[user['vote']] += user['Hunger']
             except:
                 votes[user['vote']] = user['Hunger']
-       
+        
         highest = max(votes.values())
-        return random.choice([i for i in votes if votes[i] == highest]).EateryID
+        return random.choice([restaurant_id for restaurant_id in votes if votes[restaurant_id] == highest])
+
+
 
     def getGroup(self) -> dict:
         return self._group  
