@@ -19,6 +19,7 @@ CORS(app)
 
 rec_cons = {}
 verification_codes = {}
+foodball_sessions = {}
 
 @app.route('/')
 def root():
@@ -138,7 +139,7 @@ def generate_recommendation(groupName):
         latitude = request.args['lat']
         longitude = request.args['long']
         radius = 500
-        group_rec = asyncio.run(searchdb('Groups', 'group_name', groupName))
+        group_rec = asyncio.run(searchdb('Groups', 'grp_name', groupName))
         if group_rec != None:
             users = {}
             id = group_rec["_id"]
@@ -406,6 +407,97 @@ def update_group_preferences(group_id):
         return jsonify({'message': 'Preferences updated'}), 200
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+
+# Leader starts session when clicking "Start Foodball"
+@app.route('/api/foodball/start', methods=['POST'])
+def start_foodball():
+    """Leader initiates Foodball session"""
+    global foodball_sessions
+    
+    try:
+        data = request.get_json()
+        group_id = data.get('groupId')
+        leader_username = data.get('username')
+        
+        if not group_id or not leader_username:
+            return jsonify({"error": "Missing required fields"}), 400
+        
+        # Create session entry (location not set yet)
+        foodball_sessions[group_id] = {
+            'status': 'pending_location',  # Leader hasn't selected location yet
+            'leader': leader_username,
+            'location': None,
+            'started_at': datetime.now().isoformat()
+        }
+        
+        return jsonify({
+            "message": "Foodball session started",
+            "groupId": group_id
+        }), 200
+        
+    except Exception as e:
+        print(f"Error starting foodball: {e}")
+        return jsonify({"error": str(e)}), 500
+
+
+# Leader sets location when reaching SearchPage
+@app.route('/api/foodball/set-location', methods=['POST'])
+def set_foodball_location():
+    """Leader sets location (called from MapPage before navigating to SearchPage)"""
+    global foodball_sessions
+    
+    try:
+        data = request.get_json()
+        group_id = data.get('groupId')
+        location = data.get('location')
+        
+        if not group_id or not location:
+            return jsonify({"error": "Missing required fields"}), 400
+        
+        if group_id not in foodball_sessions:
+            return jsonify({"error": "Session not found"}), 404
+        
+        # Update session with location
+        foodball_sessions[group_id]['status'] = 'location_set'
+        foodball_sessions[group_id]['location'] = location
+        
+        return jsonify({
+            "message": "Location set successfully"
+        }), 200
+        
+    except Exception as e:
+        print(f"Error setting location: {e}")
+        return jsonify({"error": str(e)}), 500
+
+
+# Members poll for session status
+@app.route('/api/foodball/status/<group_id>', methods=['GET'])
+def get_foodball_status(group_id):
+    """Check if Foodball session has started and location is set"""
+    global foodball_sessions
+    
+    try:
+        if group_id in foodball_sessions:
+            session = foodball_sessions[group_id]
+            
+            # Only return ready when location is set
+            if session['status'] == 'location_set':
+                return jsonify({
+                    "status": "ready",
+                    "location": session['location']
+                }), 200
+            else:
+                return jsonify({
+                    "status": "waiting_for_location"
+                }), 200
+        else:
+            return jsonify({
+                "status": "not_started"
+            }), 200
+            
+    except Exception as e:
+        print(f"Error checking foodball status: {e}")
+        return jsonify({"error": str(e)}), 500
 
 
 # Start voting

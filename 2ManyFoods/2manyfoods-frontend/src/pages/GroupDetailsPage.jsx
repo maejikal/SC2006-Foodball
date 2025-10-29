@@ -65,19 +65,37 @@ export default function GroupDetailsPage() {
     setShowInviteCode(!showInviteCode);
   };
 
-  const handleStartFoodball = () => {
+  const handleStartFoodball = async () => {
     if (!group) return;
     
-    // Only allow leader to start foodball
-    if (!isLeader) {
-      alert('Only the group leader can start Foodball!');
-      return;
+    if (isLeader) {
+      // Leader: Notify backend that session started, then navigate to MapPage
+      try {
+        await fetch('http://localhost:8080/api/foodball/start', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            groupId: groupId,
+            username: currentUsername
+          })
+        });
+        
+        // Navigate to MapPage (same as individual)
+        navigate('/location', 
+          { state: { groupName: group.name, groupId: group.id, isIndividual: false } }
+        );
+      } catch (error) {
+        console.error('Error starting foodball:', error);
+        alert('Failed to start Foodball. Please try again.');
+      }
+    } else {
+      // Member: Go to waiting page
+      navigate('/foodball/waiting', 
+        { state: { groupName: group.name, groupId: group.id } }
+      );
     }
-    
-    navigate('/foodball/select-location', 
-      { state: { groupName: group.name, groupId: group.id } }
-    );
   };
+
 
   const handleBackToGroups = () => {
     navigate('/groups');

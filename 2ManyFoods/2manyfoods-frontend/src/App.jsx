@@ -22,7 +22,6 @@ import InProgressPage from './pages/InProgressPage';
 import ResultsPage from './pages/ResultsPage';
 import VotingPage from './pages/VotingPage';
 import Faqpage from './pages/FaqPage';
-import LeaderLocationPage from './pages/WaitingForLeaderPage';
 
 function App() {
   return (
@@ -43,10 +42,13 @@ function App() {
         <Route path="/groups" element={<GroupsPage />} />
         <Route path="/groups/create" element={<CreateGroupPage />} />
         <Route path="/groups/:groupId" element={<GroupDetailsPage />} />
-        {/* Location selection for both individual and group */}
+        
+        {/* MapPage used by BOTH individual and group leader */}
         <Route path="/location" element={<MapPage />} />
-        <Route path="/foodball/select-location" element={<LeaderLocationPage />} />
+        
+        {/* WaitingForLeaderPage for group members */}
         <Route path="/foodball/waiting" element={<WaitingForLeaderPage />} />
+        
         <Route path="/foodball/in-progress" element={<InProgressPage />} />
         <Route path="/result" element={<ResultsPage />} />
         <Route path="/foodball/results" element={<ResultsPage />} />

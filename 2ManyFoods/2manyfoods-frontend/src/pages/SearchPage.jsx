@@ -19,6 +19,7 @@ export default function SearchPage() {
   const [restaurants, setRestaurants] = useState([]);
   const [selectedRestaurant, setSelectedRestaurant] = useState(null);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
   
   // Track if preferences have been modified from saved profile
   const [preferencesModified, setPreferencesModified] = useState(false);
@@ -56,10 +57,14 @@ export default function SearchPage() {
 
           if (prefs.rank1 && prefs.rank2 && prefs.rank3) {
             var tags = {
-      "bar_and_grill": 'western', 'italian_restaurant': "italian_restaurant",
-      'chinese_restaurant': "chinese", 'indonesian_restaurant': "indonesian",
-      'indian_restaurant': "indian", 'japanese_restaurant': "japanese", 'korean_restaurant': "korean"
-    };
+              "bar_and_grill": 'western', 
+              'italian_restaurant': "italian",
+              'chinese_restaurant': "chinese", 
+              'indonesian_restaurant': "indonesian",
+              'indian_restaurant': "indian", 
+              'japanese_restaurant': "japanese", 
+              'korean_restaurant': "korean"
+            };
             const cuisines = [
               tags[prefs.rank1.toLowerCase()],
               tags[prefs.rank2.toLowerCase()],
@@ -87,18 +92,20 @@ export default function SearchPage() {
 
   const fetchRestaurants = async (cuisines = selectedCuisines, price = priceRange) => {
     try {
-      // Call /foodball/{groupName} with location
-      // Backend handles both real groups and individual users (username as groupName)
       const locationParam = selectedLocation?.name || 'Default Location';
       var cuisine_tag = ["","",""];
       var tags = {
-      'western': "bar_and_grill", 'italian': "italian_restaurant",
-      'chinese': "chinese_restaurant", 'indonesian': "indonesian_restaurant",
-      'indian': "indian_restaurant", 'japanese': "japanese_restaurant", 'korean': "korean_restaurant"
-    };
-    for (let i=0;i<cuisines.length;i++){
-      cuisine_tag[i] = tags[cuisines[i]];
-    }
+        'western': "bar_and_grill", 
+        'italian': "italian_restaurant",
+        'chinese': "chinese_restaurant", 
+        'indonesian': "indonesian_restaurant",
+        'indian': "indian_restaurant", 
+        'japanese': "japanese_restaurant", 
+        'korean': "korean_restaurant"
+      };
+      for (let i=0;i<cuisines.length;i++){
+        cuisine_tag[i] = tags[cuisines[i]];
+      }
       const response = await fetch(
         `http://localhost:8080/foodball/${groupName}?long=${selectedLocation['latLng']['lng']}&lat=${selectedLocation['latLng']['lat']}&cuisines=${cuisine_tag}&username=${localStorage.getItem('username')}`,
         { method: 'GET' }
@@ -107,7 +114,6 @@ export default function SearchPage() {
       const data = await response.json();
       
       if (response.ok) {
-        // Backend returns recommendations directly or as array
         const recs = Array.isArray(data) ? data : data.recommendations || [];
         setRestaurants(recs);
       } else {
@@ -336,6 +342,11 @@ export default function SearchPage() {
     }
   };
 
+  // Filter restaurants based on search query
+  const filteredRestaurants = restaurants.filter(restaurant =>
+    restaurant.displayName?.text?.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   if (isLoading) {
     return (
       <div className="searchPage">
@@ -353,34 +364,7 @@ export default function SearchPage() {
       
       <div className="searchContent">
         <div className="searchTop">
-          {/* Map Container */}
-          <div className="mapContainer">
-            {selectedLocation ? (
-              <div style={{ 
-                width: '100%', 
-                height: '100%', 
-                display: 'flex', 
-                flexDirection: 'column',
-                alignItems: 'center', 
-                justifyContent: 'center',
-                background: '#1e2a3a'
-              }}>
-                <p style={{ fontSize: '1.2rem', marginBottom: '0.5rem' }}>
-                  📍 {selectedLocation.name}
-                </p>
-                <p style={{ fontSize: '0.9rem', color: '#999' }}>
-                  Searching restaurants near this location
-                </p>
-              </div>
-            ) : (
-              <img 
-                src="https://via.placeholder.com/600x350?text=No+Location+Selected" 
-                alt="Map" 
-              />
-            )}
-          </div>
-
-          {/* Filters Section */}
+          {/* Filters Section - Full Width */}
           <div className="filtersSection">
             <h3>
               {isIndividual 
@@ -452,10 +436,31 @@ export default function SearchPage() {
           </div>
         </div>
 
+        {/* Search Bar for Restaurant List */}
+        <div className="searchBarContainer">
+          <div className="searchBar">
+            <span className="searchIcon">🔍</span>
+            <input
+              type="text"
+              placeholder="Search restaurants..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+            {searchQuery && (
+              <button 
+                className="clearBtn" 
+                onClick={() => setSearchQuery('')}
+              >
+                ×
+              </button>
+            )}
+          </div>
+        </div>
+
         {/* Restaurant List */}
-        {restaurants.length > 0 ? (
+        {filteredRestaurants.length > 0 ? (
           <div className="restaurantList">
-            {restaurants.map((restaurant, index) => {
+            {filteredRestaurants.map((restaurant, index) => {
               const isSelected = selectedRestaurant?._id === restaurant._id;
 
               return (
@@ -503,7 +508,7 @@ export default function SearchPage() {
         <div className="modalOverlay" onClick={() => setShowConfirmModal(false)}>
           <div className="modalContent" onClick={(e) => e.stopPropagation()}>
             <h2>{isIndividual ? 'Add to History' : 'Confirm Your Vote'}</h2>
-            <p><strong>{selectedRestaurant.name}</strong></p>
+            <p><strong>{selectedRestaurant.displayName?.text}</strong></p>
             <p>
               {!isIndividual 
                 ? 'Cast your vote for this restaurant?' 
