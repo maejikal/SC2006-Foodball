@@ -38,15 +38,19 @@ async def generate_recommendation(groupName):
     global rec_cons
     if groupName not in rec_cons.keys():
         location = request.args['location']
-        radius = request.args['location']
+        radius = 500
         group_rec = await searchdb('Groups', 'group_name',groupName)
-        print(group_rec)
-        print(groupName)
-        users = {}
-        for userID in group_rec['users']:
-            user_rec = await searchdb('Username', 'username',userID)
-            users[userID] = user_rec
-        group = Group(group_rec.name, users, group_rec.GroupPhoto, group_rec.id)
+        if group_rec != None:
+            users = {}
+            id = group_rec["_id"]
+            for userID in group_rec['users']:
+                user_rec = await searchdb('Username', 'username',userID)
+                users[userID] = user_rec
+            
+        else:
+            users = await searchdb('Username', 'username', groupName)
+            id = users["_id"]
+        group = Group(groupName, users, None, id)
         con = recommendation_controller(group, Location(location), radius)
         rec_cons[groupName] = con 
     else:
@@ -67,26 +71,10 @@ def refresh_group(groupID):
     
     try:
         con = rec_cons[groupID]
-        voting_status = {}
-        vote_counts = {}
         
-        if hasattr(con, 'Users') and con.Users:
-            for userID, userData in con.Users.items():
-                has_voted = userData.get('vote') is not None
-                voting_status[userID] = has_voted
-                
-                if has_voted:
-                    voted_restaurant = userData.get('vote')
-                    if voted_restaurant:
-                        vote_counts[voted_restaurant] = vote_counts.get(voted_restaurant, 0) + 1
-        
-        winner_id = max(vote_counts, key=vote_counts.get) if vote_counts else None
         
         return jsonify({
-            "recommendations": con.recommendations if hasattr(con, 'recommendations') else [],
-            "votingStatus": voting_status,
-            "voteDetails": vote_counts,
-            "winner": winner_id
+            "recommendations": con.recommendations
         })
     except Exception as e:
         print(f"Error: {e}")
@@ -98,47 +86,17 @@ def group_voting(groupID):
     global rec_cons
     data = request.get_json()
     username = data.get('username')
-    restaurant_ids = data.get('restaurant_ids', [])
+    restaurant_id = data.get('restaurant_ids', [])
     
     try:
-        if groupID not in rec_cons:
-            print(f"Cache miss for {groupID}, initializing from database...")
-            
-            from services import group as group_services
-            group_data = group_services.get_grp_by_id(groupID)
-            
-            if not group_data:
-                return jsonify({"error": "Group not found"}), 404
-            
-            users = {}
-            for user in group_data.get('users', []):
-                users[user] = {'vote': None}
-            
-            rec_cons[groupID] = type('obj', (object,), {
-                'Users': users,
-                'recommendations': group_data.get('restaurants', [])
-            })()
         
         con = rec_cons[groupID]
-        
-        if username not in con.Users:
-            con.Users[username] = {}
-        
-        voted_restaurant = restaurant_ids[0] if restaurant_ids else None
-        con.Users[username]['vote'] = voted_restaurant
-        
-        print(f"Vote cached: {username} -> {voted_restaurant}")
-        print(f"Current cache: {con.Users}")
-        
-        all_voted = all(
-            user.get('vote') is not None 
-            for user in con.Users.values()
-        )
-        
-        return jsonify({
-            "hasVoted": True,
-            "allVotesIn": all_voted
-        }), 200
+        con.Users["username"]["vote"] = restaurant_id
+        voted = None in [i["vote"] for i in rec_cons[groupID].Users]
+        if voted:
+            return jsonify({"finalVote": rec_cons[groupID].finishVoting()}) 
+        return jsonify({"recommendations": rec_cons[groupID].getRecommendations()})
+    
     except Exception as e:
         print(f"Vote error: {e}")
         import traceback
