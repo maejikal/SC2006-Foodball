@@ -20,6 +20,7 @@ export default function SearchPage() {
   const [selectedRestaurant, setSelectedRestaurant] = useState(null);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [hungerLevel, setHungerLevel] = useState(5);
   
   // Track if preferences have been modified from saved profile
   const [preferencesModified, setPreferencesModified] = useState(false);
@@ -133,15 +134,14 @@ export default function SearchPage() {
         const response = await fetch(`http://localhost:8080/refresh/${groupName}`);
         const data = await response.json();
 
-        if (data.allVotesIn || data.votingComplete) {
-          setIsPolling(false);
+        if (data.finalVote) {
           navigate('/result', { 
             state: { 
               groupName: groupName,
-              winner: data.winner 
+              winner: data.finalVote
             } 
           });
-        }
+}
       } catch (error) {
         console.error('Error polling votes:', error);
       }
@@ -276,7 +276,8 @@ export default function SearchPage() {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             username: username,
-            restaurant_id: selectedRestaurant._id
+            restaurant_id: selectedRestaurant._id,
+            hunger: hungerLevel
           })
         });
 
@@ -287,11 +288,11 @@ export default function SearchPage() {
           setShowConfirmModal(false);
           alert('Vote submitted! Waiting for others...');
           
-          if (data.allVotesIn || data.votingComplete) {
+          if (data.finalVote) {
             navigate('/result', { 
               state: { 
                 groupName: groupName,
-                winner: data.winner 
+                winner: data.finalVote
               } 
             });
           }
@@ -423,6 +424,19 @@ export default function SearchPage() {
                 <span>$10</span>
                 <span>$100</span>
               </div>
+            </div>
+
+            <div className="hungerSliderSection">
+              <h3>Hunger Level: {hungerLevel}</h3>
+              <input
+                type="range"
+                min="1"
+                max="10"
+                value={hungerLevel}
+                onChange={(e) => setHungerLevel(Number(e.target.value))}
+                className="slider"
+                disabled={!isIndividual && hasVoted}
+              />
             </div>
 
             {/* Update Button */}
