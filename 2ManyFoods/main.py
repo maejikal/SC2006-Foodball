@@ -1,17 +1,22 @@
 from flask import *
 from flask_cors import CORS
+from flask_mail import Mail
 from __init__ import *
 from db import *
 from models import *
 from controllers import recommendations as recommendations_controller
-from datetime import datetime
+from datetime import datetime, timedelta
 from controllers import group as group_cons
 from controllers import eatery as eatery_cons
 from bson.objectid import ObjectId
+from utils import verification
+import random
+import string
 app = Flask(__name__)
 CORS(app)
 
 rec_cons = {}
+verification_codes = {}
 
 @app.route('/')
 def root():
@@ -20,6 +25,97 @@ def root():
 @app.route('/signup', methods=['POST'])
 def signup_route():
     return auth_controller.signup(request.get_json())
+'''
+# Email configuration
+app.config['MAIL_SERVER'] = 'smtp.gmail.com'  # or your email provider
+app.config['MAIL_PORT'] = 587
+app.config['MAIL_USE_TLS'] = True
+app.config['MAIL_USERNAME'] = 'your-email@gmail.com'
+app.config['MAIL_PASSWORD'] = 'your-app-password'  # Use app-specific password
+app.config['MAIL_DEFAULT_SENDER'] = 'noreply@2manyfood.com'
+'''
+mail = Mail(app)
+
+
+@app.route('/send-verification', methods=['POST'])
+def send_verification():
+    """Send verification code to email"""
+    try:
+        data = request.get_json()
+        email = data.get('email')
+        
+        if not email:
+            return jsonify({"error": "Email is required"}), 400
+        
+        # Check if email already exists in database
+        from services import user as user_services
+        existing_user = user_services.get_user_by_email(email)
+        if existing_user:
+            return jsonify({"error": "Email already registered"}), 400
+        
+        # Generate 6-digit verification code
+        # code = ''.join(random.choices(string.digits, k=6))
+        
+        # Store code with expiration (10 minutes)
+        '''
+        verification_codes[email] = {
+            'code': code,
+            'expires_at': datetime.now() + timedelta(minutes=10)
+        }
+        '''
+        
+        # TODO: Send email with verification code
+        # For now, just print it (in production, use email service)
+        verification.mail(app, email)
+        # print(f"Verification code for {email}: {code}")
+        
+        return jsonify({
+            "message": "Verification code sent successfully",
+            "email": email,
+        }), 200
+        
+    except Exception as e:
+        print(f"Error sending verification: {e}")
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route('/verify-email', methods=['POST'])
+def verify_email():
+    """Verify email with code"""
+    try:
+        data = request.get_json()
+        email = data.get('email')
+        code = data.get('code')
+        
+        if not email or not code:
+            return jsonify({"error": "Email and code are required"}), 400
+        
+        # Check if code exists
+        if email not in verification_codes:
+            return jsonify({"error": "No verification code found for this email"}), 400
+        
+        stored_data = verification_codes[email]
+        
+        # Check if code expired
+        if datetime.now() > stored_data['expires_at']:
+            del verification_codes[email]
+            return jsonify({"error": "Verification code expired. Please request a new one"}), 400
+        
+        # Check if code matches
+        if stored_data['code'] != code:
+            return jsonify({"error": "Invalid verification code"}), 400
+        
+        # Code is valid - remove it
+        del verification_codes[email]
+        
+        return jsonify({
+            "message": "Email verified successfully",
+            "email": email
+        }), 200
+        
+    except Exception as e:
+        print(f"Error verifying email: {e}")
+        return jsonify({"error": str(e)}), 500
 
 @app.route('/login', methods=['POST'])
 def login_route():
