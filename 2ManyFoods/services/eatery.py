@@ -30,7 +30,8 @@ def create_eatery(name:str, dietary_req:dict, cuisine:dict, price_range:tuple, l
         "averageRating": 0.0
         }
     
-    return user_collection.insert_one(eatery_doc)
+    return run(insertdb(COL, [eatery_doc]))
+    #return user_collection.insert_one(eatery_doc)
 
 def search_eateries(username: str, selected_cuisines: list, price_range: int, dietary_filters: list):
     """
