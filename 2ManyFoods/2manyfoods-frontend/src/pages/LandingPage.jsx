@@ -11,7 +11,7 @@ export default function LandingPage() {
 
   // Check if user is logged in when component mounts
   useEffect(() => {
-    const username = localStorage.getItem('username');
+    const username = sessionStorage.getItem('username');
     setIsLoggedIn(!!username);
   }, []);
   

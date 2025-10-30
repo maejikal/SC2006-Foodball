@@ -50,7 +50,7 @@ export default function DietaryPreferencesPage() {
       setIsLoading(true);
       setError('');
 
-      const username = localStorage.getItem('username');
+      const username = sessionStorage.getItem('username');
       if (!username) {
         setError('Please log in to view preferences');
         setIsLoading(false);
@@ -97,7 +97,7 @@ export default function DietaryPreferencesPage() {
   };
 
   const handleSave = async () => {
-    const username = localStorage.getItem('username');
+    const username = sessionStorage.getItem('username');
     if (!username) {
       setError('Username not found. Please sign up or log in again.');
       return;

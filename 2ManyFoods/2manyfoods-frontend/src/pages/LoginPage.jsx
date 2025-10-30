@@ -77,7 +77,7 @@ export default function LoginPage() {
       console.log('Login successful:', data);
       
       if (data.username) {
-        localStorage.setItem('username', data.username);
+        sessionStorage.setItem('username', data.username);
       }
       
       navigate('/');

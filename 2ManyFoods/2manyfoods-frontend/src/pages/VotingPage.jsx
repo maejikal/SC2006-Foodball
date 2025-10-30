@@ -30,7 +30,7 @@ export default function VotingPage() {
 
     const pollVotingStatus = async () => {
       try {
-        const username = localStorage.getItem('username');
+        const username = sessionStorage.getItem('username');
         
         const response = await fetch(`http://localhost:8080/refresh/${groupId}`);
         const data = await response.json();
@@ -96,7 +96,7 @@ export default function VotingPage() {
     }
 
     try {
-      const username = localStorage.getItem('username');
+      const username = sessionStorage.getItem('username');
       const response = await fetch(`http://localhost:8080/foodball/${groupId}/vote`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

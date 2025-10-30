@@ -92,7 +92,7 @@ export default function ChangePasswordPage() {
 
     setIsLoading(true);
     
-    const username = localStorage.getItem('username');
+    const username = sessionStorage.getItem('username');
     
     if (!username) {
       setErrorMessage('Please log in to change password');

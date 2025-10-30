@@ -68,7 +68,7 @@ export default function CreateGroupPage() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          Username: localStorage.getItem('username'), 
+          Username: sessionStorage.getItem('username'), 
           GroupName: groupName,
           photo: groupPic || ''
         })

@@ -7,7 +7,7 @@ export default function AuthenticatedNavbar() {
 
   const handleSearchClick = (e) => {
     e.preventDefault();
-    const username = localStorage.getItem('username');
+    const username = sessionStorage.getItem('username');
     if (!username) {
       alert('Please log in first');
       return;
