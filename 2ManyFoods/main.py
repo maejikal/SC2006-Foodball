@@ -274,7 +274,8 @@ def add_to_history():
         print(group_name)
         if group_name and group_name in rec_cons:
             print(rec_cons[group_name].done)
-            rec_cons[group_name].done.remove(username)
+            if username in rec_cons[group_name].done:
+                rec_cons[group_name].done.remove(username)
             if len(rec_cons[group_name].done) == 0:
                 del rec_cons[group_name]
         return jsonify({

@@ -11,18 +11,21 @@
   flex: 1;
   padding: 3rem 5rem;
   position: relative;
+  box-sizing: border-box;
 }
 
 .groupsContent h1 {
   font-size: 3rem;
   text-transform: lowercase;
   margin-bottom: 1rem;
+  word-break: break-word;
 }
 
 .groupsContent > p {
   font-size: 1rem;
   color: #eee;
   margin-top: 0.5rem;
+  word-break: break-word;
 }
 
 .groupList {
@@ -37,6 +40,7 @@
   font-size: 2rem;
   margin-bottom: 1.5rem;
   text-transform: lowercase;
+  word-break: break-word;
 }
 
 .createGroupBtn {
@@ -61,6 +65,7 @@
   cursor: pointer;
   font-family: 'Poppins', sans-serif;
   transition: all 0.2s;
+  white-space: nowrap;
 }
 
 .createGroupBtn button:hover {
@@ -79,6 +84,7 @@
   justify-content: center;
   align-items: center;
   z-index: 1000;
+  padding: 1rem;
 }
 
 .modalContent {
@@ -88,6 +94,7 @@
   width: 90%;
   max-width: 400px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+  box-sizing: border-box;
 }
 
 .modalContent h2 {
@@ -96,6 +103,7 @@
   font-size: 1.5rem;
   text-transform: lowercase;
   font-family: 'Poppins', sans-serif;
+  word-break: break-word;
 }
 
 .modalContent p {
@@ -103,6 +111,7 @@
   color: rgba(255, 255, 255, 0.7);
   font-size: 0.9rem;
   font-family: 'Poppins', sans-serif;
+  word-break: break-word;
 }
 
 .inviteCodeInput {
@@ -133,12 +142,22 @@
   font-size: 0.85rem;
   margin: -0.5rem 0 1rem 0;
   font-family: 'Poppins', sans-serif;
+  word-break: break-word;
+}
+
+.successMessage {
+  color: #51cf66;
+  font-size: 0.85rem;
+  margin: -0.5rem 0 1rem 0;
+  font-family: 'Poppins', sans-serif;
+  word-break: break-word;
 }
 
 .modalActions {
   display: flex;
   gap: 1rem;
   justify-content: flex-end;
+  flex-wrap: wrap;
 }
 
 .modalActions button {
@@ -175,4 +194,205 @@
 .joinBtn:disabled {
   opacity: 0.6;
   cursor: not-allowed;
+}
+
+.loadingText {
+  text-align: center;
+  padding: 3rem 1rem;
+  font-size: 1.1rem;
+}
+
+/* Responsive styles */
+@media (max-width: 1024px) {
+  .groupsContent {
+    padding: 2.5rem 3rem;
+  }
+
+  .groupsContent h1 {
+    font-size: 2.5rem;
+  }
+
+  .yourGroupsSection h2 {
+    font-size: 1.8rem;
+  }
+
+  .createGroupBtn {
+    right: 3rem;
+    top: 2.8rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .groupsContent {
+    padding: 2rem 1.5rem;
+    position: relative;
+  }
+
+  .groupsContent h1 {
+    font-size: 2rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .groupsContent > p {
+    font-size: 0.95rem;
+    margin-top: 0.4rem;
+  }
+
+  .groupList {
+    margin-top: 1.5rem;
+  }
+
+  .yourGroupsSection {
+    margin-top: 2.5rem;
+  }
+
+  .yourGroupsSection h2 {
+    font-size: 1.5rem;
+    margin-bottom: 1.2rem;
+  }
+
+  .createGroupBtn {
+    position: static;
+    flex-direction: row;
+    gap: 1rem;
+    margin-bottom: 1rem;
+  }
+
+  .createGroupBtn button {
+    font-size: 0.95rem;
+    padding: 0.5rem 1rem;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 6px;
+    width: 100%;
+  }
+
+  .modalContent {
+    padding: 1.5rem;
+    max-width: 350px;
+  }
+
+  .modalContent h2 {
+    font-size: 1.3rem;
+  }
+
+  .modalContent p {
+    font-size: 0.85rem;
+  }
+
+  .inviteCodeInput {
+    padding: 0.7rem;
+    font-size: 0.95rem;
+  }
+
+  .modalActions {
+    gap: 0.75rem;
+  }
+
+  .modalActions button {
+    padding: 0.6rem 1.1rem;
+    font-size: 0.85rem;
+    flex: 1;
+  }
+
+  .loadingText {
+    padding: 2rem 1rem;
+    font-size: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .groupsContent {
+    padding: 1.5rem 1rem;
+  }
+
+  .groupsContent h1 {
+    font-size: 1.6rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .groupsContent > p {
+    font-size: 0.9rem;
+    margin-top: 0.3rem;
+  }
+
+  .groupList {
+    margin-top: 1rem;
+  }
+
+  .yourGroupsSection {
+    margin-top: 2rem;
+  }
+
+  .yourGroupsSection h2 {
+    font-size: 1.3rem;
+    margin-bottom: 1rem;
+  }
+
+  .createGroupBtn {
+    flex-direction: column;
+    gap: 0.75rem;
+    width: 100%;
+  }
+
+  .createGroupBtn button {
+    font-size: 0.9rem;
+    padding: 0.55rem 1.2rem;
+    width: 100%;
+  }
+
+  .modalOverlay {
+    padding: 1rem 0.5rem;
+  }
+
+  .modalContent {
+    padding: 1.2rem 1rem;
+    max-width: 90%;
+    border-radius: 10px;
+  }
+
+  .modalContent h2 {
+    font-size: 1.2rem;
+    margin-bottom: 0.4rem;
+  }
+
+  .modalContent p {
+    font-size: 0.8rem;
+    margin-bottom: 1.2rem;
+  }
+
+  .inviteCodeInput {
+    padding: 0.65rem;
+    font-size: 0.9rem;
+    margin-bottom: 0.8rem;
+  }
+
+  .errorMessage,
+  .successMessage {
+    font-size: 0.8rem;
+    margin: -0.4rem 0 0.8rem 0;
+  }
+
+  .modalActions {
+    flex-direction: column;
+    gap: 0.6rem;
+  }
+
+  .modalActions button {
+    padding: 0.65rem 1rem;
+    font-size: 0.9rem;
+    width: 100%;
+  }
+
+  .cancelBtn {
+    order: 2;
+  }
+
+  .joinBtn {
+    order: 1;
+  }
+
+  .loadingText {
+    padding: 1.5rem 1rem;
+    font-size: 0.95rem;
+  }
 }

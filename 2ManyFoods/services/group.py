@@ -4,7 +4,9 @@ from bson.objectid import ObjectId
 from asyncio import run
 import random
 import string
+import pymongo
 
+COL = "Group"
 
 def generate_invite_code(length=6):
     characters = string.ascii_uppercase + string.digits
@@ -62,45 +64,39 @@ def create_group(owner: str, grp_name: str, photo: str):
 
 
 def remove_usr(username: str, grp_id: str):
-    group = get_grp_by_id(grp_id)
-
-    if not group:
-        raise ValueError("Group does not exist.")
+    """Remove user from group. If owner leaves, transfer ownership or delete group."""
+    async def _remove_user_async():
+        client = pymongo.AsyncMongoClient('127.0.0.1', 27017)
+        try:
+            db = client["2ManyFoods_db"]
+            group_collection = db["Groups"]
+            
+            group = await searchdb("Groups", "_id", ObjectId(grp_id))
+            
+            if not group:
+                raise ValueError("Group does not exist.")
+            remaining_users = [u for u in group["users"] if u != username]
+            # Check if the user leaving is the owner
+            if group.get("owner") == username:
+                # Owner is leaving
+                if not remaining_users:
+                    # No users left, delete the group
+                    await updatedb("Groups", "_id", ObjectId(grp_id), "users", [])
+                    return None
+                else:
+                    new_owner = remaining_users[0]
+                    
+                    result = await updatedb("Groups", "_id", ObjectId(grp_id), "owner", new_owner)
+                    result = await updatedb("Groups", "_id", ObjectId(grp_id), "users", remaining_users)
+                    return result
+            else:
+                result = await updatedb("Groups", "_id", ObjectId(grp_id), "users", remaining_users)
+                result = await updatedb("Groups", "_id", ObjectId(grp_id), "total_users", len(remaining_users))
+                return result
+        finally:
+            await client.close()
     
-    if group.get("owner") == username:
-        remaining_users = [u for u in group["users"] if u != username]
-        if not remaining_users:
-            run(deletedb("Groups", "_id", ObjectId(grp_id)))
-            return None
-        else:
-            # Transfer ownership to first remaining user
-            new_owner = remaining_users[0]
-            # Remove user from users list
-            run(updatedb("Groups", "_id", ObjectId(grp_id), "users", remaining_users))
-            # Update owner
-            run(updatedb("Groups", "_id", ObjectId(grp_id), "owner", new_owner))
-            # Update total_users
-            run(updatedb("Groups", "_id", ObjectId(grp_id), "total_users", len(remaining_users)))
-            # Remove user from members array
-            updated_members = [m for m in group["members"] if m["username"] != username]
-            run(updatedb("Groups", "_id", ObjectId(grp_id), "members", updated_members))
-            # Update new owner's is_leader status
-            for member in updated_members:
-                if member["username"] == new_owner:
-                    member["is_leader"] = True
-            run(updatedb("Groups", "_id", ObjectId(grp_id), "members", updated_members))
-            return get_grp_by_id(grp_id)
-    else:
-        # Remove non-owner user
-        remaining_users = [u for u in group["users"] if u != username]
-        run(updatedb("Groups", "_id", ObjectId(grp_id), "users", remaining_users))
-        # Update total_users
-        run(updatedb("Groups", "_id", ObjectId(grp_id), "total_users", len(remaining_users)))
-        # Remove user from members array
-        updated_members = [m for m in group["members"] if m["username"] != username]
-        run(updatedb("Groups", "_id", ObjectId(grp_id), "members", updated_members))
-        
-        return get_grp_by_id(grp_id)
+    return run(_remove_user_async())
 
 def add_usr(username: str, grp_id: str):
     group = get_grp_by_id(grp_id)
@@ -130,7 +126,7 @@ def add_usr(username: str, grp_id: str):
     return True
 
 def get_user_groups(username: str):
-    user = user_services.get_user_by_username(username)
+    user = run(searchdb("Users", "Username", username))
     if not user:
         return []
     

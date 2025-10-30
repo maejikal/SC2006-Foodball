@@ -3,12 +3,13 @@
   padding: 1.5rem;
   border-radius: 16px;
   margin-bottom: 1.5rem;
-  max-width: 500px;
+  max-width: 100%;
   width: 100%;
   color: white;
   font-family: 'Poppins', sans-serif;
   cursor: pointer;
   transition: background 0.2s;
+  box-sizing: border-box;
 }
 
 .groupCard:hover {
@@ -19,6 +20,7 @@
   display: flex;
   align-items: center;
   gap: 1rem;
+  min-width: 0;
 }
 
 .groupPicture {
@@ -31,16 +33,88 @@
 
 .groupInfo {
   flex: 1;
+  min-width: 0;
 }
 
 .groupCard h3 {
   font-size: 1.3rem;
   text-transform: lowercase;
   margin: 0;
+  word-break: break-word;
 }
 
 .groupCard p {
   font-size: 0.95rem;
   color: #bbb;
   margin: 0.5rem 0 0 0;
+  word-break: break-word;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .groupCard {
+    padding: 1.3rem;
+    margin-bottom: 1.3rem;
+  }
+
+  .groupCard h3 {
+    font-size: 1.2rem;
+  }
+
+  .groupCard p {
+    font-size: 0.9rem;
+  }
+
+  .groupPicture {
+    width: 55px;
+    height: 55px;
+  }
+}
+
+@media (max-width: 768px) {
+  .groupCard {
+    padding: 1.2rem;
+    margin-bottom: 1.2rem;
+  }
+
+  .groupCardContent {
+    gap: 0.8rem;
+  }
+
+  .groupCard h3 {
+    font-size: 1.1rem;
+  }
+
+  .groupCard p {
+    font-size: 0.9rem;
+  }
+
+  .groupPicture {
+    width: 50px;
+    height: 50px;
+  }
+}
+
+@media (max-width: 480px) {
+  .groupCard {
+    padding: 1rem;
+    margin-bottom: 1rem;
+  }
+
+  .groupCardContent {
+    gap: 0.75rem;
+  }
+
+  .groupCard h3 {
+    font-size: 1rem;
+  }
+
+  .groupCard p {
+    font-size: 0.85rem;
+  }
+
+  .groupPicture {
+    width: 45px;
+    height: 45px;
+  }
 }

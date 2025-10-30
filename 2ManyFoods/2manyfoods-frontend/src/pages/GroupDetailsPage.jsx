@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import Navbar from '../components/AuthenticatedNavbar';
+import UserAvatar from '../assets/Icons/crab.png';
 import './GroupDetailsPage.css';
 
 export default function GroupDetailsPage() {
@@ -71,7 +72,7 @@ export default function GroupDetailsPage() {
             name: data.name,
             membersCount: data.total_users,
             maxMembers: 20,
-            photo: data.photo,
+            photo: data.photo || UserAvatar,
             leaderId: data.owner
           });
           setMembers(data.members);
@@ -99,7 +100,7 @@ export default function GroupDetailsPage() {
         const data = await response.json();
 
         if (data.status === 'ready') {
-          navigate('/search', {
+          navigate('/foodball/waiting', {
             state: {
               groupName: group.name,
               groupId: group.id,
@@ -237,7 +238,7 @@ export default function GroupDetailsPage() {
               <div className="membersList">
                 {members.map((member) => (
                   <div key={member.id} className="memberCard">
-                    <img src={member.avatar} alt={member.name} className="memberAvatar" />
+                    <img src={member.avatar || UserAvatar} alt={member.name} className="memberAvatar" />
                     <div className="memberInfo">
                       <h3>
                         {member.name}

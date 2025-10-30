@@ -14,7 +14,7 @@ export default function PreferencesPage() {
   const [rank1, setRank1] = useState('');
   const [rank2, setRank2] = useState('');
   const [rank3, setRank3] = useState('');
-  const [budget, setBudget] = useState(50);
+  //const [budget, setBudget] = useState(50);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState('');
@@ -81,7 +81,7 @@ export default function PreferencesPage() {
         setRank1(apiToDisplay[prefs.rank1] || '');
         setRank2(apiToDisplay[prefs.rank2] || '');
         setRank3(apiToDisplay[prefs.rank3] || '');
-        setBudget(data.budget || 50);
+        //setBudget(data.budget || 50);
 
         setIsLoading(false);
       } catch (error) {
@@ -184,7 +184,7 @@ export default function PreferencesPage() {
     <div className="preferencePage">
       <Navbar />
       <div className="preferenceContent">
-        <h1>{isOnboarding ? 'Select your top 3 favorite cuisines and budget (Step 2 of 2)' : 'Select your top 3 favorite cuisines and budget range'}</h1>
+        <h1>{isOnboarding ? 'Select your top 3 favorite cuisines and budget (Step 2 of 2)' : 'Select your top 3 favorite cuisines'}</h1>
         
         {/* Error Message */}
         {error && <div className="error-message">{error}</div>}
@@ -231,7 +231,7 @@ export default function PreferencesPage() {
           </select>
         </label>
 
-        <div className="budgetSliderSection">
+      {/* <div className="budgetSliderSection">
           <label>Budget per meal: ${budget}</label>
           <input
             type="range"
@@ -246,7 +246,7 @@ export default function PreferencesPage() {
             <span>$5</span>
             <span>$100</span>
           </div>
-        </div>
+        </div> */}
 
         <button 
           className="saveBtn"

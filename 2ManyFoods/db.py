@@ -43,12 +43,24 @@ async def insertdb(field: str, data: list):
     await client.close()
     return result
 
-async def searchdb(collection: str,field: str, data: str):
+async def searchdb(collection: str,field: str, data=None):
     client = pymongo.AsyncMongoClient('127.0.0.1', 27017) 
     db = client["2ManyFoods_db"]
     coll = db[collection]
-    result = await coll.find_one({field:data})
+    # If a dict is passed, use it directly
+    if isinstance(field, dict): # for searching with multiple fields aka using 2 fields as pk, like in review
+        query = field
+    else:
+        query = {field: data}
+    result = await coll.find_one(query)
     return result
+
+# async def searchdb_dict(collection: str,field: str, data: dict):
+#     client = pymongo.AsyncMongoClient('127.0.0.1', 27017) 
+#     db = client["2ManyFoods_db"]
+#     coll = db[collection]
+#     result = await coll.find_one({field:data})
+#     return result
 
 async def updatedb(collection: str, identifierfield: str, identifier: str, field: str, data):
     client = pymongo.AsyncMongoClient('127.0.0.1', 27017) 
@@ -57,8 +69,6 @@ async def updatedb(collection: str, identifierfield: str, identifier: str, field
     result = await coll.update_one({identifierfield:identifier},{'$set': {field: data}})
     await client.close()
     return result
-
-
 
 async def viewdb():
     client = pymongo.AsyncMongoClient('127.0.0.1', 27017) 
@@ -86,8 +96,8 @@ async def getdb():
     review_collection = db.get_collection("Reviews")
     return (user_collection, group_collection, eatery_collection, review_collection)
 
-async def deletedb(collection: str, identifierfield: str, identifier): #added to do stuff like delete group
-    client = pymongo.AsyncMongoClient('127.0.0.1', 27017) 
+async def deletedb(collection: str, identifierfield: str, identifier): #added to do stuff like delete group, user, review directly from collection
+    client = pymongo.AsyncMongoClient('127.0.0.1', 27017)              # not for removing from lists inside documents. e.g. removing review id from user reviews list
     db = client["2ManyFoods_db"]
     coll = db[collection]
     result = await coll.delete_one({identifierfield: identifier})

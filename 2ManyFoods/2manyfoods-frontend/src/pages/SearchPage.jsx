@@ -156,6 +156,7 @@ export default function SearchPage() {
 
     const pollVotingStatus = async () => {
       try {
+        const username = sessionStorage.getItem('username');
         const response = await fetch(`http://localhost:8080/refresh/${groupName}`);
         const data = await response.json();
 
@@ -407,17 +408,17 @@ export default function SearchPage() {
         });
 
         if (response.ok) {
-          alert(preferencesModified 
-            ? 'Restaurant added to history and preferences saved!' 
-            : 'Restaurant added to history!');
-          setPreferencesModified(false);
-        } else {
-          throw new Error('Failed to add to history');
-        }
-        
-        setShowConfirmModal(false);
-        setSelectedRestaurant(null);
+          setShowConfirmModal(false);
+          navigate('/result', {
+            state: {
+              winner: selectedRestaurant,
+              groupName: null
+            }
+          });
+      } else {
+        throw new Error('Failed to add to history');
       }
+    }
     } catch (error) {
       console.error('Error:', error);
       alert(`Failed to ${isIndividual ? 'save' : 'vote'}. Please try again.`);
@@ -546,7 +547,7 @@ export default function SearchPage() {
                       <p className="status">
                         {!isIndividual && !hasVoted ? 'Click to vote' : 
                         !isIndividual && hasVoted ? 'Voting closed' :
-                        'Click to add to history'}
+                        'Click to choose'}
                       </p>
                     </div>
                     <p className="address">{restaurant.shortFormattedAddress || 'Address not available'}</p>

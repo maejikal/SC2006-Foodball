@@ -3,7 +3,7 @@ from models import *
 from utils.security import hash_password, verify_password
 from asyncio import run
 
-COL = "Users"
+COL = "Users" # only interacts with User collection
 
 def get_user_by_email(email:str):
     return run(searchdb(COL, "Email", email))
@@ -45,11 +45,10 @@ def login_user(email:str, password:str):
         return
     return user
 
-def store_review(username:str, review_id:int):
+def store_review(username:str, review_id:int): 
     user = get_user_by_username(username)
     reviews = user["Reviews"]
     return run(updatedb(COL, "Username", username, "Reviews", reviews + [review_id]))
-    #return user_collection.update_one({"Username": username}, {"$push": {"Reviews": review_id}})
 
 def delete_review(username:str, review_id:int):
     user = get_user_by_username(username)

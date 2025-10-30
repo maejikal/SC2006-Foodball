@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/AuthenticatedNavbar';
+import foodIcon from '../assets/Icons/food.png';
 import './FoodHistoryPage.css';
 
 export default function FoodHistoryPage() {
@@ -31,7 +32,7 @@ export default function FoodHistoryPage() {
             id: index + 1,
             restaurantId: item.restaurant_id,
             name: item.restaurant_name,
-            image: item.image || '/assets/placeholder-restaurant.jpg',
+            image: item.image || foodIcon,
             reviewed: false,
             rating: 0,
             visitedDate: item.visited_date
