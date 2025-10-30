@@ -1,10 +1,10 @@
 import pymongo
 import asyncio
-client = pymongo.AsyncMongoClient('127.0.0.1', 27017) 
-db = client["2ManyFoods_db"]
+
 
 async def makedb():                                                                                     #DO NOT RUN UNLESS YOU NEED TO REDO THE DB
-    global client, db                                          
+    client = pymongo.AsyncMongoClient('127.0.0.1', 27017) 
+    db = client["2ManyFoods_db"]                                          
     #clearing database
     print("Dropping all collections...")
     collection_names = await db.list_collection_names()
@@ -16,10 +16,12 @@ async def makedb():                                                             
     group_collection = db.get_collection("Groups")
     eatery_collection = db["Eateries"]
     review_collection = db.get_collection("Reviews")
+    await client.close()
     return (user_collection, group_collection, eatery_collection, review_collection)
 
 async def insertdb(field: str, data: list):
-    global client, db
+    client = pymongo.AsyncMongoClient('127.0.0.1', 27017) 
+    db = client["2ManyFoods_db"]
     result = None
     for i in data:
         print(i)
@@ -40,24 +42,29 @@ async def insertdb(field: str, data: list):
         case _:
             raise ValueError("Invalid collection name")
    
+    await client.close()
     return result
 
 async def searchdb(collection: str,field: str, data: str):
-    global client, db
+    client = pymongo.AsyncMongoClient('127.0.0.1', 27017) 
+    db = client["2ManyFoods_db"]
     coll = db[collection]
     result = await coll.find_one({field:data})
     return result
 
 async def updatedb(collection: str, identifierfield: str, identifier: str, field: str, data):
-    global client, db
+    client = pymongo.AsyncMongoClient('127.0.0.1', 27017) 
+    db = client["2ManyFoods_db"]
     coll = db[collection]
     result = await coll.update_one({identifierfield:identifier},{'$set': {field: data}})
+    await client.close()
     return result
 
 
 
 async def viewdb():
-    global client, db
+    client = pymongo.AsyncMongoClient('127.0.0.1', 27017) 
+    db = client["2ManyFoods_db"]
     user_collection = db["Users"]
     group_collection = db["Groups"]
     eatery_collection = db["Eateries"]
@@ -72,7 +79,8 @@ async def viewdb():
         print(i)
 
 async def getdb():
-    global client, db                                               
+    client = pymongo.AsyncMongoClient('127.0.0.1', 27017) 
+    db = client["2ManyFoods_db"]                                               
 
     user_collection = db.get_collection("Users")
     group_collection = db.get_collection("Groups")
@@ -81,9 +89,11 @@ async def getdb():
     return (user_collection, group_collection, eatery_collection, review_collection)
 
 async def deletedb(collection: str, identifierfield: str, identifier): #added to do stuff like delete group
-    global client, db
+    client = pymongo.AsyncMongoClient('127.0.0.1', 27017) 
+    db = client["2ManyFoods_db"]
     coll = db[collection]
     result = await coll.delete_one({identifierfield: identifier})
+    await client.close()
     return result
 
 

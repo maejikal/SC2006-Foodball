@@ -33,6 +33,7 @@ def get_user_profile(username):
             "budget": user.get("Budget", 50),
             "groups": user.get("Groups", []),
             "foodHistory": user.get("FoodHistory", [])
-        })
+        }), 200
     except Exception as e:
+        print(str(e))
         return jsonify({"error": f"Failed to get user profile: {str(e)}"}), 500
