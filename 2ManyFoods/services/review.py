@@ -17,16 +17,23 @@ def create_review(username:str, eatery_id:int, rating:int, comment:str, date:str
         raise ValueError("This user already has 1 review for this restaurant. Either edit or delete this review to add a new one.")
     review_doc = {
         "Username": username,
-        "_id": eatery_id,
+        "Eatery": eatery_id,
         "Rating": rating,
         "Comment": comment,
         "Date": date,
         "Photo": photo
     }
-    eateryreviews = run(searchdb("Eateries","_id", eatery_id))['Reviews']
-    newreviewid = run(insertdb(COL,[review_doc]))
+    eateryreviews = run(searchdb("Eateries","_id", eatery_id))
+    newreviewid = run(insertdb(COL,[review_doc])).inserted_ids[0]
     run(updatedb("Users", "Username", username, "Reviews", reviews + [newreviewid]))
-    run(updatedb("Eateries", "EateryID", eatery_id, "Reviews", eateryreviews + [newreviewid]))
+    if eateryreviews is None:
+        eatery = {
+            "_id": eatery_id,
+            "Reviews": [newreviewid]
+        }
+        run(insertdb("Eateries",[eatery]))
+    else:    
+        run(updatedb("Eateries", "EateryID", eatery_id, "Reviews", eateryreviews['Reviews'] + [newreviewid]))
     return newreviewid
 
 def update_review(username:str, eatery_id:int, rating:int, comment:str, date:str, photo:str):
@@ -41,5 +48,5 @@ def update_review(username:str, eatery_id:int, rating:int, comment:str, date:str
         "Photo": photo
     }
     for field, data in review_doc.items():
-        run(updatedb("Reviews", "_id", eatery_id, field, data))
+        run(updatedb("Reviews","_id", reviews["_id"], field, data))
     return ""

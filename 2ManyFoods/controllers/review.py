@@ -2,7 +2,7 @@ from services import review as review_services, user as user_services, eatery as
 from flask import request, jsonify
 
 def handle_create_review(data):
-    required_fields = ["Username", "EateryID", "Rating", "Date"] # the rest can be blank
+    required_fields = ["Username", "_id", "Rating", "Date"] # the rest can be blank
     missing = [field for field in required_fields if field not in data]
     if missing:
         return jsonify({"error":f"Missing fields:{','.join(missing)}"}), 400
@@ -26,7 +26,7 @@ def handle_create_review(data):
     }),200
 
 def handle_update_review(data):
-    required_fields = ["Username", "EateryID", "Rating", "Date"] # the rest can be blank
+    required_fields = ["Username", "_id", "Rating", "Date"] # the rest can be blank
     missing = [field for field in required_fields if field not in data]
     if missing:
         return jsonify({"error":f"Missing fields:{','.join(missing)}"}), 400

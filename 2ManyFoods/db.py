@@ -23,8 +23,6 @@ async def insertdb(field: str, data: list):
     client = pymongo.AsyncMongoClient('127.0.0.1', 27017) 
     db = client["2ManyFoods_db"]
     result = None
-    for i in data:
-        print(i)
     match field:
         case "Users":
             user_collection = db["Users"]
