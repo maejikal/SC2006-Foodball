@@ -12,8 +12,6 @@ from bson.objectid import ObjectId
 from services import user as user_services
 
 from utils import verification
-import random
-import string
 app = Flask(__name__)
 CORS(app, resources={
     r"/*": {
@@ -25,19 +23,6 @@ CORS(app, resources={
 
 rec_cons = {}
 verification_codes = {}
-foodball_sessions = {}
-
-
-@app.route('/')
-def root():
-    return "placeholder"
-
-
-'''
-@app.route('/signup', methods=['POST'])
-def signup_route():
-    return auth_controller.signup(request.get_json())
-'''
 
 
 @app.route('/signup', methods=['POST', 'OPTIONS'])
@@ -245,12 +230,6 @@ def get_user_profile(username):
     return user_controller.get_user_profile(username)
 
 
-@app.route('/api/groups/create', methods=['POST'])
-def create_group_route():
-    data = request.get_json()
-    return group_controller.handle_create_group(data)
-
-
 @app.route('/api/groups/user/<username>', methods=['GET'])
 def get_user_groups(username):
     return group_controller.handle_get_user_groups(username)
@@ -264,12 +243,6 @@ def get_group_details(grp_id):
 @app.route('/api/groups/leave', methods=['POST'])
 def leave_group():
     return group_controller.handle_leave_group(request.get_json())
-
-
-@app.route('/api/search', methods=['GET'])
-def solo_search():
-    return recommendations_controller.handle_solo_search()
-
 
 @app.route('/api/history/add', methods=['POST'])
 def add_to_history():
@@ -335,12 +308,12 @@ def get_food_history():
 
 @app.route('/api/review/create', methods=['POST'])
 def create_review():
-    return review_controller.handle_create_review()
+    return review_controller.handle_create_review(request.get_json())
 
 
-@app.route('/api/review/update', methods=['PUT'])
+@app.route('/api/review/update', methods=['POST'])
 def update_review():
-    return review_controller.handle_update_review()
+    return review_controller.handle_update_review(request.get_json())
 
 
 @app.route('/api/review/get', methods=['GET'])
@@ -420,70 +393,6 @@ def update_group_preferences(group_id):
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
-# Leader starts session when clicking "Start Foodball"
-
-
-@app.route('/api/foodball/start', methods=['POST'])
-def start_foodball():
-    """Leader initiates Foodball session"""
-    global foodball_sessions
-
-    try:
-        data = request.get_json()
-        group_id = data.get('groupId')
-        leader_username = data.get('username')
-
-        if not group_id or not leader_username:
-            return jsonify({"error": "Missing required fields"}), 400
-
-        # Create session entry (location not set yet)
-        foodball_sessions[group_id] = {
-            'status': 'pending_location',  # Leader hasn't selected location yet
-            'leader': leader_username,
-            'location': None,
-            'started_at': datetime.now().isoformat()
-        }
-
-        return jsonify({
-            "message": "Foodball session started",
-            "groupId": group_id
-        }), 200
-
-    except Exception as e:
-        print(f"Error starting foodball: {e}")
-        return jsonify({"error": str(e)}), 500
-
-
-# Leader sets location when reaching SearchPage
-@app.route('/api/foodball/set-location', methods=['POST'])
-def set_foodball_location():
-    """Leader sets location (called from MapPage before navigating to SearchPage)"""
-    global foodball_sessions
-
-    try:
-        data = request.get_json()
-        group_id = data.get('groupId')
-        location = data.get('location')
-
-        if not group_id or not location:
-            return jsonify({"error": "Missing required fields"}), 400
-
-        if group_id not in foodball_sessions:
-            return jsonify({"error": "Session not found"}), 404
-
-        # Update session with location
-        foodball_sessions[group_id]['status'] = 'location_set'
-        foodball_sessions[group_id]['location'] = location
-
-        return jsonify({
-            "message": "Location set successfully"
-        }), 200
-
-    except Exception as e:
-        print(f"Error setting location: {e}")
-        return jsonify({"error": str(e)}), 500
-
-
 # Members poll for session status
 @app.route('/api/foodball/status/<groupName>', methods=['GET'])
 def get_foodball_status(groupName):
@@ -507,93 +416,6 @@ def get_foodball_status(groupName):
     except Exception as e:
         print(f"Error checking foodball status: {e}")
         return jsonify({"error": str(e)}), 500
-
-
-# Start voting
-# @app.route('/api/group/<group_id>/start-voting', methods=['POST'])
-# def start_voting(group_id):
-#     try:
-#         data = request.json
-#         restaurants = data.get('restaurants', [])
-
-#         group_cons.start_voting(group_id, restaurants)
-
-#         return jsonify({'message': 'Voting started'}), 200
-#     except Exception as e:
-#         return jsonify({'error': str(e)}), 500
-
-# @app.route('/api/group/<group_id>/vote', methods=['POST'])
-# def submit_vote(group_id):
-#     try:
-#         data = request.json
-#         username = data.get('username')
-#         restaurant_ids = data.get('restaurant_ids', [])
-
-#         if not restaurant_ids or len(restaurant_ids) == 0:
-#             return jsonify({'error': 'Must select one restaurant'}), 400
-
-#         group = group_cons.get_group_by_id(group_id)
-#         if any(v['username'] == username for v in group.get('votes', [])):
-#             return jsonify({'error': 'Already voted'}), 400
-
-#         group_cons.add_vote(group_id, username, restaurant_ids)
-
-#         group = group_cons.get_group_by_id(group_id)
-#         all_voted = all(m.get('has_voted', False) for m in group.get('members', []))
-
-#         if all_voted:
-#             winner = group_cons.calculate_winner(group_id)
-#             return jsonify({'message': 'Vote submitted', 'voting_complete': True, 'winner': winner}), 200
-
-#         return jsonify({'message': 'Vote submitted', 'voting_complete': False}), 200
-#     except Exception as e:
-#         return jsonify({'error': str(e)}), 500
-
-# # Get voting results
-# @app.route('/api/group/<group_id>/votes', methods=['GET'])
-# def get_votes(group_id):
-#     try:
-#         group = group_cons.get_group_by_id(group_id)
-#         if not group:
-#             return jsonify({'error': 'Group not found'}), 404
-
-#         votes = group.get('votes', [])
-#         all_voted = all(m.get('has_voted', False) for m in group.get('members', []))
-
-#         winner = None
-#         if all_voted and votes:
-#             winner = group_cons.calculate_winner(group_id)
-
-#         return jsonify({
-#             'votes': votes,
-#             'voting_complete': all_voted,
-#             'winner': winner
-#         }), 200
-#     except Exception as e:
-#         print(f"ERROR: {e}")
-#         return jsonify({'error': str(e)}), 500
-
-# @app.route('/api/recommendations/group/<group_id>', methods=['POST', 'OPTIONS'])
-# def get_group_recommendations(group_id):
-#     if request.method == 'OPTIONS':
-#         response = jsonify({'status': 'ok'})
-#         response.headers.add('Access-Control-Allow-Origin', '*')
-#         response.headers.add('Access-Control-Allow-Headers', 'Content-Type')
-#         response.headers.add('Access-Control-Allow-Methods', 'POST, OPTIONS')
-#         return response, 200
-
-#     try:
-#         eateries = recommendations_controller.handle_group_search(group_id)
-#         return jsonify({
-#             "message": "Group recommendations generated",
-#             "eateries": eateries
-#         }), 200
-#     except ValueError as e:
-#         return jsonify({"error": str(e)}), 404
-#     except Exception as e:
-#         print(f"Error: {e}")
-#         return jsonify({"error": str(e)}), 500
-
 
 if __name__ == "__main__":
     app.run(port=8080, debug=True)

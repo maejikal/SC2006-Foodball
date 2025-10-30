@@ -70,16 +70,7 @@ export default function GroupDetailsPage() {
     
     if (isLeader) {
       // Leader: Notify backend that session started, then navigate to MapPage
-      try {
-        await fetch('http://localhost:8080/api/foodball/start', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            groupId: groupId,
-            username: currentUsername
-          })
-        });
-        
+      try {        
         // Navigate to MapPage (same as individual)
         navigate('/location', 
           { state: { groupName: group.name, groupId: group.id, isIndividual: false } }

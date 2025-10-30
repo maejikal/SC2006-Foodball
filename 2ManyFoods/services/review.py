@@ -24,8 +24,22 @@ def create_review(username:str, eatery_id:int, rating:int, comment:str, date:str
         "Photo": photo
     }
     eateryreviews = run(searchdb("Eateries","_id", eatery_id))['Reviews']
-    run(insertdb(COL,[review_doc]))
-    newreviewid = run(searchdb(COL, "Username", username))["_id"]
-    # run(updatedb("Users", "Username", username, "Reviews", reviews + [newreviewid]))
-    # run(updatedb("Eateries", "EateryID", eatery_id, "Reviews", reviews + [newreviewid]))
+    newreviewid = run(insertdb(COL,[review_doc]))
+    run(updatedb("Users", "Username", username, "Reviews", reviews + [newreviewid]))
+    run(updatedb("Eateries", "EateryID", eatery_id, "Reviews", eateryreviews + [newreviewid]))
     return newreviewid
+
+def update_review(username:str, eatery_id:int, rating:int, comment:str, date:str, photo:str):
+    reviews = run(searchdb("Users", "Username", username))['Reviews']
+    if eatery_id not in reviews:
+        raise ValueError("No review to edit found")
+    review_doc = {
+        "Username": username,
+        "Rating": rating,
+        "Comment": comment,
+        "Date": date,
+        "Photo": photo
+    }
+    for field, data in review_doc.items():
+        run(updatedb("Reviews", "_id", eatery_id, field, data))
+    return ""

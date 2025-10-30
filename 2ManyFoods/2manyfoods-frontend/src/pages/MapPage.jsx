@@ -24,21 +24,6 @@ export default function LeaderLocationPage() {
   // Auto-navigate to search page with NTU location
   useEffect(() => {
     const setLocationAndNavigate = async () => {
-      // If this is group mode, notify backend about location selection
-      if (isGroupMode && !isIndividual) {
-        try {
-          await fetch('http://localhost:8080/api/foodball/set-location', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              groupId: groupId,
-              location: selectedLocation
-            })
-          });
-        } catch (error) {
-          console.error('Error setting location:', error);
-        }
-      }
       
       // Navigate to search page
       navigate('/search', {
