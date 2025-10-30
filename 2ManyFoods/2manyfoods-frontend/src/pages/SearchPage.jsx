@@ -94,59 +94,89 @@ export default function SearchPage() {
   }, [groupName, isIndividual]);
 
   const submitUserPreferencesToGroup = async (cuisines, budget) => {
-    try {
-      const username = sessionStorage.getItem('username');
-      const tags = {
-        'western': "bar_and_grill", 
-        'italian': "italian_restaurant",
-        'chinese': "chinese_restaurant", 
-        'indonesian': "indonesian_restaurant",
-        'indian': "indian_restaurant", 
-        'japanese': "japanese_restaurant", 
-        'korean': "korean_restaurant"
-      };
-      
-      const cuisine_tags = cuisines.map(c => tags[c]);
-      
-      await fetch(
-        `http://localhost:8080/foodball/${groupName}?long=${selectedLocation['latLng']['lng']}&lat=${selectedLocation['latLng']['lat']}&cuisines=${cuisine_tags.join(',')}&username=${username}`,
-        { method: 'GET' }
-      );
-    } catch (error) {
-      console.error('Error submitting preferences:', error);
+  try {
+    if (!selectedLocation) {
+      console.error('No location selected');
+      return;
     }
-  };
+
+    const username = sessionStorage.getItem('username');
+    const tags = {
+      'western': "bar_and_grill", 
+      'italian': "italian_restaurant",
+      'chinese': "chinese_restaurant", 
+      'indonesian': "indonesian_restaurant",
+      'indian': "indian_restaurant", 
+      'japanese': "japanese_restaurant", 
+      'korean': "korean_restaurant"
+    };
+    
+    const cuisine_tags = cuisines.map(c => tags[c]);
+    
+    // Handle both nested and flat location structures
+    const lat = selectedLocation.lat || selectedLocation?.['latLng']?.lat;
+    const lng = selectedLocation.lng || selectedLocation?.['latLng']?.lng;
+    
+    if (!lat || !lng) {
+      console.error('Invalid location coordinates:', { lat, lng });
+      return;
+    }
+    
+    await fetch(
+      `http://localhost:8080/foodball/${groupName}?long=${lng}&lat=${lat}&cuisines=${cuisine_tags.join(',')}&username=${username}`,
+      { method: 'GET' }
+    );
+  } catch (error) {
+    console.error('Error submitting preferences:', error);
+  }
+};
+
 
   const fetchRestaurants = async (cuisines = selectedCuisines, price = priceRange) => {
-    try {
-      const tags = {
-        'western': "bar_and_grill", 
-        'italian': "italian_restaurant",
-        'chinese': "chinese_restaurant", 
-        'indonesian': "indonesian_restaurant",
-        'indian': "indian_restaurant", 
-        'japanese': "japanese_restaurant", 
-        'korean': "korean_restaurant"
-      };
-      const cuisine_tag = cuisines.map(c => tags[c]);
-      
-      const response = await fetch(
-        `http://localhost:8080/foodball/${groupName}?long=${selectedLocation['latLng']['lng']}&lat=${selectedLocation['latLng']['lat']}&cuisines=${cuisine_tag}&username=${sessionStorage.getItem('username')}`,
-        { method: 'GET' }
-      );
-      
-      const data = await response.json();
-      
-      if (response.ok) {
-        const recs = Array.isArray(data) ? data : data.recommendations || [];
-        setRestaurants(recs);
-      } else {
-        console.error('Failed to get recommendations');
-      }
-    } catch (error) {
-      console.error('Error fetching restaurants:', error);
+  try {
+    if (!selectedLocation) {
+      console.error('No location selected');
+      return;
     }
-  };
+
+    const tags = {
+      'western': "bar_and_grill", 
+      'italian': "italian_restaurant",
+      'chinese': "chinese_restaurant", 
+      'indonesian': "indonesian_restaurant",
+      'indian': "indian_restaurant", 
+      'japanese': "japanese_restaurant", 
+      'korean': "korean_restaurant"
+    };
+    const cuisine_tag = cuisines.map(c => tags[c]);
+    
+    // Handle both nested and flat location structures
+    const lat = selectedLocation.lat || selectedLocation?.['latLng']?.lat;
+    const lng = selectedLocation.lng || selectedLocation?.['latLng']?.lng;
+    
+    if (!lat || !lng) {
+      console.error('Invalid location coordinates:', { lat, lng });
+      alert('Location coordinates not found. Please select a location again.');
+      return;
+    }
+    
+    const response = await fetch(
+      `http://localhost:8080/foodball/${groupName}?long=${lng}&lat=${lat}&cuisines=${cuisine_tag}&username=${sessionStorage.getItem('username')}`,
+      { method: 'GET' }
+    );
+    
+    const data = await response.json();
+    
+    if (response.ok) {
+      const recs = Array.isArray(data) ? data : data.recommendations || [];
+      setRestaurants(recs);
+    } else {
+      console.error('Failed to get recommendations');
+    }
+  } catch (error) {
+    console.error('Error fetching restaurants:', error);
+  }
+};
 
   // POLLING LOGIC - Navigate when finalVote exists
   useEffect(() => {
