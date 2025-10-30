@@ -4,6 +4,7 @@ import datetime
 from services import user as user_services
 from asyncio import run
 import api
+from bson.objectid import ObjectId
 
 COL = "Eateries"
 
@@ -11,9 +12,14 @@ def get_eatery_by_id(eatery_id:int):
     return run(searchdb("COL", "_id", eatery_id))
 
 def store_review(eatery_id:int, review_id:int): # logic needs to be updated. avg rating etc. 
-    eateryreviews = run(searchdb(COL, "_id ", eatery_id))
+    eateryreviews = run(searchdb(COL, "_id", eatery_id))
     return run(updatedb(COL, "_id", eatery_id, "Reviews", eateryreviews + [review_id]))
     #return eatery_collection.update_one({"EateryID": eatery_id}, {"$push": {"Reviews": review_id}})
+
+def delete_review(eatery_id:int, review_id:int):
+    eateryreviews = run(searchdb(COL, "_id", ObjectId(eatery_id)))["Reviews"] # search for list of reviews in eatery
+    eateryreviews.remove(review_id)
+    return run(updatedb(COL, "_id", eatery_id, "Reviews", eateryreviews))
 
 def create_eatery(name:str, dietary_req:dict, cuisine:dict, price_range:tuple, location:Location, openingHours: datetime):
     if run(searchdb("Eateries", "name", name)) is not None:
