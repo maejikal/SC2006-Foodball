@@ -2,6 +2,7 @@ from db import insertdb, searchdb, updatedb
 from models import *
 from utils.security import hash_password, verify_password
 from asyncio import run
+from services.group import get_user_groups
 
 COL = "Users" # only interacts with User collection
 
@@ -80,7 +81,6 @@ def update_user(field: str, username: str, new_data: str):
             
             if new_data == username:
                 return True
-
             return run(updatedb(COL, "Username", username, "Username", new_data))
         
         case "email":

@@ -6,7 +6,7 @@ import random
 import string
 import pymongo
 
-COL = "Group"
+COL = "Groups"
 
 def generate_invite_code(length=6):
     characters = string.ascii_uppercase + string.digits
@@ -141,3 +141,10 @@ def get_user_groups(username: str):
                 "photo": grp.get("photo", "")
             })
     return groups
+
+# def update_grp_username(username: str, new_username: str):
+#     groups = get_user_groups(username)
+#     for i in groups:
+#         currentgroup = i['members']
+#         currentgroup.remove(username)
+#         run(updatedb(COL, "_id", i, "Members", currentgroup + [ ]))
