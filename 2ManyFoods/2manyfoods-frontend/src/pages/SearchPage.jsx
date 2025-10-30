@@ -170,7 +170,20 @@ export default function SearchPage() {
 
             const restaurantsList = restaurants.length > 0 ? restaurants : data.recommendations || [];
             const winningRestaurant = restaurantsList.find(r => r.id === data.finalVote);
-
+            await fetch('http://localhost:8080/api/history/add', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                username: username,
+                groupName: groupName,
+                restaurant: {
+                  id: winningRestaurant.id,
+                  name: winningRestaurant.displayName?.text || winningRestaurant.name,
+                  address: winningRestaurant.shortFormattedAddress || winningRestaurant.vicinity || '',
+                  cuisine: winningRestaurant.types || []
+                }
+              })
+            });
             navigate('/result', {
               state: {
                 groupName: groupName,

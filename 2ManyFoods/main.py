@@ -271,6 +271,7 @@ def add_to_history():
 
         user_services.update_foodhistory(username, history_entry)
         group_name = data.get("groupName")
+        print(group_name)
         if group_name and group_name in rec_cons:
             print(rec_cons[group_name].done)
             rec_cons[group_name].done.remove(username)
