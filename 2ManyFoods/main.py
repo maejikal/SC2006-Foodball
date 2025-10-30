@@ -187,16 +187,16 @@ def group_voting(groupName):
     data = request.get_json()
     username = data.get('username')
     restaurant_id = data.get('restaurant_id', "")
-
     try:
-
         con = rec_cons[groupName]
         con._group.Users[username]["vote"] = restaurant_id
-        done = None not in [user["vote"] for user in rec_cons[groupName]._group.Users.values()]
+        
+        all_votes = [user.get("vote") for user in rec_cons[groupName]._group.Users.values()]
+        done = all(vote is not None for vote in all_votes)
+        
         if done:
             return jsonify({"finalVote": rec_cons[groupName].finishVoting()})
         return jsonify({"recommendations": rec_cons[groupName].getRecommendations()})
-
     except Exception as e:
         print(f"Vote error: {e}")
         import traceback
@@ -207,12 +207,17 @@ def group_voting(groupName):
 def refresh(groupName):
     global rec_cons
     if groupName in rec_cons.keys():
-        voted = None not in [user["vote"] for user in rec_cons[groupName]._group.Users.values()]
+        all_votes = [user.get("vote") for user in rec_cons[groupName]._group.Users.values()]
+        voted = all(vote is not None for vote in all_votes)
+        
         if voted:
-            return jsonify({"finalVote": rec_cons[groupName].finishVoting()})
+            final = rec_cons[groupName].finishVoting()
+            del rec_cons[groupName]
+            return jsonify({"finalVote": final})
         return jsonify({"recommendations": rec_cons[groupName].getRecommendations()})
     else:
         return jsonify({"recommendations": ""})
+
     
 @app.route('/update_prefs', methods=["POST"])
 def update():

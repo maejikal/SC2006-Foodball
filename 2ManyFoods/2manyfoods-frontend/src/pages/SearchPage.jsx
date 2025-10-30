@@ -9,7 +9,7 @@ export default function SearchPage() {
   
   // Get data from navigation state
   const groupName = location.state?.groupName;
-  const groupId = location.state?.groupId; // ADDED THIS LINE
+  const groupId = location.state?.groupId;
   const selectedLocation = location.state?.location;
   const isIndividual = location.state?.isIndividual || false;
   
@@ -77,8 +77,17 @@ export default function SearchPage() {
             const budget = data.budget || 50;
             setPriceRange(budget);
             
-            // Auto-fetch initial recommendations
-            await fetchRestaurants(cuisines, budget);
+            if (isIndividual) {
+              // Individual: Use personal preferences
+              await fetchRestaurants(cuisines, budget);
+            } else {
+              // Group: Submit preferences first
+              await submitUserPreferencesToGroup(cuisines, budget);
+              
+              // Then fetch - backend will use aggregated if multiple users, 
+              // or just use this user's if only one person
+              await fetchRestaurants(cuisines, budget);
+            }
           }
         }
 
@@ -90,8 +99,35 @@ export default function SearchPage() {
     };
 
     loadPreferencesAndFetch();
-  }, [groupName]);
+  }, [groupName, isIndividual]);
 
+
+  const submitUserPreferencesToGroup = async (cuisines, budget) => {
+    try {
+      const username = localStorage.getItem('username');
+      var tags = {
+        'western': "bar_and_grill", 
+        'italian': "italian_restaurant",
+        'chinese': "chinese_restaurant", 
+        'indonesian': "indonesian_restaurant",
+        'indian': "indian_restaurant", 
+        'japanese': "japanese_restaurant", 
+        'korean': "korean_restaurant"
+      };
+      
+      const cuisine_tags = cuisines.map(c => tags[c]);
+      
+      // Call the endpoint WITH cuisines to register user preferences
+      await fetch(
+        `http://localhost:8080/foodball/${groupName}?long=${selectedLocation['latLng']['lng']}&lat=${selectedLocation['latLng']['lat']}&cuisines=${cuisine_tags.join(',')}&username=${username}`,
+        { method: 'GET' }
+      );
+    } catch (error) {
+      console.error('Error submitting preferences:', error);
+    }
+  };
+
+  // Fetch individual recommendations
   const fetchRestaurants = async (cuisines = selectedCuisines, price = priceRange) => {
     try {
       const locationParam = selectedLocation?.name || 'Default Location';
@@ -126,38 +162,61 @@ export default function SearchPage() {
     }
   };
 
-  // UPDATED POLLING LOGIC - checks if everyone has voted
+  // NEW: Fetch shared group recommendations
+  const fetchGroupRecommendations = async () => {
+    try {
+      const response = await fetch(
+        `http://localhost:8080/foodball/${groupName}?long=${selectedLocation['latLng']['lng']}&lat=${selectedLocation['latLng']['lat']}&cuisines=,,&username=${localStorage.getItem('username')}`,
+        { method: 'GET' }
+      );
+      
+      const data = await response.json();
+      
+      if (response.ok) {
+        const recs = Array.isArray(data) ? data : data.recommendations || [];
+        setRestaurants(recs);
+      } else {
+        console.error('Failed to get group recommendations');
+      }
+    } catch (error) {
+      console.error('Error fetching group recommendations:', error);
+    }
+  };
+
+  // UPDATED POLLING LOGIC - starts immediately in group mode and updates recommendations
   useEffect(() => {
-    if (isIndividual || !hasVoted || !groupId) {
-      return; // Only poll in group mode after user has voted
+    if (isIndividual || !groupName) {
+      return; // Only poll in group mode
     }
 
     setIsPolling(true);
 
     const pollVotingStatus = async () => {
       try {
-        const response = await fetch(`http://localhost:8080/refresh/${groupId}`);
+        const response = await fetch(`http://localhost:8080/refresh/${groupName}`);
         const data = await response.json();
 
         if (response.ok) {
-          // Check if voting is complete
-          if (data.finalVote) {
-            // Everyone voted - navigate to result
+          // Always update recommendations (even before voting)
+          if (data.recommendations) {
+            setRestaurants(data.recommendations);
+          }
+          
+          // Check if voting is complete (only navigate after user has voted)
+          if (data.finalVote && hasVoted) {
             setIsPolling(false);
+            
+            // Find the full restaurant object from the list
+            const winningRestaurant = restaurants.find(r => r.id === data.finalVote);
+            
             navigate('/result', {
               state: {
                 groupName: groupName,
-                winner: data.finalVote,
+                winner: winningRestaurant || { id: data.finalVote, displayName: { text: 'Selected Restaurant' } },
                 groupId: groupId
               }
             });
-          } else if (data.recommendations) {
-            // Update recommendations if someone changed preferences
-            setRestaurants(data.recommendations);
           }
-        }
-        else{
-          restaurants = data.recommendations;
         }
       } catch (error) {
         console.error('Polling error:', error);
@@ -172,7 +231,7 @@ export default function SearchPage() {
       clearInterval(interval);
       setIsPolling(false);
     };
-  }, [hasVoted, isIndividual, groupId, groupName, navigate]);
+  }, [isIndividual, groupName, navigate, hasVoted]);
 
   const getCuisineRank = (cuisine) => {
     const index = selectedCuisines.indexOf(cuisine.toLowerCase());
@@ -218,10 +277,11 @@ export default function SearchPage() {
     setIsSaving(true);
     
     try {
-      await fetchRestaurants(selectedCuisines, priceRange);
-      
       if (isIndividual) {
+        await fetchRestaurants(selectedCuisines, priceRange);
         alert('Recommendations updated! Preferences will be saved when you add a restaurant to history.');
+      } else {
+        await fetchRestaurants(selectedCuisines, priceRange);
       }
     } catch (error) {
       console.error('Error fetching restaurants:', error);
@@ -308,24 +368,44 @@ export default function SearchPage() {
         if (response.ok) {
           setHasVoted(true);
           setShowConfirmModal(false);
-          alert('Vote submitted! Waiting for others...');
           
           if (data.finalVote) {
-            navigate('/result', { 
-              state: { 
+            // Save to history before navigating
+            const winningRestaurant = restaurants.find(r => r.id === data.finalVote);
+            
+            try {
+              await fetch('http://localhost:8080/api/history/add', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  username: username,
+                  groupName: groupName,
+                  restaurant: {
+                    id: winningRestaurant.id,
+                    name: winningRestaurant.displayName?.text || winningRestaurant.name,
+                    address: winningRestaurant.shortFormattedAddress || winningRestaurant.vicinity || '',
+                    cuisine: winningRestaurant.types || []
+                  }
+                })
+              });
+            } catch (error) {
+              console.error('Error saving to history:', error);
+            }
+            
+            navigate('/result', {
+              state: {
                 groupName: groupName,
-                winner: data.finalVote
-              } 
+                winner: winningRestaurant || { id: data.finalVote, displayName: { text: 'Selected Restaurant' } },
+                groupId: groupId
+              }
             });
-          }
-          else{
-            restaurants = data.recommendations;
+          } else {
+            alert('Vote submitted! Waiting for others...');
           }
         } else {
           throw new Error(data.error || 'Failed to submit vote');
         }
       } else {
-        
         if (preferencesModified) {
           const prefsSaved = await savePreferencesToProfile();
           if (!prefsSaved) {
@@ -429,7 +509,7 @@ export default function SearchPage() {
               })}
             </div>
 
-            {/* Price Slider */}
+            {/* COMMENTED OUT - Price Slider
             <div className="priceSliderSection">
               <h3>Budget: ${priceRange}</h3>
               <input
@@ -447,6 +527,7 @@ export default function SearchPage() {
                 <span>$100</span>
               </div>
             </div>
+            */}
 
             {/* Hunger Slider - Only for groups */}
             {!isIndividual && (
@@ -469,6 +550,7 @@ export default function SearchPage() {
               onClick={handleUpdateRecommendations}
               disabled={isSaving || selectedCuisines.length !== 3 || (!isIndividual && hasVoted)}
               className="confirmBtn"
+              style={{ marginTop: '1.5rem' }}
             >
               {isSaving ? 'Loading...' : 'update recommendations'}
             </button>
