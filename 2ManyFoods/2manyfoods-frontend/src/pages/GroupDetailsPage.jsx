@@ -1,15 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useParams, useLocation } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import Navbar from '../components/AuthenticatedNavbar';
 import './GroupDetailsPage.css';
 
 export default function GroupDetailsPage() {
   const navigate = useNavigate();
   const { groupId } = useParams();
-  const location = useLocation();
-
-  const initialGroupName = location.state?.groupName || 'supper';
-  const initialGroupPic = location.state?.groupPic;
 
   const [group, setGroup] = useState(null);
   const [members, setMembers] = useState([]);
@@ -20,6 +16,46 @@ export default function GroupDetailsPage() {
   const [showLeaveConfirmation, setShowLeaveConfirmation] = useState(false);
 
   const currentUsername = localStorage.getItem('username');
+  const isLeader = currentUsername === group?.leaderId;
+
+  // Mapping for cuisine tags (same as SearchPage)
+  const cuisineTags = {
+    "bar_and_grill": 'western',
+    'italian_restaurant': "italian",
+    'chinese_restaurant': "chinese",
+    'indonesian_restaurant': "indonesian",
+    'indian_restaurant': "indian",
+    'japanese_restaurant': "japanese",
+    'korean_restaurant': "korean"
+  };
+
+  // Convert cuisine tag to display name
+  const getDisplayCuisine = (cuisineTag) => {
+    return cuisineTags[cuisineTag] || cuisineTag;
+  };
+
+  // Format preferences for display
+  const getFormattedPreferences = (prefs) => {
+    if (!prefs) return 'no preferences';
+    
+    // If preferences is an object with rank1, rank2, rank3
+    if (prefs.rank1 || prefs.rank2 || prefs.rank3) {
+      return [prefs.rank1, prefs.rank2, prefs.rank3]
+        .filter(Boolean)
+        .map(pref => getDisplayCuisine(pref))
+        .join(', ');
+    }
+    
+    // If preferences is an array
+    if (Array.isArray(prefs)) {
+      return prefs
+        .map(pref => getDisplayCuisine(pref))
+        .join(', ');
+    }
+    
+    // Otherwise return as is
+    return 'no preferences';
+  };
 
   // Fetch group data
   useEffect(() => {
@@ -53,8 +89,33 @@ export default function GroupDetailsPage() {
     fetchGroup();
   }, [groupId]);
 
-  // Check if current user is the leader
-  const isLeader = currentUsername === group?.leaderId;
+  // Members auto-navigate when leader starts (polls for rec_cons)
+  useEffect(() => {
+    if (!group || isLeader) return;
+
+    const checkLeaderStarted = async () => {
+      try {
+        const response = await fetch(`http://localhost:8080/api/foodball/status/${group.name}`);
+        const data = await response.json();
+
+        if (data.status === 'ready') {
+          navigate('/search', {
+            state: {
+              groupName: group.name,
+              groupId: group.id,
+              isIndividual: false,
+              location: data.location
+            }
+          });
+        }
+      } catch (error) {
+        console.error('Error checking leader status:', error);
+      }
+    };
+
+    const interval = setInterval(checkLeaderStarted, 2000);
+    return () => clearInterval(interval);
+  }, [group, isLeader, navigate]);
 
   const handleCopyInviteCode = () => {
     navigator.clipboard.writeText(inviteCode)
@@ -66,36 +127,26 @@ export default function GroupDetailsPage() {
   };
 
   const handleStartFoodball = async () => {
-    if (!group) return;
-    
-    if (isLeader) {
-      // Leader: Notify backend that session started, then navigate to MapPage
-      try {
-        await fetch('http://localhost:8080/api/foodball/start', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            groupId: groupId,
-            username: currentUsername
-          })
-        });
-        
-        // Navigate to MapPage (same as individual)
-        navigate('/location', 
-          { state: { groupName: group.name, groupId: group.id, isIndividual: false } }
-        );
-      } catch (error) {
-        console.error('Error starting foodball:', error);
-        alert('Failed to start Foodball. Please try again.');
-      }
-    } else {
-      // Member: Go to waiting page
-      navigate('/foodball/waiting', 
-        { state: { groupName: group.name, groupId: group.id } }
-      );
+    if (!group || !isLeader) return;
+
+    try {
+      await fetch('http://localhost:8080/api/foodball/start', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          groupId: groupId,
+          username: currentUsername
+        })
+      });
+
+      navigate('/location', {
+        state: { groupName: group.name, groupId: group.id, isIndividual: false }
+      });
+    } catch (error) {
+      console.error('Error starting foodball:', error);
+      alert('Failed to start Foodball. Please try again.');
     }
   };
-
 
   const handleBackToGroups = () => {
     navigate('/groups');
@@ -113,9 +164,7 @@ export default function GroupDetailsPage() {
     try {
       const response = await fetch('http://localhost:8080/api/groups/leave', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           username: currentUsername,
           grp_id: groupId
@@ -128,12 +177,11 @@ export default function GroupDetailsPage() {
         throw new Error(data.error || 'Failed to leave group');
       }
 
-      // Navigate back to groups page
-      navigate('/groups', { 
-        state: { 
+      navigate('/groups', {
+        state: {
           removeGroupId: groupId,
-          message: 'Successfully left the group' 
-        } 
+          message: 'Successfully left the group'
+        }
       });
     } catch (error) {
       console.error('Error leaving group:', error);
@@ -174,13 +222,13 @@ export default function GroupDetailsPage() {
                   </div>
                 )}
               </div>
-              <button 
-                className={`startFoodballBtn ${!isLeader ? 'disabled' : ''}`}
+              <button
+                className="startFoodballBtn"
                 onClick={handleStartFoodball}
-                title={!isLeader ? 'Only the group leader can start Foodball' : ''}
+                disabled={!isLeader}
+                title={!isLeader ? 'Only the group leader can start Foodball' : 'Start Foodball'}
               >
-                Start Foodball
-                {!isLeader && <span className="leaderOnlyTag">(Leader Only)</span>}
+                {isLeader ? 'Start Foodball' : 'Wait for leader to start'}
               </button>
             </div>
 
@@ -189,13 +237,13 @@ export default function GroupDetailsPage() {
               <div className="membersList">
                 {members.map((member) => (
                   <div key={member.id} className="memberCard">
-                    <img src={member.avatar} alt={member.name} className="memberAvatar"/>
+                    <img src={member.avatar} alt={member.name} className="memberAvatar" />
                     <div className="memberInfo">
                       <h3>
                         {member.name}
                         {member.id === group.leaderId && <span className="leaderTag">LEADER</span>}
                       </h3>
-                      <p>likes {member.preferences?.join(', ') || 'no preferences'}</p>
+                      <p>likes {getFormattedPreferences(member.preferences)}</p>
                     </div>
                   </div>
                 ))}
@@ -203,10 +251,10 @@ export default function GroupDetailsPage() {
             </div>
 
             <div className="bottomButtons">
-              <button className='backToGroupsBtn' onClick={handleBackToGroups}>
+              <button className="backToGroupsBtn" onClick={handleBackToGroups}>
                 Back To Groups
               </button>
-              <button className='leaveGroupBtn' onClick={handleLeaveGroup}>
+              <button className="leaveGroupBtn" onClick={handleLeaveGroup}>
                 Leave Group
               </button>
             </div>
@@ -214,7 +262,6 @@ export default function GroupDetailsPage() {
         )}
       </div>
 
-      {/* Confirmation Popup */}
       {showLeaveConfirmation && (
         <div className="confirmationOverlay">
           <div className="confirmationModal">

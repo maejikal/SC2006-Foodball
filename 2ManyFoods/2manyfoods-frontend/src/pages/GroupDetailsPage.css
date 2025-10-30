@@ -133,6 +133,14 @@
   gap: 0.3rem;
 }
 
+.startFoodballBtn:disabled {
+  background-color: #555;
+  color: #aaa;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+
 .membersSection h2 {
   font-size: 1.5rem;
   margin-bottom: 2rem;
