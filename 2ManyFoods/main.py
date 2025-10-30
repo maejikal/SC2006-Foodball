@@ -134,6 +134,10 @@ async def join_group(groupID):
 def join_group_by_code():
     return group_controller.handle_join_by_invite_code(request.get_json())
 
+@app.route('/api/groups/create', methods=['POST'])
+def create_group_route():
+    data = request.get_json()
+    return group_controller.handle_create_group(data)
 
 @app.route('/foodball/<groupName>')
 def generate_recommendation(groupName):
