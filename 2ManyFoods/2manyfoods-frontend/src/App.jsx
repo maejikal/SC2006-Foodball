@@ -4,7 +4,6 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import LandingPage from './pages/LandingPage';
 import LoginPage from './pages/LoginPage';
 import SignupPage from './pages/SignupPage';
-import DashboardPage from './pages/DashboardPage';
 import SearchPage from './pages/SearchPage';
 import AccountPage from './pages/AccountPage';
 import SecurityPage from './pages/SecurityPage';
@@ -16,11 +15,9 @@ import FoodReviewPage from './pages/FoodReviewPage';
 import GroupsPage from './pages/GroupsPage';
 import CreateGroupPage from './pages/CreateGroupPage';
 import GroupDetailsPage from './pages/GroupDetailsPage';
-import LeaderLocationPage from './pages/LeaderLocationPage';
+import MapPage from './pages/MapPage';
 import WaitingForLeaderPage from './pages/WaitingForLeaderPage';
-import InProgressPage from './pages/InProgressPage';
 import ResultsPage from './pages/ResultsPage';
-import VotingPage from './pages/VotingPage';
 import Faqpage from './pages/FaqPage';
 
 function App() {
@@ -30,7 +27,6 @@ function App() {
         <Route path="/" element={<LandingPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/signup" element={<SignupPage />} />
-        <Route path="/dashboard" element={<DashboardPage />} />
         <Route path="/search" element={<SearchPage />} />
         <Route path="/account" element={<AccountPage />} />
         <Route path="/account/security" element={<SecurityPage />} />
@@ -42,11 +38,15 @@ function App() {
         <Route path="/groups" element={<GroupsPage />} />
         <Route path="/groups/create" element={<CreateGroupPage />} />
         <Route path="/groups/:groupId" element={<GroupDetailsPage />} />
-        <Route path="/foodball/select-location" element={<LeaderLocationPage />} />
+        
+        {/* MapPage used by BOTH individual and group leader */}
+        <Route path="/location" element={<MapPage />} />
+        
+        {/* WaitingForLeaderPage for group members */}
         <Route path="/foodball/waiting" element={<WaitingForLeaderPage />} />
-        <Route path="/foodball/in-progress" element={<InProgressPage />} />
+        
+        <Route path="/result" element={<ResultsPage />} />
         <Route path="/foodball/results" element={<ResultsPage />} />
-        <Route path="/foodball/voting" element={<VotingPage />} />
         <Route path="/FaqPage" element={<Faqpage />} />
       </Routes>
     </Router>

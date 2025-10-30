@@ -1,68 +1,234 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import Navbar from '../components/AuthenticatedNavbar';
 import './SearchPage.css';
 
 export default function SearchPage() {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const hasNavigatedRef = useRef(false);
+  
+  // Get data from navigation state
+  const groupName = location.state?.groupName;
+  const groupId = location.state?.groupId;
+  const selectedLocation = location.state?.location;
+  const isIndividual = location.state?.isIndividual || false;
+  
   const [selectedCuisines, setSelectedCuisines] = useState([]);
   const [priceRange, setPriceRange] = useState(50);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [userPreferences, setUserPreferences] = useState({ rank1: '', rank2: '', rank3: '' });
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [restaurants, setRestaurants] = useState([]);
   const [selectedRestaurant, setSelectedRestaurant] = useState(null);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [hungerLevel, setHungerLevel] = useState(5);
+  
+  const [preferencesModified, setPreferencesModified] = useState(false);
+  const [hasVoted, setHasVoted] = useState(false);
 
-  const mealCuisines = ['western', 'italian', 'chinese', 'malay', 'indian', 'japanese', 'korean'];
+  const mealCuisines = ['western', 'italian', 'chinese', 'indonesian', 'indian', 'japanese', 'korean'];
 
+  const capitalize = (str) => str.charAt(0).toUpperCase() + str.slice(1);
+
+  // Load preferences and fetch initial recommendations
   useEffect(() => {
-    const loadUserPreferences = async () => {
-      try {
-        const preferences = {
-          rank1: 'italian',
-          rank2: 'japanese',
-          rank3: 'korean'
-        };
-        setUserPreferences(preferences);
-        setSelectedCuisines([preferences.rank1, preferences.rank2, preferences.rank3]);
+    const loadPreferencesAndFetch = async () => {
+      setIsLoading(true);
+      const username = sessionStorage.getItem('username');
+
+      if (!username) {
+        console.error('No username found');
         setIsLoading(false);
+        return;
+      }
+
+      try {
+        const response = await fetch(`http://localhost:8080/account/${username}`, {
+          method: 'GET',
+          headers: { 'Content-Type': 'application/json' }
+        });
         
-        await fetchRestaurants([preferences.rank1, preferences.rank2, preferences.rank3], 50);
+        const data = await response.json();
+        
+        if (response.ok && data.preferences) {
+          const prefs = data.preferences;
+
+          if (prefs.rank1 && prefs.rank2 && prefs.rank3) {
+            const tags = {
+              "bar_and_grill": 'western', 
+              'italian_restaurant': "italian",
+              'chinese_restaurant': "chinese", 
+              'indonesian_restaurant': "indonesian",
+              'indian_restaurant': "indian", 
+              'japanese_restaurant': "japanese", 
+              'korean_restaurant': "korean"
+            };
+            const cuisines = [
+              tags[prefs.rank1.toLowerCase()],
+              tags[prefs.rank2.toLowerCase()],
+              tags[prefs.rank3.toLowerCase()]
+            ];
+            setSelectedCuisines(cuisines);
+            
+            const budget = data.budget || 50;
+            setPriceRange(budget);
+            
+            if (isIndividual) {
+              await fetchRestaurants(cuisines, budget);
+            } else {
+              await submitUserPreferencesToGroup(cuisines, budget);
+              await fetchRestaurants(cuisines, budget);
+            }
+          }
+        }
+
+        setIsLoading(false);
       } catch (error) {
-        console.error('Error loading preferences:', error);
+        console.error('Failed to load preferences:', error);
         setIsLoading(false);
       }
     };
-    loadUserPreferences();
-  }, []);
 
-  const fetchRestaurants = async (cuisines, price) => {
+    loadPreferencesAndFetch();
+  }, [groupName, isIndividual]);
+
+  const submitUserPreferencesToGroup = async (cuisines, budget) => {
     try {
-      const username = localStorage.getItem('username');
-      const cuisineParams = cuisines.map(c => `cuisines=${c}`).join('&');
-      const response = await fetch(
-        `http://localhost:8080/api/search?username=${username}&${cuisineParams}&price_range=${price}`
+      const username = sessionStorage.getItem('username');
+      const tags = {
+        'western': "bar_and_grill", 
+        'italian': "italian_restaurant",
+        'chinese': "chinese_restaurant", 
+        'indonesian': "indonesian_restaurant",
+        'indian': "indian_restaurant", 
+        'japanese': "japanese_restaurant", 
+        'korean': "korean_restaurant"
+      };
+      
+      const cuisine_tags = cuisines.map(c => tags[c]);
+      
+      await fetch(
+        `http://localhost:8080/foodball/${groupName}?long=${selectedLocation['latLng']['lng']}&lat=${selectedLocation['latLng']['lat']}&cuisines=${cuisine_tags.join(',')}&username=${username}`,
+        { method: 'GET' }
       );
+    } catch (error) {
+      console.error('Error submitting preferences:', error);
+    }
+  };
+
+  const fetchRestaurants = async (cuisines = selectedCuisines, price = priceRange) => {
+    try {
+      const tags = {
+        'western': "bar_and_grill", 
+        'italian': "italian_restaurant",
+        'chinese': "chinese_restaurant", 
+        'indonesian': "indonesian_restaurant",
+        'indian': "indian_restaurant", 
+        'japanese': "japanese_restaurant", 
+        'korean': "korean_restaurant"
+      };
+      const cuisine_tag = cuisines.map(c => tags[c]);
+      
+      const response = await fetch(
+        `http://localhost:8080/foodball/${groupName}?long=${selectedLocation['latLng']['lng']}&lat=${selectedLocation['latLng']['lat']}&cuisines=${cuisine_tag}&username=${sessionStorage.getItem('username')}`,
+        { method: 'GET' }
+      );
+      
       const data = await response.json();
       
-      if (response.ok && data.eateries) {
-        setRestaurants(data.eateries);
+      if (response.ok) {
+        const recs = Array.isArray(data) ? data : data.recommendations || [];
+        setRestaurants(recs);
+      } else {
+        console.error('Failed to get recommendations');
       }
     } catch (error) {
       console.error('Error fetching restaurants:', error);
     }
   };
 
+  // POLLING LOGIC - Navigate when finalVote exists
+  useEffect(() => {
+    if (isIndividual || !groupName) {
+      return;
+    }
+
+    const pollVotingStatus = async () => {
+      try {
+        const username = sessionStorage.getItem('username');
+        const response = await fetch(`http://localhost:8080/refresh/${groupName}`);
+        const data = await response.json();
+
+        if (response.ok) {
+          if (data.recommendations && Array.isArray(data.recommendations)) {
+            setRestaurants(data.recommendations);
+          }
+
+          // Navigate when finalVote exists AND haven't navigated yet
+          if (data.finalVote && !hasNavigatedRef.current) {
+            hasNavigatedRef.current = true;
+
+            const restaurantsList = restaurants.length > 0 ? restaurants : data.recommendations || [];
+            const winningRestaurant = restaurantsList.find(r => r.id === data.finalVote);
+            await fetch('http://localhost:8080/api/history/add', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                username: username,
+                groupName: groupName,
+                restaurant: {
+                  id: winningRestaurant.id,
+                  name: winningRestaurant.displayName?.text || winningRestaurant.name,
+                  address: winningRestaurant.shortFormattedAddress || winningRestaurant.vicinity || '',
+                  cuisine: winningRestaurant.types || []
+                }
+              })
+            });
+            navigate('/result', {
+              state: {
+                groupName: groupName,
+                winner: winningRestaurant || {
+                  id: data.finalVote,
+                  displayName: { text: 'Selected Restaurant' }
+                },
+                groupId: groupId
+              }
+            });
+
+            return;
+          }
+        }
+        else{
+          setRestaurants(data.recommendations);
+        }
+      } catch (error) {
+        console.error('Polling error:', error);
+      }
+    };
+
+    // Poll immediately first
+    pollVotingStatus();
+    
+    const interval = setInterval(pollVotingStatus, 2000);
+
+    return () => {
+      clearInterval(interval);
+    };
+  }, [isIndividual, groupName, navigate, groupId, restaurants]);
+
   const getCuisineRank = (cuisine) => {
     const index = selectedCuisines.indexOf(cuisine.toLowerCase());
-    if (index === -1) return null;
-    return index + 1;
+    return index !== -1 ? index + 1 : null;
   };
 
   const toggleCuisine = (cuisine) => {
+    if (!isIndividual && hasVoted) return;
+    
     const lowerCuisine = cuisine.toLowerCase();
+
     if (selectedCuisines.includes(lowerCuisine)) {
-      if (selectedCuisines.length <= 3) return;
+      setSelectedCuisines(selectedCuisines.filter(c => c !== lowerCuisine));
     } else {
       if (selectedCuisines.length >= 3) {
         setSelectedCuisines([lowerCuisine, ...selectedCuisines.slice(0, 2)]);
@@ -70,60 +236,45 @@ export default function SearchPage() {
         setSelectedCuisines([lowerCuisine, ...selectedCuisines]);
       }
     }
+    
+    if (isIndividual) {
+      setPreferencesModified(true);
+    }
   };
 
-  const handleConfirmChoice = async () => {
+  const handlePriceChange = (e) => {
+    setPriceRange(Number(e.target.value));
+    
+    if (isIndividual) {
+      setPreferencesModified(true);
+    }
+  };
+
+  const handleUpdateRecommendations = async () => {
     if (selectedCuisines.length !== 3) {
       alert('Please select exactly 3 cuisines');
       return;
     }
 
-    const username = localStorage.getItem('username');
-    if (!username) {
-      alert('Please log in to save preferences');
-      return;
-    }
-
     setIsSaving(true);
+    
     try {
-      const requestBody = {
-        username: username,
-        preferences: {
-          rank1: selectedCuisines[0],
-          rank2: selectedCuisines[1],
-          rank3: selectedCuisines[2]
-        },
-        budget: priceRange
-      };
-
-      const response = await fetch('http://localhost:8080/account/cuisine', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(requestBody)
-      });
-
-      const data = await response.json();
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to save preferences');
+      if (isIndividual) {
+        await fetchRestaurants(selectedCuisines, priceRange);
+        alert('Recommendations updated! Preferences will be saved when you add a restaurant to history.');
+      } else {
+        await fetchRestaurants(selectedCuisines, priceRange);
       }
-
-      setUserPreferences({
-        rank1: selectedCuisines[0],
-        rank2: selectedCuisines[1],
-        rank3: selectedCuisines[2]
-      });
-
-      await fetchRestaurants(selectedCuisines, priceRange);
-      alert('Preferences saved successfully!');
     } catch (error) {
-      console.error('Error saving preferences:', error);
-      alert('Failed to save preferences. Please try again.');
+      console.error('Error fetching restaurants:', error);
+      alert('Failed to update recommendations. Please try again.');
     } finally {
       setIsSaving(false);
     }
   };
 
   const handleRestaurantClick = (restaurant) => {
+    if (!isIndividual && hasVoted) return;
     setSelectedRestaurant(restaurant);
   };
 
@@ -135,42 +286,147 @@ export default function SearchPage() {
     setShowConfirmModal(true);
   };
 
-  const handleSaveToHistory = async () => {
-    const username = localStorage.getItem('username');
+  const savePreferencesToProfile = async () => {
+    const username = sessionStorage.getItem('username');
     
+    const tags = {
+      'western': "bar_and_grill", 
+      'italian': "italian_restaurant",
+      'chinese': "chinese_restaurant", 
+      'indonesian': "indonesian_restaurant",
+      'indian': "indian_restaurant", 
+      'japanese': "japanese_restaurant", 
+      'korean': "korean_restaurant"
+    };
+
+    const requestBody = {
+      username: username,
+      type:'cuisine',
+      newValue: {
+        rank1: tags[selectedCuisines[0]],
+        rank2: tags[selectedCuisines[1]],
+        rank3: tags[selectedCuisines[2]]
+      },
+      field: "preferences"
+    };
+
     try {
-      const response = await fetch('http://localhost:8080/api/history/add', {
+      const response = await fetch('http://localhost:8080/account/cuisine', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          username: username,
-          restaurant: {
-            id: selectedRestaurant._id,
-            name: selectedRestaurant.name,
-            address: selectedRestaurant.location.address,
-            price_range: selectedRestaurant.price_range,
-            cuisine: selectedRestaurant.cuisine
-          }
-        })
+        body: JSON.stringify(requestBody)
       });
 
-      const data = await response.json();
-      
-      if (response.ok) {
-        alert('Restaurant added to your food history! Enjoy your meal! 🍽️');
-        setShowConfirmModal(false);
-        setSelectedRestaurant(null);
-      } else {
-        throw new Error(data.error || 'Failed to save to history');
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || 'Failed to save preferences');
       }
+      
+      return true;
     } catch (error) {
-      console.error('Error saving to history:', error);
-      alert('Failed to save to history. Please try again.');
+      console.error('Error saving preferences:', error);
+      return false;
     }
   };
 
-  const filteredRestaurants = restaurants.filter((restaurant) =>
-    restaurant.name.toLowerCase().includes(searchQuery.toLowerCase())
+  const handleVoteOrSave = async () => {
+    const username = sessionStorage.getItem('username');
+    
+    try {
+      if (!isIndividual) {
+        const response = await fetch(`http://localhost:8080/foodball/${groupName}/vote`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            username: username,
+            restaurant_id: selectedRestaurant.id,
+            hunger: hungerLevel
+          })
+        });
+
+        const data = await response.json();
+        
+        if (response.ok) {
+          setHasVoted(true);
+          setShowConfirmModal(false);
+          
+          if (data.finalVote) {
+            const winningRestaurant = restaurants.find(r => r.id === data.finalVote);
+            
+            try {
+              await fetch('http://localhost:8080/api/history/add', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  username: username,
+                  groupName: groupName,
+                  restaurant: {
+                    id: winningRestaurant.id,
+                    name: winningRestaurant.displayName?.text || winningRestaurant.name,
+                    address: winningRestaurant.shortFormattedAddress || winningRestaurant.vicinity || '',
+                    cuisine: winningRestaurant.types || []
+                  }
+                })
+              });
+            } catch (error) {
+              console.error('Error saving to history:', error);
+            }
+            
+            navigate('/result', {
+              state: {
+                groupName: groupName,
+                winner: winningRestaurant || { id: data.finalVote, displayName: { text: 'Selected Restaurant' } },
+                groupId: groupId
+              }
+            });
+          } else {
+            alert('Vote submitted! Waiting for others...');
+          }
+        } else {
+          throw new Error(data.error || 'Failed to submit vote');
+        }
+      } else {
+        if (preferencesModified) {
+          const prefsSaved = await savePreferencesToProfile();
+          if (!prefsSaved) {
+            alert('Warning: Preferences could not be saved, but restaurant will still be added to history.');
+          }
+        }
+        
+        const response = await fetch('http://localhost:8080/api/history/add', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            username: username,
+            restaurant: {
+              id: selectedRestaurant.id,
+              name: selectedRestaurant.displayName?.text,
+              address: selectedRestaurant.shortFormattedAddress || '',
+              cuisine: selectedRestaurant.types
+            }
+          })
+        });
+
+        if (response.ok) {
+          setShowConfirmModal(false);
+          navigate('/result', {
+            state: {
+              winner: selectedRestaurant,
+              groupName: null
+            }
+          });
+      } else {
+        throw new Error('Failed to add to history');
+      }
+    }
+    } catch (error) {
+      console.error('Error:', error);
+      alert(`Failed to ${isIndividual ? 'save' : 'vote'}. Please try again.`);
+    }
+  };
+
+  const filteredRestaurants = restaurants.filter(restaurant =>
+    restaurant.displayName?.text?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   if (isLoading) {
@@ -178,7 +434,7 @@ export default function SearchPage() {
       <div className="searchPage">
         <Navbar />
         <div className="searchContent">
-          <h2>Loading your preferences...</h2>
+          <p>Loading your preferences and recommendations...</p>
         </div>
       </div>
     );
@@ -187,55 +443,70 @@ export default function SearchPage() {
   return (
     <div className="searchPage">
       <Navbar />
+      
       <div className="searchContent">
         <div className="searchTop">
-          <div className="mapContainer">
-            <img src="https://via.placeholder.com/600x350?text=Map+Placeholder" alt="Map" />
-          </div>
-
           <div className="filtersSection">
-            <div>
-              <h3>Meal Preference</h3>
-              <div className="cuisineTags">
-                {mealCuisines.map((cuisine) => {
-                  const rank = getCuisineRank(cuisine);
-                  return (
-                    <button
-                      key={cuisine}
-                      onClick={() => toggleCuisine(cuisine)}
-                      className={`cuisineTag ${rank ? 'selected' : ''}`}
-                    >
-                      {cuisine}
-                      {rank && <span className="rankBadge">{rank}</span>}
-                    </button>
-                  );
-                })}
-              </div>
+            <h3>
+              {isIndividual 
+                ? 'Customize Your Search' 
+                : `${groupName} - Select Your Preferences`}
+            </h3>
+            
+            {!isIndividual && hasVoted && (
+              <p style={{ color: '#90ee90', fontWeight: 'bold' }}>
+                ✓ Vote submitted! Waiting for others...
+              </p>
+            )}
+            
+            {isIndividual && preferencesModified && (
+              <p style={{ color: '#f4a460', fontSize: '0.85rem', fontStyle: 'italic' }}>
+                * Preferences will be saved when you add a restaurant to history
+              </p>
+            )}
+
+            <div className="cuisineTags">
+              {mealCuisines.map((cuisine) => {
+                const rank = getCuisineRank(cuisine);
+
+                return (
+                  <button
+                    key={cuisine}
+                    className={`cuisineTag ${rank ? 'selected' : ''} ${
+                      !isIndividual && hasVoted ? 'disabled' : ''
+                    }`}
+                    onClick={() => toggleCuisine(cuisine)}
+                    disabled={!isIndividual && hasVoted}
+                  >
+                    {capitalize(cuisine)}
+                    {rank && <span className="rankBadge">{rank}</span>}
+                  </button>
+                );
+              })}
             </div>
 
-            <div className="priceSliderSection">
-              <h3>Price Range</h3>
-              <input
-                type="range"
-                min="10"
-                max="100"
-                value={priceRange}
-                onChange={(e) => setPriceRange(parseInt(e.target.value))}
-                className="slider"
-              />
-              <div className="priceLabels">
-                <span>$10</span>
-                <span>${priceRange}</span>
-                <span>$100+</span>
+            {!isIndividual && (
+              <div className="hungerSliderSection">
+                <h3>Hunger Level: {hungerLevel}</h3>
+                <input
+                  type="range"
+                  min="1"
+                  max="10"
+                  value={hungerLevel}
+                  onChange={(e) => setHungerLevel(Number(e.target.value))}
+                  className="slider"
+                  disabled={hasVoted}
+                />
               </div>
-            </div>
+            )}
 
             <button 
-              onClick={handleConfirmChoice} 
+              onClick={handleUpdateRecommendations}
+              disabled={isSaving || selectedCuisines.length !== 3 || (!isIndividual && hasVoted)}
               className="confirmBtn"
-              disabled={isSaving}
+              style={{ marginTop: '1.5rem' }}
             >
-              {isSaving ? 'Saving...' : 'Confirm Choice'}
+              {isSaving ? 'Loading...' : 'update recommendations'}
             </button>
           </div>
         </div>
@@ -248,58 +519,75 @@ export default function SearchPage() {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
+            {searchQuery && (
+              <button 
+                className="clearBtn" 
+                onClick={() => setSearchQuery('')}
+              >
+                ×
+              </button>
+            )}
           </div>
         </div>
 
-        <div className="restaurantList">
-          {filteredRestaurants.length > 0 ? (
-            filteredRestaurants.map((restaurant) => (
-              <div
-                key={restaurant._id}
-                className={`restaurantCard ${selectedRestaurant?._id === restaurant._id ? 'selected' : ''}`}
-                onClick={() => handleRestaurantClick(restaurant)}
-                style={{ cursor: 'pointer' }}
-              >
-                <img
-                  src={restaurant.image}
-                  alt={restaurant.name}
-                  className="restaurantImage"
-                />
-                <div className="restaurantInfo">
-                  <h3>{restaurant.name}</h3>
-                  <p className="address">{restaurant.location.address}</p>
-                  <p className="price">${restaurant.price_range}</p>
-                  <p className="status">You've never eaten here before!</p>
-                </div>
-              </div>
-            ))
-          ) : (
-            <p>No restaurants found. Try different preferences!</p>
-          )}
-        </div>
+        {filteredRestaurants.length > 0 ? (
+          <div className="restaurantList">
+            {filteredRestaurants.map((restaurant, index) => {
+              const isSelected = selectedRestaurant?.id === restaurant.id;
 
-        {selectedRestaurant && (
-          <button 
-            onClick={handleConfirmRestaurant} 
-            className="confirmBtn"
-            style={{ marginTop: '1rem' }}
-          >
-            Confirm Restaurant: {selectedRestaurant.name}
-          </button>
+              return (
+                <div
+                  key={restaurant.id || index}
+                  className={`restaurantCard ${isSelected ? 'selected' : ''}`}
+                  onClick={() => handleRestaurantClick(restaurant)}
+                >
+                  <div className="restaurantInfo">
+                    <div className="restaurantHeader">
+                      <h3>{restaurant.displayName?.text}</h3>
+                      <p className="status">
+                        {!isIndividual && !hasVoted ? 'Click to vote' : 
+                        !isIndividual && hasVoted ? 'Voting closed' :
+                        'Click to choose'}
+                      </p>
+                    </div>
+                    <p className="address">{restaurant.shortFormattedAddress || 'Address not available'}</p>
+                  </div>
+                </div>
+              );
+            })}
+            
+            {selectedRestaurant && (isIndividual || !hasVoted) && (
+              <button 
+                onClick={handleConfirmRestaurant}
+                className="confirmBtn"
+              >
+                {isIndividual ? 'add to history' : 'confirm vote'}
+              </button>
+            )}
+          </div>
+        ) : (
+          <div className="restaurantList">
+            <p>No recommendations found. Try adjusting your preferences!</p>
+          </div>
         )}
       </div>
 
       {showConfirmModal && (
         <div className="modalOverlay" onClick={() => setShowConfirmModal(false)}>
           <div className="modalContent" onClick={(e) => e.stopPropagation()}>
-            <h2>Confirm Your Visit</h2>
+            <h2>{isIndividual ? 'Add to History' : 'Confirm Your Vote'}</h2>
+            <p><strong>{selectedRestaurant.displayName?.text}</strong></p>
             <p>
-              Are you sure you're going to <strong>{selectedRestaurant.name}</strong> to eat?
+              {!isIndividual 
+                ? 'Cast your vote for this restaurant?' 
+                : preferencesModified
+                  ? 'This restaurant will be added to your food history and your preferences will be saved.'
+                  : 'This restaurant will be added to your food history.'
+              }
             </p>
-            <p>This restaurant will be added to your food history.</p>
             <div className="modalButtons">
-              <button onClick={handleSaveToHistory} className="confirmBtn">
-                Yes, I'm Going!
+              <button onClick={handleVoteOrSave} className="confirmBtn">
+                Confirm
               </button>
               <button onClick={() => setShowConfirmModal(false)} className="cancelBtn">
                 Cancel

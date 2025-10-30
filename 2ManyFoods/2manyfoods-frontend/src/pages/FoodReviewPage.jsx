@@ -26,7 +26,7 @@ export default function FoodReviewPage() {
       const loadExistingReview = async () => {
         setIsLoading(true);
         try {
-          const username = localStorage.getItem('username');
+          const username = sessionStorage.getItem('username');
           const response = await fetch(
             `http://localhost:8080/api/review/get?username=${username}&restaurant_id=${restaurantData.id}`
           );
@@ -56,12 +56,10 @@ export default function FoodReviewPage() {
     setFileError('');
 
     if (selectedFile) {
-      const validImageTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
-      const validVideoTypes = ['video/mp4', 'video/mov', 'video/avi'];
-      const validTypes = [...validImageTypes, ...validVideoTypes];
+      const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
 
       if (!validTypes.includes(selectedFile.type)) {
-        setFileError('Please upload a valid image (JPEG, PNG, GIF) or video (MP4, MOV, AVI)');
+        setFileError('Please upload a valid image (JPEG, PNG, GIF)');
         return;
       }
 
@@ -113,11 +111,11 @@ export default function FoodReviewPage() {
 
     setIsSaving(true);
     try {
-      const username = localStorage.getItem('username');
+      const username = sessionStorage.getItem('username');
       
       const reviewData = {
         Username: username,
-        EateryID: restaurantData.id,
+        _id: restaurantData.id,
         Rating: rating,
         Comment: review,
         Date: new Date().toISOString(),
@@ -128,7 +126,7 @@ export default function FoodReviewPage() {
         ? 'http://localhost:8080/api/review/update'
         : 'http://localhost:8080/api/review/create';
       
-      const method = restaurantData.isEdit ? 'PUT' : 'POST';
+      const method = 'POST';
 
       const response = await fetch(endpoint, {
         method: method,

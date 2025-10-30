@@ -3,11 +3,11 @@ import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Button from '../components/Button';
 import FormInput from '../components/FormInput';
+import EditProfileModal from '../components/EditProfileModal';
 import './SignupPage.css';
 
 export default function SignupPage() {
   const navigate = useNavigate();
-  // store signup form input values
   const [form, setForm] = useState({
     email: '',
     password: '',
@@ -20,6 +20,12 @@ export default function SignupPage() {
   const [authError, setAuthError] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  
+  // Email verification states
+  const [isEmailVerified, setIsEmailVerified] = useState(false);
+  const [showVerificationModal, setShowVerificationModal] = useState(false);
+  const [isSendingCode, setIsSendingCode] = useState(false);
+  const [tempEmail, setTempEmail] = useState(''); // Store email being verified
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -28,21 +34,23 @@ export default function SignupPage() {
     if (errors[name]) {
       setErrors((prev) => ({ ...prev, [name]: '' }));
     }
+
+    // Reset email verification if email changes
+    if (name === 'email' && isEmailVerified) {
+      setIsEmailVerified(false);
+    }
   };
 
-  // Email validation
   const isValidEmail = (email) => {
     const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
     return emailRegex.test(email);
   };
 
-  // Phone validation 
   const isValidPhone = (phone) => {
     const phoneRegex = /^[0-9]{8,15}$/;
     return phoneRegex.test(phone.replace(/[\s-]/g, ''));
   };
 
-  // Password validation
   const validatePassword = (password, username) => {
     const issues = [];
 
@@ -79,7 +87,70 @@ export default function SignupPage() {
       issues.push(`Password cannot contain common words like "${foundCommon}"`);
     }
 
-    return issues; // return all the problem found
+    return issues;
+  };
+
+  const handleSendVerification = async () => {
+    if (!form.email.trim()) {
+      setErrors((prev) => ({ ...prev, email: 'Email is required' }));
+      return;
+    }
+
+    if (!isValidEmail(form.email)) {
+      setErrors((prev) => ({ ...prev, email: 'Please enter a valid email address' }));
+      return;
+    }
+
+    setIsSendingCode(true);
+    setAuthError('');
+
+    try {
+      const response = await fetch('http://localhost:8080/send-verification', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: form.email })
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to send verification code');
+      }
+
+      // Store the email being verified and open modal
+      setTempEmail(form.email);
+      setShowVerificationModal(true);
+    } catch (error) {
+      setAuthError(error.message || 'Failed to send verification code. Please try again.');
+    } finally {
+      setIsSendingCode(false);
+    }
+  };
+
+  const handleVerifyEmail = async (field, verificationCode) => {
+    try {
+      const response = await fetch('http://localhost:8080/verify-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: tempEmail,
+          code: verificationCode
+        })
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Invalid verification code');
+      }
+
+      // Verification successful
+      setIsEmailVerified(true);
+      alert('Email verified successfully!');
+      
+    } catch (error) {
+      throw error; // Let EditProfileModal handle the error display
+    }
   };
 
   const validateForm = () => {
@@ -91,12 +162,17 @@ export default function SignupPage() {
       newErrors.email = 'Please enter a valid email address';
     }
 
+    if (!isEmailVerified) {
+      // newErrors.email = 'Please verify your email first';
+      setIsEmailVerified(true);
+    }
+
     if (!form.password) {
       newErrors.password = 'Password is required';
     } else {
       const passwordIssues = validatePassword(form.password, form.username);
       if (passwordIssues.length > 0) {
-        newErrors.password = passwordIssues[0]; // Shows first issue
+        newErrors.password = passwordIssues[0];
       }
     }
 
@@ -125,51 +201,47 @@ export default function SignupPage() {
   };
 
   const handleSubmit = async (e) => {
-  e.preventDefault();
-  console.log('Signup form submitted', form);
-  setAuthError('');
+    e.preventDefault();
+    setAuthError('');
 
-  if (!validateForm()) {
-    return;
-  }
-
-  setIsLoading(true);
-
-  try {
-    const response = await fetch('http://localhost:8080/signup', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        username: form.username,
-        password: form.password,
-        email: form.email,
-        phone: form.phone
-      })
-    });
-
-    const data = await response.json();
-    console.log('Signup response:', data);
-
-    if (!response.ok) {
-      throw new Error(data.error || 'Signup failed');
+    if (!validateForm()) {
+      return;
     }
 
-    if(data.username)
-    {
-      localStorage.setItem('username', data.username);
+    setIsLoading(true);
+
+    try {
+      const response = await fetch('http://localhost:8080/signup', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          username: form.username,
+          password: form.password,
+          email: form.email,
+          phone: form.phone
+        })
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Signup failed');
+      }
+
+      if (data.username) {
+        sessionStorage.setItem('username', data.username);
+      }
+
+      navigate('/account/dietary', { state: { isOnboarding: true } });
+
+    } catch (error) {
+      setAuthError(error.message || 'An error occurred. Please try again.');
+    } finally {
+      setIsLoading(false);
     }
-
-    navigate('/account/dietary', { state: { isOnboarding: true } });
-
-  } catch (error) {
-    console.error('Signup error:', error);
-    setAuthError(error.message || 'An error occurred. Please try again.');
-  } finally {
-    setIsLoading(false);
-  }
-};
+  };
 
   return (
     <div className="signupPage">
@@ -191,21 +263,44 @@ export default function SignupPage() {
         )}
 
         <form onSubmit={handleSubmit}>
-          <FormInput
-            type='email' // make it email type
-            name="email"
-            placeholder="email"
-            value={form.email}
-            onChange={handleChange}
-            required
-          />
+          {/* Email with Verification Button */}
+          <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'flex-start' }}>
+            <div style={{ flex: 1 }}>
+              <FormInput
+                type='email'
+                name="email"
+                placeholder="email"
+                value={form.email}
+                onChange={handleChange}
+                required
+              />
+            </div>
+            <button
+              type="button"
+              onClick={handleSendVerification}
+              disabled={isSendingCode || isEmailVerified}
+              style={{
+                padding: '0.75rem 1rem',
+                backgroundColor: isEmailVerified ? '#4caf50' : '#6e4ccf',
+                color: 'white',
+                border: 'none',
+                borderRadius: '10px',
+                cursor: isEmailVerified ? 'default' : 'pointer',
+                fontSize: '0.9rem',
+                whiteSpace: 'nowrap',
+                opacity: isSendingCode ? 0.6 : 1
+              }}
+            >
+              {isSendingCode ? 'Sending...' : isEmailVerified ? '✓ Verified' : 'Verify'}
+            </button>
+          </div>
           {errors.email && (
             <div className="error">{errors.email}</div>
           )}
           
           <div className="passwordInputWrapper">
             <FormInput
-              type={showPassword ? 'text' : 'password'} //make the field show **
+              type={showPassword ? 'text' : 'password'}
               name="password"
               placeholder="password"
               value={form.password}
@@ -263,7 +358,7 @@ export default function SignupPage() {
           )}
 
           <FormInput
-            type='tel' // phone type, so keyboard shows numpad
+            type='tel'
             name="phone"
             placeholder="phone number"
             value={form.phone}
@@ -277,7 +372,7 @@ export default function SignupPage() {
           <Button
             text={isLoading ? "Signing up..." : "sign up"}
             type="submit"
-            disabled={isLoading} // disable the button during submit
+            disabled={isLoading}
             style={{
               width: '100%',
               backgroundColor: '#6e4ccf',
@@ -292,6 +387,15 @@ export default function SignupPage() {
           />
         </form>
       </div>
+
+      {/* Reuse EditProfileModal for Email Verification */}
+      <EditProfileModal
+        isOpen={showVerificationModal}
+        onClose={() => setShowVerificationModal(false)}
+        field="email_verification"
+        currentValue={tempEmail}
+        onSave={handleVerifyEmail}
+      />
     </div>
   );
 }

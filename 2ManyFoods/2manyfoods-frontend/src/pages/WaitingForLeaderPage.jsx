@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import Navbar from '../components/AuthenticatedNavbar';
 import './WaitingForLeaderPage.css';
@@ -6,53 +6,55 @@ import './WaitingForLeaderPage.css';
 export default function WaitingForLeaderPage() {
   const navigate = useNavigate();
   const location = useLocation();
-  const groupName = location.state?.groupName || 'supper';
+  
+  const groupName = location.state?.groupName;
   const groupId = location.state?.groupId;
+  const [dots, setDots] = useState('');
 
+  // Animated dots for "waiting" effect
   useEffect(() => {
-    // TODO: Set up WebSocket listener for location selection
-    // When leader selects location, all members should be redirected
-    
-    // Mock WebSocket listener:
-    // socket.on('location-selected', (data) => {
-    //   if (data.groupId === groupId) {
-    //     navigate('/foodball/in-progress', {
-    //       state: {
-    //         groupName,
-    //         groupId,
-    //         location: data.location
-    //       }
-    //     });
-    //   }
-    // });
+    const interval = setInterval(() => {
+      setDots(prev => (prev.length >= 3 ? '' : prev + '.'));
+    }, 500);
+    return () => clearInterval(interval);
+  }, []);
 
-    // For testing: Auto-redirect after 10 seconds
-    const timer = setTimeout(() => {
-      navigate('/foodball/in-progress', {
-        state: { groupName, groupId }
-      });
-    }, 10000);
-
-    return () => {
-      clearTimeout(timer);
-      // Clean up WebSocket listener
-      // socket.off('location-selected');
+  // Poll for session start
+  useEffect(() => {
+    const pollSessionStart = async () => {
+      try {
+        const response = await fetch(`http://localhost:8080/api/foodball/status/${groupName}`);
+        const data = await response.json();
+        
+        if (data.status === 'ready' && data.location) {
+          // Leader has selected location! Navigate to SearchPage
+          navigate('/search', {
+            state: {
+              groupName,
+              groupId,
+              location: data.location,
+              isIndividual: false
+            }
+          });
+        }
+      } catch (error) {
+        console.error('Error polling session:', error);
+      }
     };
-  }, [navigate, groupName, groupId]);
+    
+    const interval = setInterval(pollSessionStart, 2000); // Poll every 2 seconds
+    return () => clearInterval(interval);
+  }, [groupId, groupName, navigate]);
 
   return (
     <div className="waitingPage">
       <Navbar />
       <div className="waitingContent">
-        <div className="spinningGlobe">
-          <img 
-            src="https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExaDU1Y2dyNzdxamt0dzR0bjA1OG92MGx0NjRrNWpnM3VpNWNkbHQ4eCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/VI2UC13hwWin1MIfmi/giphy.gif" 
-            alt="Rotating Earth Globe"
-            className="globeImage"
-          />
-        </div>
-        <h1>Leader is choosing the location</h1>
-        <p>Please wait while the group leader selects where to find food...</p>
+        <h1>{groupName}</h1>
+        <p className="waitingText">
+          Waiting for leader to select location{dots}
+        </p>
+        <div className="loadingSpinner"></div>
       </div>
     </div>
   );

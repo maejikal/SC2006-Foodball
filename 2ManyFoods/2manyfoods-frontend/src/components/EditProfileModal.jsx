@@ -8,22 +8,30 @@ export default function EditProfileModal({ isOpen, onClose, field, currentValue,
   const [showVerification, setShowVerification] = useState(false);
   const [error, setError] = useState('');
 
+  // Check if this is being used for email verification (signup flow)
+  const isEmailVerification = field === 'email_verification';
+
   useEffect(() => {
     if (isOpen) {
       setNewValue(currentValue || '');
       setConfirmValue('');
       setVerificationCode('');
-      setShowVerification(false);
+      setShowVerification(isEmailVerification); // Auto-show verification for signup
       setError('');
     }
-  }, [isOpen, currentValue]);
+  }, [isOpen, currentValue, isEmailVerification]);
 
   if (!isOpen) return null;
 
   const handleSendVerification = () => {
     setError('');
 
-    // Validation
+    // Skip validation if already in email verification mode (signup)
+    if (isEmailVerification) {
+      return;
+    }
+
+    // Validation for profile edit mode
     if (!newValue.trim()) {
       setError(`New ${field} cannot be empty`);
       return;
@@ -52,7 +60,6 @@ export default function EditProfileModal({ isOpen, onClose, field, currentValue,
       }
       // For email, show verification step
       setShowVerification(true);
-      // Here you would typically send verification code to the new email
       console.log('Verification code sent to:', newValue);
     } else {
       // For name, save directly without verification
@@ -61,7 +68,7 @@ export default function EditProfileModal({ isOpen, onClose, field, currentValue,
     }
   };
 
-  const handleVerify = () => {
+  const handleVerify = async () => {
     setError('');
 
     if (!verificationCode.trim()) {
@@ -69,23 +76,35 @@ export default function EditProfileModal({ isOpen, onClose, field, currentValue,
       return;
     }
 
-    onSave(field, newValue);
-    onClose();
+    try {
+      // For email verification (signup), pass verification code
+      // For profile edit, pass new value
+      await onSave(field, isEmailVerification ? verificationCode : newValue);
+      onClose();
+    } catch (error) {
+      setError(error.message || 'Verification failed. Please try again.');
+    }
   };
 
   const getFieldLabel = () => {
+    if (isEmailVerification) return 'Email';
     return field === 'name' ? 'Name' : 'Email';
+  };
+
+  const getModalTitle = () => {
+    if (isEmailVerification) return 'Verify Email';
+    return `Edit ${getFieldLabel()}`;
   };
 
   return (
     <div className="modalOverlay" onClick={onClose}>
       <div className="modalContent" onClick={(e) => e.stopPropagation()}>
-        <h3>Edit {getFieldLabel()}</h3>
+        <h3>{getModalTitle()}</h3>
         
         {!showVerification ? (
           <>
             <div className="modalBody">
-              {/* ✓ NEW: Show current value */}
+              {/* Show current value only in edit mode */}
               <div style={{ marginBottom: '1rem', color: '#999', fontSize: '0.9rem' }}>
                 Current {getFieldLabel()}: <strong style={{ color: '#ddd' }}>{currentValue}</strong>
               </div>
@@ -128,7 +147,7 @@ export default function EditProfileModal({ isOpen, onClose, field, currentValue,
           <>
             <div className="modalBody">
               <p style={{ textAlign: 'center', marginBottom: '1rem', color: '#ddd' }}>
-                A verification code has been sent to {newValue}
+                A verification code has been sent to <strong>{currentValue}</strong>
               </p>
               <div className="formGroup">
                 <label>Verification Code</label>
@@ -137,6 +156,7 @@ export default function EditProfileModal({ isOpen, onClose, field, currentValue,
                   value={verificationCode}
                   onChange={(e) => setVerificationCode(e.target.value)}
                   placeholder="Enter verification code"
+                  maxLength="6"
                 />
               </div>
 
@@ -146,8 +166,17 @@ export default function EditProfileModal({ isOpen, onClose, field, currentValue,
             </div>
 
             <div className="modalActions">
-              <button className="cancelBtn" onClick={() => setShowVerification(false)}>
-                Back
+              <button 
+                className="cancelBtn" 
+                onClick={() => {
+                  if (isEmailVerification) {
+                    onClose(); // Close modal for signup flow
+                  } else {
+                    setShowVerification(false); // Go back for edit flow
+                  }
+                }}
+              >
+                {isEmailVerification ? 'Cancel' : 'Back'}
               </button>
               <button className="saveBtn" onClick={handleVerify}>
                 Verify

@@ -1,14 +1,20 @@
 /* src/pages/SecurityPage.css */
+
 .securityPage {
   background: linear-gradient(135deg, #1a2332 0%, #2d3e52 100%);
   min-height: 100vh;
   color: white;
   font-family: 'Poppins', sans-serif;
+  display: flex;
+  flex-direction: column;
 }
 
 .securityContent {
+  flex: 1;
   text-align: center;
   padding: 3rem 1.5rem;
+  box-sizing: border-box;
+  width: 100%;
 }
 
 .securityContent h1 {
@@ -16,18 +22,21 @@
   font-weight: 600;
   margin-bottom: 1rem;
   text-transform: none;
+  word-break: break-word;
 }
 
 .securityContent h2 {
   font-size: 1.5rem;
   font-weight: 600;
   margin-bottom: 0.5rem;
+  word-break: break-word;
 }
 
 .securityContent p {
   color: #bbb;
   font-size: 0.95rem;
   margin-bottom: 2rem;
+  word-break: break-word;
 }
 
 .avatarContainer {
@@ -40,6 +49,7 @@
   width: 80px;
   height: 80px;
   border-radius: 50%;
+  object-fit: cover;
 }
 
 .editAvatarLabel {
@@ -47,8 +57,8 @@
   bottom: 0;
   right: 0;
   background: white;
-  width: 20px;
-  height: 20px;
+  width: 24px;
+  height: 24px;
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -64,8 +74,9 @@
 }
 
 .editIcon {
-  width: 20px;
-  height: 20px;
+  width: 16px;
+  height: 16px;
+  color: #1a2332;
 }
 
 .fileInput {
@@ -78,6 +89,8 @@
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .securityItem {
@@ -89,10 +102,32 @@
   align-items: center;
   cursor: pointer;
   transition: background 0.2s ease-in-out;
+  box-sizing: border-box;
+  width: 100%;
 }
 
 .securityItem:hover {
   background-color: #5b5e6b;
+}
+
+.securityLeft {
+  text-align: left;
+  flex: 1;
+  min-width: 0;
+}
+
+.securityLeft h3 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+  word-break: break-word;
+}
+
+.securityLeft p {
+  margin: 0.3rem 0 0 0;
+  font-size: 0.85rem;
+  color: #999;
+  word-break: break-word;
 }
 
 .securityRight {
@@ -100,9 +135,185 @@
   align-items: center;
   gap: 1rem;
   font-size: 0.95rem;
+  flex-shrink: 0;
 }
 
 .arrow {
   font-size: 1.2rem;
   color: #dcdcdc;
+}
+
+/* Responsive styles */
+@media (max-width: 1024px) {
+  .securityContent {
+    padding: 2.5rem 1.5rem;
+  }
+
+  .securityContent h2 {
+    font-size: 1.4rem;
+  }
+
+  .securityAvatar {
+    width: 75px;
+    height: 75px;
+  }
+
+  .securityOptions {
+    max-width: 650px;
+    gap: 1.2rem;
+  }
+
+  .securityItem {
+    padding: 1.1rem 1.8rem;
+  }
+
+  .securityLeft h3 {
+    font-size: 0.95rem;
+  }
+
+  .securityLeft p {
+    font-size: 0.8rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .securityContent {
+    padding: 2rem 1.2rem;
+  }
+
+  .securityContent h1 {
+    font-size: 1.2rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .securityContent h2 {
+    font-size: 1.3rem;
+    margin-bottom: 0.4rem;
+  }
+
+  .securityContent p {
+    font-size: 0.9rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .avatarContainer {
+    margin-bottom: 1.5rem;
+  }
+
+  .securityAvatar {
+    width: 70px;
+    height: 70px;
+  }
+
+  .editAvatarLabel {
+    width: 22px;
+    height: 22px;
+  }
+
+  .editIcon {
+    width: 14px;
+    height: 14px;
+  }
+
+  .securityOptions {
+    max-width: 100%;
+    gap: 1rem;
+  }
+
+  .securityItem {
+    padding: 1rem 1.5rem;
+    border-radius: 40px;
+  }
+
+  .securityLeft h3 {
+    font-size: 0.9rem;
+  }
+
+  .securityLeft p {
+    font-size: 0.75rem;
+  }
+
+  .securityRight {
+    gap: 0.8rem;
+    font-size: 0.9rem;
+  }
+
+  .arrow {
+    font-size: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .securityContent {
+    padding: 1.5rem 1rem;
+  }
+
+  .securityContent h1 {
+    font-size: 1.1rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .securityContent h2 {
+    font-size: 1.1rem;
+    margin-bottom: 0.3rem;
+  }
+
+  .securityContent p {
+    font-size: 0.85rem;
+    margin-bottom: 1.2rem;
+  }
+
+  .avatarContainer {
+    margin-bottom: 1.2rem;
+  }
+
+  .securityAvatar {
+    width: 60px;
+    height: 60px;
+  }
+
+  .editAvatarLabel {
+    width: 20px;
+    height: 20px;
+  }
+
+  .editIcon {
+    width: 12px;
+    height: 12px;
+  }
+
+  .securityOptions {
+    gap: 0.75rem;
+  }
+
+  .securityItem {
+    padding: 0.9rem 1.2rem;
+    border-radius: 35px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+
+  .securityLeft {
+    width: 100%;
+    text-align: left;
+  }
+
+  .securityLeft h3 {
+    font-size: 0.85rem;
+  }
+
+  .securityLeft p {
+    font-size: 0.7rem;
+  }
+
+  .securityRight {
+    width: 100%;
+    justify-content: flex-end;
+    gap: 0.6rem;
+  }
+
+  .arrow {
+    font-size: 0.9rem;
+  }
 }

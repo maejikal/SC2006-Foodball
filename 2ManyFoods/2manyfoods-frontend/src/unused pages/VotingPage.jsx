@@ -9,12 +9,8 @@ export default function VotingPage() {
   const { groupId, groupName, restaurants, isLeader } = location.state || {};
   
   const [userVotes, setUserVotes] = useState(new Set());
-  const [allVotes, setAllVotes] = useState([]);
   const [hasVoted, setHasVoted] = useState(false);
-  const [votingComplete, setVotingComplete] = useState(false);
-  const [winnerRestaurant, setWinnerRestaurant] = useState(null);
 
-  // Check if restaurants exist
   if (!restaurants || restaurants.length === 0) {
     return (
       <div className="votingPage">
@@ -29,47 +25,52 @@ export default function VotingPage() {
     );
   }
 
-  // Poll for voting results
   useEffect(() => {
     if (!groupId) return;
 
-    const pollVotingResults = async () => {
+    const pollVotingStatus = async () => {
       try {
-        const response = await fetch(`http://localhost:8080/api/group/${groupId}/votes`);
+        const username = sessionStorage.getItem('username');
+        
+        const response = await fetch(`http://localhost:8080/refresh/${groupId}`);
         const data = await response.json();
         
-        if (response.ok) {
-          setAllVotes(data.votes || []);
-          setVotingComplete(data.voting_complete || false);
-          setWinnerRestaurant(data.winner || null);
+        console.log('Poll data:', data);
+        
+        if (data.votingStatus && data.votingStatus[username]) {
+          setHasVoted(true);
+        }
+        
+        const allVoted = data.votingStatus && 
+          Object.keys(data.votingStatus).length > 0 &&
+          Object.values(data.votingStatus).every(v => v === true);
+        
+        if (allVoted) {
+          console.log('All voted! Navigating...');
+          
+          const winnerId = data.winner;
+          const winnerRestaurant = restaurants.find(r => r._id === winnerId) || restaurants[0];
+          const totalVotes = data.voteDetails?.[winnerId] || Object.keys(data.votingStatus).length;
+          
+          navigate('/foodball/results', {
+            state: {
+              groupId,
+              groupName,
+              winner: winnerRestaurant,
+              totalVotes: totalVotes,
+              voteDetails: data.voteDetails
+            }
+          });
         }
       } catch (error) {
-        console.error('Error polling votes:', error);
+        console.error('Error polling:', error);
       }
     };
 
-    // Poll every 3 seconds
-    const interval = setInterval(pollVotingResults, 3000);
-    pollVotingResults(); // Initial call
-
+    pollVotingStatus();
+    const interval = setInterval(pollVotingStatus, 2000);
     return () => clearInterval(interval);
-  }, [groupId]);
-
-  useEffect(() => {
-    console.log('🔍 Voting status:', { votingComplete, winnerRestaurant });
-    
-    if (votingComplete && winnerRestaurant) {
-      console.log('Navigating to results!');
-      navigate('/foodball/results', {
-        state: {
-          groupId,
-          groupName,
-          winner: winnerRestaurant,
-          allVotes
-        }
-      });
-    }
-  }, [votingComplete, winnerRestaurant, navigate, groupId, groupName, allVotes]);
+  }, [groupId, navigate, groupName, restaurants]);
 
   const handleVote = (restaurantId) => {
     const newVotes = new Set();
@@ -95,8 +96,8 @@ export default function VotingPage() {
     }
 
     try {
-      const username = localStorage.getItem('username');
-      const response = await fetch(`http://localhost:8080/api/group/${groupId}/vote`, {
+      const username = sessionStorage.getItem('username');
+      const response = await fetch(`http://localhost:8080/foodball/${groupId}/vote`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

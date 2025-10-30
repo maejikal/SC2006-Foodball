@@ -26,7 +26,7 @@ export default function SecurityPage() {
       setIsLoading(true);
       setError('');
 
-      const username = localStorage.getItem('username');
+      const username = sessionStorage.getItem('username');
 
       if (!username) {
         setError('Please log in to view your account');
@@ -36,7 +36,7 @@ export default function SecurityPage() {
 
       try {
         const response = await fetch(
-          `http://localhost:8080/account/info/${username}`,
+          `http://localhost:8080/account/${username}`,
           {
             method: 'GET',
             headers: {
@@ -77,7 +77,7 @@ export default function SecurityPage() {
         // Update UI immediately
         setUser({ ...user, avatar: newAvatar });
         
-        const username = localStorage.getItem('username');
+        const username = sessionStorage.getItem('username');
         
         try {
           const response = await fetch('http://localhost:8080/account/security', {
@@ -87,7 +87,7 @@ export default function SecurityPage() {
             },
             body: JSON.stringify({
               username: username,
-              profile_photo: newAvatar
+              new_profile_photo: newAvatar
             })
           });
 
@@ -117,7 +117,7 @@ export default function SecurityPage() {
   };
 
   const handleSaveField = async (field, newValue) => {
-    const username = localStorage.getItem('username');
+    const username = sessionStorage.getItem('username');
     
     if (!username) {
       setError('Please log in to make changes');
@@ -125,13 +125,9 @@ export default function SecurityPage() {
     }
 
     try {
-      const requestBody = { username }; 
-
-      if (field === 'name') {
-        requestBody.new_username = newValue;
-      } else if (field === 'email') {
-        requestBody.new_email = newValue;
-      }
+      const backendField = field === 'name' ? 'username' : field;
+      
+      const requestBody = { username, field: backendField, newValue}; 
 
       const response = await fetch('http://localhost:8080/account/security', {
         method: 'POST',
@@ -145,11 +141,11 @@ export default function SecurityPage() {
         throw new Error(data.error || `Failed to update ${field}`);
       }
 
-      setUser({ ...user, [field]: newValue });
-      
       if (field === 'name') {
-        localStorage.setItem('username', newValue);
+        sessionStorage.setItem('username', newValue);
       }
+
+      setUser({ ...user, [field]: newValue });
 
       alert(`${field === 'name' ? 'Username' : 'Email'} updated successfully!`);
 

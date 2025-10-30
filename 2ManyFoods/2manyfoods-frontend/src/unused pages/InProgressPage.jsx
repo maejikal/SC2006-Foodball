@@ -24,9 +24,9 @@ export default function InProgressPage() {
   useEffect(() => {
     const loadUserPreferences = async () => {
       try {
-        const username = localStorage.getItem('username');
+        const username = sessionStorage.getItem('username');
         
-        const response = await fetch(`http://localhost:8080/account/cuisine/${username}`);
+        const response = await fetch(`http://localhost:8080/account/${username}`);
         const data = await response.json();
         
         if (response.ok && data.preferences) {
@@ -54,7 +54,7 @@ export default function InProgressPage() {
 
     const pollGroupStatus = async () => {
       try {
-        const username = localStorage.getItem('username');
+        const username = sessionStorage.getItem('username');
         const response = await fetch(`http://localhost:8080/api/group/${groupId}/status`);
         const data = await response.json();
         
@@ -115,7 +115,7 @@ export default function InProgressPage() {
       return;
     }
 
-    const username = localStorage.getItem('username');
+    const username = sessionStorage.getItem('username');
     setIsSaving(true);
 
     try {

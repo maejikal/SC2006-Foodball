@@ -15,12 +15,15 @@
   justify-content: center;
   padding: 3rem 2rem;
   text-align: center;
+  box-sizing: border-box;
+  width: 100%;
 }
 
 .resultsContent h1 {
   font-size: 2.5rem;
   margin-bottom: 2rem;
   text-transform: capitalize;
+  word-break: break-word;
 }
 
 .resultCard {
@@ -33,6 +36,7 @@
   max-width: 500px;
   width: 100%;
   margin-bottom: 2rem;
+  box-sizing: border-box;
 }
 
 .resultCard img {
@@ -44,9 +48,36 @@
   margin-bottom: 1.5rem;
 }
 
+.resultDetails {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
 .resultDetails h2 {
   font-size: 1.8rem;
+  margin: 0;
   margin-bottom: 1rem;
+  word-break: break-word;
+}
+
+.resultDetails p {
+  margin: 0.5rem 0;
+  color: #bbb;
+  word-break: break-word;
+  font-size: 1rem;
+}
+
+.groupInfo {
+  width: 100%;
+  font-size: 0.95rem;
+  color: #aaa;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  word-break: break-word;
 }
 
 .membersVotes {
@@ -54,6 +85,8 @@
   justify-content: center;
   gap: 0.8rem;
   flex-wrap: wrap;
+  width: 100%;
+  margin-top: 1rem;
 }
 
 .memberAvatar {
@@ -62,6 +95,7 @@
   border-radius: 50%;
   border: 2px solid white;
   object-fit: cover;
+  flex-shrink: 0;
 }
 
 .resultsContent button {
@@ -75,8 +109,160 @@
   cursor: pointer;
   text-transform: lowercase;
   transition: background 0.2s ease;
+  box-sizing: border-box;
+  font-family: 'Poppins', sans-serif;
+  white-space: nowrap;
 }
 
 .resultsContent button:hover {
   background-color: #b89aff;
+}
+
+.resultsContent button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Responsive styles */
+@media (max-width: 1024px) {
+  .resultsContent {
+    padding: 2.5rem 1.5rem;
+  }
+
+  .resultsContent h1 {
+    font-size: 2.2rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .resultCard {
+    padding: 1.8rem;
+    max-width: 450px;
+  }
+
+  .resultDetails h2 {
+    font-size: 1.6rem;
+    margin-bottom: 0.8rem;
+  }
+
+  .resultsContent button {
+    padding: 0.75rem 1.8rem;
+    font-size: 0.95rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .resultsContent {
+    padding: 2rem 1.2rem;
+  }
+
+  .resultsContent h1 {
+    font-size: 1.8rem;
+    margin-bottom: 1.2rem;
+  }
+
+  .resultCard {
+    padding: 1.5rem;
+    max-width: 100%;
+    border-radius: 12px;
+  }
+
+  .resultCard img {
+    max-height: 180px;
+    border-radius: 10px;
+    margin-bottom: 1.2rem;
+  }
+
+  .resultDetails h2 {
+    font-size: 1.4rem;
+    margin-bottom: 0.7rem;
+  }
+
+  .resultDetails p {
+    font-size: 0.95rem;
+  }
+
+  .groupInfo {
+    font-size: 0.9rem;
+    margin-top: 0.8rem;
+    padding-top: 0.8rem;
+  }
+
+  .membersVotes {
+    gap: 0.6rem;
+    margin-top: 0.8rem;
+  }
+
+  .memberAvatar {
+    width: 38px;
+    height: 38px;
+    border-width: 2px;
+  }
+
+  .resultsContent button {
+    padding: 0.7rem 1.5rem;
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .resultsContent {
+    padding: 1.5rem 1rem;
+  }
+
+  .resultsContent h1 {
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+  }
+
+  .resultCard {
+    padding: 1.2rem;
+    border-radius: 10px;
+    margin-bottom: 1.5rem;
+  }
+
+  .resultCard img {
+    max-height: 160px;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+  }
+
+  .resultDetails {
+    gap: 0.75rem;
+  }
+
+  .resultDetails h2 {
+    font-size: 1.2rem;
+    margin: 0;
+    margin-bottom: 0.6rem;
+  }
+
+  .resultDetails p {
+    font-size: 0.9rem;
+    margin: 0.3rem 0;
+  }
+
+  .groupInfo {
+    font-size: 0.85rem;
+    margin-top: 0.6rem;
+    padding-top: 0.6rem;
+  }
+
+  .membersVotes {
+    gap: 0.5rem;
+    margin-top: 0.6rem;
+  }
+
+  .memberAvatar {
+    width: 35px;
+    height: 35px;
+    border-width: 1.5px;
+  }
+
+  .resultsContent button {
+    width: 100%;
+    max-width: 280px;
+    padding: 0.65rem 1.2rem;
+    font-size: 0.85rem;
+    border-radius: 25px;
+  }
 }

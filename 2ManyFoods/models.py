@@ -125,15 +125,15 @@ class Group:
         pass
 
     def getPreferences(self):
-        return [user.preferences for user in self.Users]
+        return [user["Preferences"] for user in self.Users.values()]
 
 class Location:
-    def __init__(self, langitude: float, longitude: float):
-        self.langitude = langitude
+    def __init__(self, latitude: float, longitude: float):
+        self.latitude = latitude
         self.longitude = longitude
     
-    def getlangitude(self):
-        return self.langitude
+    def getlatitude(self):
+        return self.latitude
     
     def getlongitude(self):
         return self.longitude
