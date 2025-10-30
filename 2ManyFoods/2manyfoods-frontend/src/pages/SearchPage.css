@@ -10,6 +10,10 @@
 .searchContent {
   flex: 1;
   padding: 3rem 5rem;
+  max-width: 1400px;
+  margin: 0 auto;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .searchTop {
@@ -23,6 +27,8 @@
   background: rgba(30, 42, 58, 0.5);
   padding: 2rem;
   border-radius: 20px;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .filtersSection h3 {
@@ -50,6 +56,8 @@
   font-weight: 500;
   transition: all 0.2s;
   gap: 0.5rem;
+  min-width: 0;
+  word-break: break-word;
 }
 
 .cuisineTag.selected {
@@ -89,54 +97,14 @@
   margin-left: 0.3rem;
 }
 
-.priceSliderSection {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.slider {
-  width: 100%;
-  height: 6px;
-  border-radius: 5px;
-  background: #3d4a5a;
-  outline: none;
-}
-
-.slider::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  appearance: none;
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  background: #d2542f;
-  cursor: pointer;
-}
-
-.slider::-moz-range-thumb {
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  background: #d2542f;
-  cursor: pointer;
-  border: none;
-}
-
-.priceLabels {
-  display: flex;
-  justify-content: space-between;
-  font-size: 0.85rem;
-  color: #bbb;
-  margin-top: 0.5rem;
-}
-
 .searchBarContainer {
   margin-bottom: 2rem;
+  width: 100%;
 }
 
 .searchBar {
   width: 100%;
-  max-width: 600px;
+  max-width: 100%;
   margin: 0 auto;
   background: white;
   border-radius: 50px;
@@ -144,6 +112,7 @@
   display: flex;
   align-items: center;
   gap: 1rem;
+  box-sizing: border-box;
 }
 
 .searchBar input {
@@ -153,6 +122,7 @@
   font-family: 'Poppins', sans-serif;
   font-size: 1rem;
   color: #101010;
+  min-width: 0;
 }
 
 .searchBar input::placeholder {
@@ -161,6 +131,7 @@
 
 .searchIcon {
   font-size: 1.2rem;
+  flex-shrink: 0;
 }
 
 .clearBtn {
@@ -175,6 +146,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;
 }
 
 .clearBtn:hover {
@@ -191,6 +163,7 @@
   max-height: 600px;
   overflow-y: auto;
   width: 100%;
+  box-sizing: border-box;
 }
 
 .restaurantCard {
@@ -202,6 +175,8 @@
   transition: all 0.3s ease;
   border: 2px solid transparent;
   cursor: pointer;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .restaurantCard:hover {
@@ -219,13 +194,15 @@
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
+  min-width: 0;
 }
 
 .restaurantHeader {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
   gap: 1rem;
+  flex-wrap: wrap;
 }
 
 .restaurantInfo h3 {
@@ -234,6 +211,8 @@
   color: white;
   font-weight: 600;
   flex: 1;
+  min-width: 0;
+  word-break: break-word;
 }
 
 .restaurantInfo .status {
@@ -242,12 +221,15 @@
   font-style: italic;
   margin: 0;
   white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .restaurantInfo .address {
   color: #aaa;
   font-size: 0.95rem;
   margin: 0;
+  word-break: break-word;
+  overflow-wrap: break-word;
 }
 
 /* Scrollbar styling */
@@ -306,6 +288,7 @@
   justify-content: center;
   align-items: center;
   z-index: 1000;
+  padding: 1rem;
 }
 
 .modalContent {
@@ -316,6 +299,7 @@
   width: 90%;
   color: white;
   text-align: center;
+  box-sizing: border-box;
 }
 
 .modalContent h2 {
@@ -326,6 +310,7 @@
 .modalContent p {
   margin-bottom: 1rem;
   line-height: 1.6;
+  word-break: break-word;
 }
 
 .modalButtons {
@@ -333,6 +318,7 @@
   gap: 1rem;
   justify-content: center;
   margin-top: 1.5rem;
+  flex-wrap: wrap;
 }
 
 .cancelBtn {
@@ -349,4 +335,244 @@
 
 .cancelBtn:hover {
   background: rgba(102, 126, 234, 0.1);
+}
+
+/* Responsive styles */
+@media (max-width: 1200px) {
+  .cuisineTags {
+    grid-template-columns: repeat(5, 1fr);
+  }
+  
+  .searchContent {
+    padding: 2.5rem 3rem;
+  }
+}
+
+@media (max-width: 992px) {
+  .searchContent {
+    padding: 2rem 2rem;
+  }
+
+  .cuisineTags {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  .filtersSection h3 {
+    font-size: 1.3rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .searchContent {
+    padding: 1.5rem 1rem;
+  }
+
+  .filtersSection {
+    padding: 1.5rem 1rem;
+    gap: 1.5rem;
+  }
+
+  .filtersSection h3 {
+    font-size: 1.2rem;
+  }
+
+  .cuisineTags {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.6rem;
+  }
+
+  .cuisineTag {
+    padding: 0.5rem 0.6rem;
+    font-size: 0.85rem;
+  }
+
+  .rankBadge {
+    font-size: 0.7rem;
+    padding: 0.1rem 0.3rem;
+  }
+
+  .searchBar {
+    padding: 0.8rem 1.2rem;
+    border-radius: 40px;
+  }
+
+  .searchBar input {
+    font-size: 0.9rem;
+  }
+
+  .restaurantList {
+    padding: 1.5rem 1rem;
+    max-height: 500px;
+  }
+
+  .restaurantCard {
+    padding: 1.2rem 1rem;
+  }
+
+  .restaurantHeader {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .restaurantInfo h3 {
+    font-size: 1.1rem;
+  }
+
+  .restaurantInfo .status {
+    font-size: 0.85rem;
+    white-space: normal;
+  }
+
+  .restaurantInfo .address {
+    font-size: 0.85rem;
+  }
+
+  .confirmBtn {
+    padding: 0.7rem 1.5rem;
+    font-size: 0.95rem;
+  }
+
+.modalContent {
+    padding: 1.5rem;
+    max-width: 90%;
+    border-radius: 15px;
+  }
+
+  .modalContent h2 {
+    font-size: 1.4rem;
+    margin-bottom: 0.8rem;
+  }
+
+  .modalContent p {
+    font-size: 0.95rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .modalButtons {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    margin-top: 1.5rem;
+    flex-wrap: wrap;
+    max-width: 400px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .cancelBtn {
+    min-width: auto;
+  }
+
+  .confirmBtn {
+    min-width: auto;
+  }
+}
+
+@media (max-width: 480px) {
+  .searchContent {
+    padding: 1rem 0.75rem;
+  }
+
+  .filtersSection {
+    padding: 1rem 0.75rem;
+    gap: 1rem;
+  }
+
+  .filtersSection h3 {
+    font-size: 1rem;
+  }
+
+  .cuisineTags {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.5rem;
+  }
+
+  .cuisineTag {
+    padding: 0.5rem 0.5rem;
+    font-size: 0.75rem;
+    flex-direction: column;
+    gap: 0.2rem;
+  }
+
+  .rankBadge {
+    margin-left: 0;
+    font-size: 0.65rem;
+  }
+
+  .searchBar {
+    padding: 0.7rem 1rem;
+    border-radius: 30px;
+    gap: 0.5rem;
+  }
+
+  .searchBar input {
+    font-size: 0.85rem;
+  }
+
+  .searchIcon {
+    font-size: 1rem;
+  }
+
+  .restaurantList {
+    padding: 1rem 0.75rem;
+    max-height: 400px;
+    gap: 1rem;
+    border-radius: 20px;
+  }
+
+  .restaurantCard {
+    padding: 1rem 0.75rem;
+  }
+
+  .restaurantInfo h3 {
+    font-size: 1rem;
+  }
+
+  .restaurantInfo .status {
+    font-size: 0.8rem;
+  }
+
+  .restaurantInfo .address {
+    font-size: 0.8rem;
+    line-height: 1.4;
+  }
+
+  .confirmBtn {
+    padding: 0.6rem 1.2rem;
+    font-size: 0.9rem;
+    width: 100%;
+    max-width: 300px;
+  }
+
+.modalOverlay {
+    padding: 0.75rem;
+  }
+
+  .modalContent {
+    padding: 1.2rem 1rem;
+    max-width: 95%;
+    border-radius: 12px;
+  }
+
+  .modalContent h2 {
+    font-size: 1.2rem;
+    margin-bottom: 0.7rem;
+  }
+
+  .modalContent p {
+    font-size: 0.9rem;
+    margin-bottom: 1.2rem;
+  }
+
+  .modalButtons button {
+    max-width: 250px;
+  }
+
+  .cancelBtn {
+    max-width: 250px;
+  }
+
+  .confirmBtn {
+    max-width: 250px;
+  }
 }

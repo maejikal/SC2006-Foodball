@@ -38,3 +38,42 @@
   border-bottom: 2px solid #a78bfa;
   color: #a78bfa;
 }
+
+/* Responsive styles */
+@media (max-width: 768px) {
+  .auth-navbar {
+    padding: 1rem 1.5rem;
+    flex-wrap: wrap;
+  }
+
+  .logo {
+    font-size: 1rem;
+  }
+
+  .nav-links {
+    gap: 1.5rem;
+    flex-wrap: wrap;
+  }
+
+  .nav-links a {
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .auth-navbar {
+    padding: 1rem 1rem;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .nav-links {
+    gap: 1rem;
+    width: 100%;
+    justify-content: center;
+  }
+
+  .nav-links a {
+    font-size: 0.85rem;
+  }
+}

@@ -11,18 +11,32 @@
   flex: 1;
   padding: 2rem 3rem;
   text-align: center;
+  max-width: 800px;
+  margin: 0 auto;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.profilePicture {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin: 0 auto;
 }
 
 .accountContent h2 {
   margin-top: 1rem;
   font-size: 1.5rem;
   color: var(--color-white);
+  word-break: break-word;
 }
 
 .accountContent p {
   margin: 0.5rem 0 2rem;
   font-size: 0.9rem;
   color: #aaa;
+  word-break: break-word;
 }
 
 .settingsList {
@@ -45,8 +59,8 @@
   color: white;
   cursor: pointer;
   transition: all 0.2s ease;
+  box-sizing: border-box;
 }
-
 
 .settingItem:hover {
   background: rgba(255, 255, 255, 0.1);
@@ -55,9 +69,98 @@
 .settingItem p {
   margin: 0;
   color: var(--color-white);
+  font-size: 1rem;
 }
 
 .settingItem span {
   color: var(--color-text-medium);
   font-size: 1.2rem;
+  flex-shrink: 0;
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+  .accountContent {
+    padding: 2rem 2rem;
+  }
+
+  .profilePicture {
+    width: 90px;
+    height: 90px;
+  }
+
+  .accountContent h2 {
+    font-size: 1.3rem;
+  }
+
+  .accountContent p {
+    font-size: 0.85rem;
+  }
+
+  .settingItem {
+    max-width: 100%;
+    padding: 0.7rem 1rem;
+  }
+
+  .settingItem p {
+    font-size: 0.95rem;
+  }
+
+  .settingItem span {
+    font-size: 1.1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .accountContent {
+    padding: 1.5rem 1rem;
+  }
+
+  .profilePicture {
+    width: 80px;
+    height: 80px;
+  }
+
+  .accountContent h2 {
+    font-size: 1.2rem;
+    margin-top: 0.75rem;
+  }
+
+  .accountContent p {
+    font-size: 0.8rem;
+    margin: 0.5rem 0 1.5rem;
+  }
+
+  .settingsList {
+    margin-top: 1.5rem;
+    gap: 0.75rem;
+  }
+
+  .settingItem {
+    padding: 0.65rem 0.9rem;
+    border-radius: 10px;
+  }
+
+  .settingItem p {
+    font-size: 0.9rem;
+  }
+
+  .settingItem span {
+    font-size: 1rem;
+  }
+}
+
+.loadingText,
+.errorText {
+  text-align: center;
+  padding: 3rem;
+  font-size: 1.1rem;
+}
+
+@media (max-width: 480px) {
+  .loadingText,
+  .errorText {
+    padding: 2rem 1rem;
+    font-size: 1rem;
+  }
 }

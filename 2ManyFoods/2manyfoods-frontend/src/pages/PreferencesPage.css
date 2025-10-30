@@ -1,4 +1,4 @@
-.preferencePage { 
+.preferencePage {
   background: linear-gradient(135deg, #1a2332 0%, #2d3e52 100%);
   display: flex;
   flex-direction: column;
@@ -16,33 +16,44 @@
   max-width: 700px;
   margin: 0 auto;
   width: 100%;
+  box-sizing: border-box;
 }
 
-.preferenceContent h1 { 
+.preferenceContent h1 {
   font-size: 2rem;
   font-weight: 600;
   margin-bottom: 3rem;
   text-align: center;
+  word-break: break-word;
 }
 
-.preferenceContent label { 
+.preferenceContent label {
   display: block;
   margin: 1rem 0;
   font-weight: 600;
   color: #fff;
   font-family: 'Poppins', sans-serif;
   font-size: 1.1rem;
+  word-break: break-word;
 }
 
-.preferenceContent select { 
+.preferenceContent select {
   margin-top: 0.5rem;
   width: 100%;
-  padding: 0.5rem;
-  border-radius: 6px;
+  padding: 0.75rem;
+  border-radius: 8px;
   border: 1px solid #aaa;
   font-family: 'Poppins', sans-serif;
   font-size: 1rem;
   outline: none;
+  box-sizing: border-box;
+  background-color: white;
+  color: black;
+  transition: border-color 0.2s;
+}
+
+.preferenceContent select:focus {
+  border-color: #7b6bae;
 }
 
 .budgetSliderSection {
@@ -53,6 +64,21 @@
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
+  box-sizing: border-box;
+}
+
+.budgetSliderLabel {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: white;
+}
+
+.budgetDisplay {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #d2542f;
+  text-align: center;
+  margin-bottom: 0.5rem;
 }
 
 .budgetSlider {
@@ -61,6 +87,7 @@
   border-radius: 5px;
   background: #3d4a5a;
   outline: none;
+  cursor: pointer;
 }
 
 .budgetSlider::-webkit-slider-thumb {
@@ -71,6 +98,11 @@
   border-radius: 50%;
   background: #d2542f;
   cursor: pointer;
+  transition: background 0.2s;
+}
+
+.budgetSlider::-webkit-slider-thumb:hover {
+  background: #e84c2f;
 }
 
 .budgetSlider::-moz-range-thumb {
@@ -80,14 +112,74 @@
   background: #d2542f;
   cursor: pointer;
   border: none;
+  transition: background 0.2s;
+}
+
+.budgetSlider::-moz-range-thumb:hover {
+  background: #e84c2f;
 }
 
 .budgetLabels {
   display: flex;
   justify-content: space-between;
-  font-size: 0.85rem;
+  font-size: 0.9rem;
   color: #bbb;
   margin-top: 0.5rem;
+}
+
+.rankSection {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  margin-bottom: 2rem;
+}
+
+.rankContainer {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.rankContainer label {
+  display: block;
+  margin-bottom: 0.75rem;
+}
+
+.cuisineGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 0.8rem;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.cuisineOption {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.75rem 1rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 2px solid transparent;
+  border-radius: 12px;
+  color: white;
+  cursor: pointer;
+  font-size: 0.95rem;
+  text-transform: capitalize;
+  font-weight: 500;
+  transition: all 0.2s;
+  box-sizing: border-box;
+  min-height: 50px;
+}
+
+.cuisineOption:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: #7b6bae;
+}
+
+.cuisineOption.selected {
+  background: #7b6bae;
+  border-color: #7b6bae;
+  color: white;
 }
 
 .saveBtn {
@@ -102,13 +194,192 @@
   cursor: pointer;
   transition: all 0.2s;
   margin-top: 2rem;
+  box-sizing: border-box;
+  text-transform: lowercase;
 }
 
-.saveBtn:hover {
+.saveBtn:hover:not(:disabled) {
   background: rgba(255, 255, 255, 0.1);
+  border-color: #7b6bae;
 }
 
 .saveBtn:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+}
+
+.errorMessage {
+  color: #ff6b6b;
+  font-size: 0.9rem;
+  margin: 1rem 0;
+  text-align: center;
+  word-break: break-word;
+}
+
+.successMessage {
+  color: #51cf66;
+  font-size: 0.9rem;
+  margin: 1rem 0;
+  text-align: center;
+  word-break: break-word;
+}
+
+.loadingText {
+  text-align: center;
+  padding: 3rem;
+  font-size: 1.1rem;
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+  .preferenceContent {
+    padding: 3rem 1.5rem;
+  }
+
+  .preferenceContent h1 {
+    font-size: 1.6rem;
+    margin-bottom: 2rem;
+  }
+
+  .preferenceContent label {
+    font-size: 1rem;
+    margin: 0.8rem 0;
+  }
+
+  .preferenceContent select {
+    padding: 0.65rem;
+    font-size: 0.95rem;
+  }
+
+  .budgetSliderSection {
+    max-width: 100%;
+  }
+
+  .budgetDisplay {
+    font-size: 1.3rem;
+  }
+
+  .budgetLabels {
+    font-size: 0.85rem;
+  }
+
+  .cuisineGrid {
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    gap: 0.6rem;
+  }
+
+  .cuisineOption {
+    padding: 0.6rem 0.8rem;
+    font-size: 0.9rem;
+    min-height: 45px;
+  }
+
+  .saveBtn {
+    padding: 0.8rem 2.5rem;
+    font-size: 0.95rem;
+    margin-top: 1.5rem;
+  }
+
+  .errorMessage,
+  .successMessage {
+    font-size: 0.85rem;
+    margin: 0.75rem 0;
+  }
+
+  .loadingText {
+    padding: 2rem;
+    font-size: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .preferenceContent {
+    padding: 2rem 1rem;
+  }
+
+  .preferenceContent h1 {
+    font-size: 1.4rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .preferenceContent label {
+    font-size: 0.95rem;
+    margin: 0.75rem 0;
+  }
+
+  .preferenceContent select {
+    padding: 0.6rem;
+    font-size: 0.9rem;
+    border-radius: 6px;
+  }
+
+  .budgetSliderSection {
+    max-width: 100%;
+    margin-top: 1.5rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .budgetSliderLabel {
+    font-size: 1rem;
+  }
+
+  .budgetDisplay {
+    font-size: 1.2rem;
+    margin-bottom: 0.4rem;
+  }
+
+  .budgetSlider {
+    height: 5px;
+  }
+
+  .budgetSlider::-webkit-slider-thumb {
+    width: 18px;
+    height: 18px;
+  }
+
+  .budgetSlider::-moz-range-thumb {
+    width: 18px;
+    height: 18px;
+  }
+
+  .budgetLabels {
+    font-size: 0.8rem;
+    margin-top: 0.4rem;
+  }
+
+  .rankSection {
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .cuisineGrid {
+    grid-template-columns: repeat(auto-fill, minmax(85px, 1fr));
+    gap: 0.5rem;
+  }
+
+  .cuisineOption {
+    padding: 0.55rem 0.6rem;
+    font-size: 0.85rem;
+    min-height: 40px;
+    border-radius: 8px;
+  }
+
+  .saveBtn {
+    width: 100%;
+    max-width: 280px;
+    padding: 0.75rem 2rem;
+    font-size: 0.9rem;
+    margin-top: 1.2rem;
+  }
+
+  .errorMessage,
+  .successMessage {
+    font-size: 0.8rem;
+    margin: 0.6rem 0;
+  }
+
+  .loadingText {
+    padding: 1.5rem 1rem;
+    font-size: 0.95rem;
+  }
 }
