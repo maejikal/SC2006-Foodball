@@ -214,7 +214,6 @@ def refresh(groupName):
         
         if voted:
             final = rec_cons[groupName].finishVoting()
-            del rec_cons[groupName]
             return jsonify({"finalVote": final})
         return jsonify({"recommendations": rec_cons[groupName].getRecommendations()})
     else:
