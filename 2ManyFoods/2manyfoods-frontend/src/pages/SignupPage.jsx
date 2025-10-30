@@ -231,7 +231,7 @@ export default function SignupPage() {
       }
 
       if (data.username) {
-        localStorage.setItem('username', data.username);
+        sessionStorage.setItem('username', data.username);
       }
 
       navigate('/account/dietary', { state: { isOnboarding: true } });

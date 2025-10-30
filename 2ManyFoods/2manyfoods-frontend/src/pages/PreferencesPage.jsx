@@ -55,7 +55,7 @@ export default function PreferencesPage() {
       setIsLoading(true);
       setError('');
 
-      const username = localStorage.getItem('username');
+      const username = sessionStorage.getItem('username');
       if (!username) {
         setError('Please log in to view preferences');
         setIsLoading(false);
@@ -102,7 +102,7 @@ export default function PreferencesPage() {
   };
 
   const handleSave = async () => {
-    const username = localStorage.getItem('username');
+    const username = sessionStorage.getItem('username');
     if (!username) {
       setError('Username not found. Please sign up or log in again.');
       return;

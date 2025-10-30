@@ -26,7 +26,7 @@ export default function FoodReviewPage() {
       const loadExistingReview = async () => {
         setIsLoading(true);
         try {
-          const username = localStorage.getItem('username');
+          const username = sessionStorage.getItem('username');
           const response = await fetch(
             `http://localhost:8080/api/review/get?username=${username}&restaurant_id=${restaurantData.id}`
           );
@@ -113,7 +113,7 @@ export default function FoodReviewPage() {
 
     setIsSaving(true);
     try {
-      const username = localStorage.getItem('username');
+      const username = sessionStorage.getItem('username');
       
       const reviewData = {
         Username: username,

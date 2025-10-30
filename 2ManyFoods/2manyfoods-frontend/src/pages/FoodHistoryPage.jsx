@@ -15,7 +15,7 @@ export default function FoodHistoryPage() {
       setError('');
 
       try {
-        const username = localStorage.getItem('username');
+        const username = sessionStorage.getItem('username');
         
         if (!username) {
           setError('Please log in to view your history');

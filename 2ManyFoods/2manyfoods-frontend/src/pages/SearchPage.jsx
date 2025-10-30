@@ -35,7 +35,7 @@ export default function SearchPage() {
   useEffect(() => {
     const loadPreferencesAndFetch = async () => {
       setIsLoading(true);
-      const username = localStorage.getItem('username');
+      const username = sessionStorage.getItem('username');
 
       if (!username) {
         console.error('No username found');
@@ -95,7 +95,7 @@ export default function SearchPage() {
 
   const submitUserPreferencesToGroup = async (cuisines, budget) => {
     try {
-      const username = localStorage.getItem('username');
+      const username = sessionStorage.getItem('username');
       const tags = {
         'western': "bar_and_grill", 
         'italian': "italian_restaurant",
@@ -131,7 +131,7 @@ export default function SearchPage() {
       const cuisine_tag = cuisines.map(c => tags[c]);
       
       const response = await fetch(
-        `http://localhost:8080/foodball/${groupName}?long=${selectedLocation['latLng']['lng']}&lat=${selectedLocation['latLng']['lat']}&cuisines=${cuisine_tag}&username=${localStorage.getItem('username')}`,
+        `http://localhost:8080/foodball/${groupName}?long=${selectedLocation['latLng']['lng']}&lat=${selectedLocation['latLng']['lat']}&cuisines=${cuisine_tag}&username=${sessionStorage.getItem('username')}`,
         { method: 'GET' }
       );
       
@@ -270,7 +270,7 @@ export default function SearchPage() {
   };
 
   const savePreferencesToProfile = async () => {
-    const username = localStorage.getItem('username');
+    const username = sessionStorage.getItem('username');
     
     const tags = {
       'western': "bar_and_grill", 
@@ -313,7 +313,7 @@ export default function SearchPage() {
   };
 
   const handleVoteOrSave = async () => {
-    const username = localStorage.getItem('username');
+    const username = sessionStorage.getItem('username');
     
     try {
       if (!isIndividual) {

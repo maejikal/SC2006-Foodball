@@ -13,7 +13,7 @@ export default function AccountPage() {
   const [error, setError] = useState('');
 
   const handleLogout = () => {
-    localStorage.removeItem('username');
+    sessionStorage.removeItem('username');
     navigate('/');
     window.location.reload(); // Force page refresh to update navbar
   };
@@ -32,7 +32,7 @@ export default function AccountPage() {
       setIsLoading(true);
       setError('');
 
-      const username = localStorage.getItem('username');
+      const username = sessionStorage.getItem('username');
 
       if (!username) {
         setError('Please log in to view your account');

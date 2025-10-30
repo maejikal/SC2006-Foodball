@@ -15,7 +15,7 @@ export default function GroupDetailsPage() {
   const [showInviteCode, setShowInviteCode] = useState(false);
   const [showLeaveConfirmation, setShowLeaveConfirmation] = useState(false);
 
-  const currentUsername = localStorage.getItem('username');
+  const currentUsername = sessionStorage.getItem('username');
   const isLeader = currentUsername === group?.leaderId;
 
   // Mapping for cuisine tags (same as SearchPage)
