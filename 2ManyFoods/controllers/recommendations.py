@@ -13,7 +13,7 @@ class RecommendationController:
         self.radius = 800
         self.recommendations = self.FilterRecommendations()
         self.done = [user["Username"] for user in self._group.Users.values()]
-        
+        self.final = ""
 
     def FilterRecommendations(self) -> list[Eatery]:
         query_result = api.search(
@@ -60,7 +60,8 @@ class RecommendationController:
                 votes[info['vote']] = info['Hunger']
     
         highest = max(votes.values())
-        return random.choice([i for i in votes if votes[i] == highest])
+        self.final = random.choice([i for i in votes if votes[i] == highest])
+        return self.final
 
     def getGroup(self) -> dict:
         return self._group  

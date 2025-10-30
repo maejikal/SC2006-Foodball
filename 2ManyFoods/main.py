@@ -198,7 +198,9 @@ def refresh(groupName):
     if groupName in rec_cons.keys():
         voted = None not in [user["vote"] for user in rec_cons[groupName]._group.Users.values()]
         if voted:
-            return jsonify({"finalVote": rec_cons[groupName].finishVoting()})
+            if rec_cons[groupName].final == "":
+                rec_cons[groupName].finishVoting()
+            return jsonify({"finalVote": rec_cons[groupName].final})
         return jsonify({"recommendations": rec_cons[groupName].getRecommendations()})
     else:
         return jsonify({"recommendations": ""})
@@ -270,6 +272,7 @@ def add_to_history():
         user_services.update_foodhistory(username, history_entry)
         group_name = data.get("groupName")
         if group_name and group_name in rec_cons:
+            print(rec_cons[group_name].done)
             rec_cons[group_name].done.remove(username)
             if len(rec_cons[group_name].done) == 0:
                 del rec_cons[group_name]
