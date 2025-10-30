@@ -12,6 +12,7 @@ class RecommendationController:
         self.location = location
         self.radius = 800
         self.recommendations = self.FilterRecommendations()
+        self.done = [user["Username"] for user in self._group.Users.values()]
         
 
     def FilterRecommendations(self) -> list[Eatery]:
