@@ -7,15 +7,15 @@ export default function ResultsPage() {
   const navigate = useNavigate();
   const location = useLocation();
   const { groupName, winner } = location.state || {};
+  
+  const isIndividual = !groupName;
 
   if (!winner) {
     return (
       <div className="resultsPage">
         <Navbar />
         <div className="resultsContent">
-          <h1>No Results</h1>
-          <p>Something went wrong. Please try again.</p>
-          <button onClick={() => navigate('/groups')}>Back to Groups</button>
+          <h1>Something went wrong. Please try again.</h1>
         </div>
       </div>
     );
@@ -24,27 +24,22 @@ export default function ResultsPage() {
   return (
     <div className="resultsPage">
       <Navbar />
-      
       <div className="resultsContent">
-        <h1>Group Decision!</h1>
-
+        <h1>{isIndividual ? 'Chosen food!' : 'We have a winner!'}</h1>
         <div className="resultCard">
           <div className="resultDetails">
-            <h2>{winner.displayName?.text || winner.name}</h2>
-            
-            <p className="address" style={{ marginBottom: '1rem', fontSize: '0.95rem', color: '#ccc' }}>
-              {winner.shortFormattedAddress || winner.vicinity || winner.formatted_address || 'Location'}
-            </p>
-
-            {groupName && (
-              <p style={{ marginTop: '1rem', fontSize: '0.85rem', color: '#aaa' }}>
-                Group: {groupName}
-              </p>
+            <h2>{winner.displayName?.text || winner.name || 'Restaurant'}</h2>
+            <p>{winner.shortFormattedAddress || winner.vicinity || winner.formatted_address || 'Location'}</p>
+            {!isIndividual && (
+              <div className="groupInfo">
+                <strong>Group:</strong> {groupName}
+              </div>
             )}
           </div>
         </div>
-
-        <button onClick={() => navigate('/groups')}>Back to Groups</button>
+        <button onClick={() => navigate(isIndividual ? '/' : '/groups')}>
+          {isIndividual ? 'back to home' : 'back to groups'}
+        </button>
       </div>
     </div>
   );

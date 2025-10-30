@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import Navbar from '../components/AuthenticatedNavbar';
 import GroupCard from '../components/GroupCard';
+import defaulGroupIcon from '../assets/Icons/defaultgroup.png';
 import './GroupsPage.css';
 
 export default function GroupsPage() {
@@ -30,7 +31,7 @@ export default function GroupsPage() {
         if (response.ok) {
           const mappedGroups = (data || []).map(g => ({
             ...g,
-            picture: g.photo || "/assets/default-group.png"
+            picture: g.photo || defaulGroupIcon
           }));
           setYourGroups(mappedGroups);
         } else {
@@ -107,7 +108,7 @@ export default function GroupsPage() {
       if (response.ok) {
         const joinedGroup = {
           ...data.group,
-          picture: data.group.photo || "/assets/default-group.png"
+          picture: data.group.photo || defaulGroupIcon
         };
         setYourGroups(prev => [...prev, joinedGroup]);
         setShowJoinModal(false);
