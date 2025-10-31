@@ -115,7 +115,7 @@ export default function FoodReviewPage() {
       
       const reviewData = {
         Username: username,
-        _id: restaurantData.id,
+        Eatery_id: restaurantData.id,
         Rating: rating,
         Comment: review,
         Date: new Date().toISOString(),
