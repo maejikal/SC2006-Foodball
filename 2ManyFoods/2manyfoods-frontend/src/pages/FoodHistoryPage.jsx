@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/AuthenticatedNavbar';
 import foodIcon from '../assets/Icons/food.png';
@@ -9,6 +9,7 @@ export default function FoodHistoryPage() {
   const [history, setHistory] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
+  const hasFetchedRef = useRef(false);
 
   useEffect(() => {
     const loadFoodHistory = async () => {
@@ -51,7 +52,10 @@ export default function FoodHistoryPage() {
       }
     };
 
-    loadFoodHistory();
+    if (!hasFetchedRef.current) {
+      hasFetchedRef.current = true;
+      loadFoodHistory();
+    }
   }, []);
 
   const formatDate = (dateString) => {
