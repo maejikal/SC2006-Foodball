@@ -108,10 +108,13 @@ def handle_leave_group(data: dict):
 
     try:
         group_services.remove_usr(username, grp_id)
-        group_services.get_grp_by_id(grp_id)
+        remaining_group = group_services.get_grp_by_id(grp_id)
         user_services.leave_group(username, grp_id)
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+    
+    if remaining_group is None:
+        return jsonify({"message": f"You left the group. Group was deleted as it's now empty."}), 200
     
     return jsonify({"message": f"User '{username}' successfully left group '{grp_id}'."}), 200
 

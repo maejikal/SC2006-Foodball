@@ -66,35 +66,32 @@ def create_group(owner: str, grp_name: str, photo: str):
 def remove_usr(username: str, grp_id: str):
     """Remove user from group. If owner leaves, transfer ownership or delete group."""
     async def _remove_user_async():
-        client = pymongo.AsyncMongoClient('127.0.0.1', 27017)
-        try:
-            db = client["2ManyFoods_db"]
-            group_collection = db["Groups"]
-            
-            group = await searchdb("Groups", "_id", ObjectId(grp_id))
-            
-            if not group:
-                raise ValueError("Group does not exist.")
-            remaining_users = [u for u in group["users"] if u != username]
-            # Check if the user leaving is the owner
-            if group.get("owner") == username:
-                # Owner is leaving
-                if not remaining_users:
-                    # No users left, delete the group
-                    await updatedb("Groups", "_id", ObjectId(grp_id), "users", [])
-                    return None
-                else:
-                    new_owner = remaining_users[0]
-                    
-                    result = await updatedb("Groups", "_id", ObjectId(grp_id), "owner", new_owner)
-                    result = await updatedb("Groups", "_id", ObjectId(grp_id), "users", remaining_users)
-                    return result
+        group = await searchdb("Groups", "_id", ObjectId(grp_id))
+        
+        if not group:
+            raise ValueError("Group does not exist.")
+        
+        remaining_users = [u for u in group["users"] if u != username]
+        
+        # Check if the user leaving is the owner
+        if group.get("owner") == username:
+            # Owner is leaving
+            if not remaining_users:
+                # No users left, delete the entire group
+                await deletedb("Groups", "_id", ObjectId(grp_id))
+                return None
             else:
-                result = await updatedb("Groups", "_id", ObjectId(grp_id), "users", remaining_users)
-                result = await updatedb("Groups", "_id", ObjectId(grp_id), "total_users", len(remaining_users))
-                return result
-        finally:
-            await client.close()
+                # Transfer ownership to first remaining user
+                new_owner = remaining_users[0]
+                await updatedb("Groups", "_id", ObjectId(grp_id), "owner", new_owner)
+                await updatedb("Groups", "_id", ObjectId(grp_id), "users", remaining_users)
+                await updatedb("Groups", "_id", ObjectId(grp_id), "total_users", len(remaining_users))
+                return True
+        else:
+            # Regular user leaving
+            await updatedb("Groups", "_id", ObjectId(grp_id), "users", remaining_users)
+            await updatedb("Groups", "_id", ObjectId(grp_id), "total_users", len(remaining_users))
+            return True
     
     return run(_remove_user_async())
 
