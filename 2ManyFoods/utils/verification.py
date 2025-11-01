@@ -4,7 +4,7 @@ def mail(app, email):
     msg = Message(
         subject = "Your 2ManyFoods Verification Code",
         sender = '2manyfood@gmail.com',
-        recipients = ['urdaddysanta@gmail.com']
+        recipients = [email]
     )
     code = str(randint(0,999999))
     while len(code) < 6:
