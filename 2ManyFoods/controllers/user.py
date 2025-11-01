@@ -1,6 +1,7 @@
 from flask import request, jsonify
 from services import user as user_services, group as group_services
 from bson import ObjectId
+import math
 
 ## fetching user's profile, updating settings, getting lists associated with logged in users
 
@@ -24,6 +25,8 @@ def get_user_profile(username):
         user = user_services.get_user_by_username(username)
         if not user:
             return jsonify({"error": "User not found"}), 404
+        if math.isinf(user.get("Budget", 0)):
+            user["Budget"] = 0
         return jsonify({
             "username": user.get("Username"),
             "email": user.get("Email"),

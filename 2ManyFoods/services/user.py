@@ -1,4 +1,4 @@
-from db import insertdb, searchdb, updatedb
+from db import insertdb, searchdb, updatedb, deletedb
 from models import *
 from utils.security import hash_password, verify_password
 from asyncio import run
@@ -122,5 +122,6 @@ def update_foodhistory(username: str, eatery):
     
     return run(updatedb(COL, "Username", username, "FoodHistory", current_history))
 
-
+def delete_user(username: str):
+    return run(deletedb(COL, "Username", username))
     
