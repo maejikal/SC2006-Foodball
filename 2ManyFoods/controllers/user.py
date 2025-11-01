@@ -25,8 +25,6 @@ def get_user_profile(username):
         user = user_services.get_user_by_username(username)
         if not user:
             return jsonify({"error": "User not found"}), 404
-        if math.isinf(user.get("Budget", 0)):
-            user["Budget"] = 0
         return jsonify({
             "username": user.get("Username"),
             "email": user.get("Email"),

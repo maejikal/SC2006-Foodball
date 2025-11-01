@@ -33,7 +33,7 @@ def create_user(username:str, password:str, email:str):
         "Reviews":[],
         "DietaryRequirements":{},
         "ProfilePhoto":"",
-        "Budget":float('inf'),
+        "Budget":0,
         "Preferences": {},
         "Hunger":1
     }
