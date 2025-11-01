@@ -145,7 +145,7 @@ def generate_recommendation(groupName):
     if groupName not in rec_cons.keys():
         latitude = request.args['lat']
         longitude = request.args['long']
-        radius = 500
+        radius = 800
         group_rec = asyncio.run(searchdb('Groups', 'grp_name', groupName))
         if group_rec != None:
             users = {}

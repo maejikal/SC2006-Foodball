@@ -13,6 +13,10 @@ export default function SearchPage() {
   const groupId = location.state?.groupId;
   const selectedLocation = location.state?.location;
   const isIndividual = location.state?.isIndividual || false;
+
+  console.log("DEBUG: groupName =", groupName);
+  console.log("DEBUG: isIndividual =", isIndividual);
+  console.log("DEBUG: selectedLocation =", selectedLocation);
   
   const [selectedCuisines, setSelectedCuisines] = useState([]);
   const [priceRange, setPriceRange] = useState(50);
@@ -75,6 +79,7 @@ export default function SearchPage() {
             setPriceRange(budget);
             
             if (isIndividual) {
+              await submitUserPreferencesToGroup(cuisines, budget);
               await fetchRestaurants(cuisines, budget);
             } else {
               await submitUserPreferencesToGroup(cuisines, budget);
@@ -91,7 +96,7 @@ export default function SearchPage() {
     };
 
     loadPreferencesAndFetch();
-  }, [groupName, isIndividual]);
+  }, [groupName, isIndividual, selectedLocation]);
 
   const submitUserPreferencesToGroup = async (cuisines, budget) => {
   try {
@@ -359,11 +364,62 @@ export default function SearchPage() {
     }
   };
 
+
   const handleVoteOrSave = async () => {
     const username = sessionStorage.getItem('username');
     
     try {
-      if (!isIndividual) {
+      if (isIndividual) {
+        const response = await fetch(`http://localhost:8080/foodball/${groupName}/vote`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            username: username,
+            restaurant_id: selectedRestaurant.id,
+            hunger: hungerLevel
+          })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+          if (preferencesModified) {
+            const prefsSaved = await savePreferencesToProfile();
+            if (!prefsSaved) {
+              alert('Warning: Preferences could not be saved, but restaurant will still be added to history.');
+            }
+          }
+
+          try {
+            await fetch('http://localhost:8080/api/history/add', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                username: username,
+                groupName: username,
+                restaurant: {
+                  id: selectedRestaurant.id,
+                  name: selectedRestaurant.displayName?.text,
+                  address: selectedRestaurant.shortFormattedAddress || '',
+                  cuisine: selectedRestaurant.types
+                }
+              })
+            });
+          } catch (error) {
+            console.error('Error saving to history:', error);
+          }
+
+          setShowConfirmModal(false);
+          navigate('/result', {
+            state: {
+              winner: selectedRestaurant,
+              groupName: null
+            }
+          });
+        } else {
+          throw new Error(data.error || 'Failed to submit vote');
+        }
+      } else {
         const response = await fetch(`http://localhost:8080/foodball/${groupName}/vote`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -415,40 +471,7 @@ export default function SearchPage() {
         } else {
           throw new Error(data.error || 'Failed to submit vote');
         }
-      } else {
-        if (preferencesModified) {
-          const prefsSaved = await savePreferencesToProfile();
-          if (!prefsSaved) {
-            alert('Warning: Preferences could not be saved, but restaurant will still be added to history.');
-          }
-        }
-        
-        const response = await fetch('http://localhost:8080/api/history/add', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            username: username,
-            restaurant: {
-              id: selectedRestaurant.id,
-              name: selectedRestaurant.displayName?.text,
-              address: selectedRestaurant.shortFormattedAddress || '',
-              cuisine: selectedRestaurant.types
-            }
-          })
-        });
-
-        if (response.ok) {
-          setShowConfirmModal(false);
-          navigate('/result', {
-            state: {
-              winner: selectedRestaurant,
-              groupName: null
-            }
-          });
-      } else {
-        throw new Error('Failed to add to history');
       }
-    }
     } catch (error) {
       console.error('Error:', error);
       alert(`Failed to ${isIndividual ? 'save' : 'vote'}. Please try again.`);
