@@ -82,61 +82,64 @@ export default function ChangePasswordPage() {
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    setErrorMessage('');
-    setSuccessMessage('');
-
-    if (!validateForm()) {
-      return;
-    }
-
-    setIsLoading(true);
+  e.preventDefault();
+  setErrorMessage('');
+  setSuccessMessage('');
+  
+  if (!validateForm()) {
+    return;
+  }
+  
+  setIsLoading(true);
+  
+  const username = localStorage.getItem('username');
+  
+  if (!username) {
+    setErrorMessage('Please log in to change password');
+    setIsLoading(false);
+    return;
+  }
+  
+  try {
+    // First verify current password by attempting login
     
-    const username = sessionStorage.getItem('username');
     
-    if (!username) {
-      setErrorMessage('Please log in to change password');
-      setIsLoading(false);
-      return;
+    // Now update the password
+    const response = await fetch('http://localhost:8080/account/security', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        field: 'password',      // ← REQUIRED: tells backend which field to update
+        username: username,     // ← REQUIRED: the user to update
+        newValue: newPassword   // ← REQUIRED: the new password value
+      })
+    });
+    
+    const data = await response.json();
+    
+    if (!response.ok) {
+      throw new Error(data.error || 'Failed to change password');
     }
+    
+    setIsLoading(false);
+    setSuccessMessage('Password changed successfully!');
+    
+    // Clear form
+    setCurrentPassword('');
+    setNewPassword('');
+    setConfirmPassword('');
+    
+    // Redirect after 2 seconds
+    setTimeout(() => navigate('/account'), 2000);
+    
+  } catch (error) {
+    setErrorMessage(error.message || 'An error occurred. Please try again.');
+    setIsLoading(false);
+  }
+};
 
-    try {
-      const response = await fetch('http://localhost:8080/account/security', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          username: username,
-          current_password: currentPassword,  
-          password: newPassword          
-        })
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to change password');
-      }
-
-      setIsLoading(false);
-      setSuccessMessage('Password changed successfully!');
-      
-      // Clear form
-      setCurrentPassword('');
-      setNewPassword('');
-      setConfirmPassword('');
-      
-      // Redirect to account page
-      setTimeout(() => {
-        navigate('/security');
-      }, 2000);
-
-    } catch (error) {
-      setErrorMessage(error.message || 'An error occurred. Please try again.');
-      setIsLoading(false);
-    }
-  };
 
   return (
     <div className="changePasswordPage">
