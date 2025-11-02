@@ -294,14 +294,27 @@ export default function SearchPage() {
     setIsSaving(true);
     
     try {
-      if (isIndividual) {
-        await fetchRestaurants(selectedCuisines, priceRange);
-        alert('Recommendations updated! Preferences will be saved when you add a restaurant to history.');
+      // Fetch new restaurants
+      await fetchRestaurants(selectedCuisines, priceRange);
+      
+      // Save preferences to database for individual mode
+      if (isIndividual && preferencesModified) {
+        const prefsSaved = await savePreferencesToProfile();
+        if (prefsSaved) {
+          setPreferencesModified(false);
+          alert('Recommendations updated and preferences saved!');
+        } else {
+          alert('Recommendations updated, but failed to save preferences.');
+        }
+      } else if (isIndividual) {
+        alert('Recommendations updated!');
       } else {
-        await fetchRestaurants(selectedCuisines, priceRange);
+        // For group mode, just update recommendations without saving to profile
+        alert('Recommendations updated!');
       }
+      
     } catch (error) {
-      console.error('Error fetching restaurants:', error);
+      console.error('Error updating recommendations:', error);
       alert('Failed to update recommendations. Please try again.');
     } finally {
       setIsSaving(false);
