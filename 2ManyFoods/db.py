@@ -61,13 +61,50 @@ async def searchdb(collection: str,field: str, data=None):
 #     coll = db[collection]
 #     result = await coll.find_one({field:data})
 #     return result
-
+'''
 async def updatedb(collection: str, identifierfield: str, identifier: str, field: str, data):
     client = pymongo.AsyncMongoClient('127.0.0.1', 27017) 
     db = client["2ManyFoods_db"]
     coll = db[collection]
     result = await coll.update_one({identifierfield:identifier},{'$set': {field: data}})
     await client.close()
+    return result
+'''
+async def updatedb(collection: str, identifierfield: str, identifier: str, field: str, data):
+    client = pymongo.AsyncMongoClient('127.0.0.1', 27017) 
+    db = client["2ManyFoods_db"]
+    coll = db[collection]
+    
+    print(f"\n=== UPDATEDB DEBUG ===")
+    print(f"Collection: {collection}")
+    print(f"Identifier field: {identifierfield}")
+    print(f"Identifier value: {identifier}")
+    print(f"Field to update: {field}")
+    print(f"New data (first 50 chars): {str(data)[:50]}...")
+    
+    # Check if document exists before update
+    existing = await coll.find_one({identifierfield: identifier})
+    print(f"Document exists: {existing is not None}")
+    if existing:
+        print(f"Current value of {field}: {str(existing.get(field, 'N/A'))[:50]}...")
+    
+    # Perform update
+    result = await coll.update_one(
+        {identifierfield: identifier},
+        {'$set': {field: data}}
+    )
+    
+    print(f"Matched count: {result.matched_count}")
+    print(f"Modified count: {result.modified_count}")
+    
+    # Verify update
+    updated = await coll.find_one({identifierfield: identifier})
+    if updated:
+        print(f"New value of {field}: {str(updated.get(field, 'N/A'))[:50]}...")
+    
+    await client.close()
+    print(f"=== END UPDATEDB DEBUG ===\n")
+    
     return result
 
 async def viewdb():

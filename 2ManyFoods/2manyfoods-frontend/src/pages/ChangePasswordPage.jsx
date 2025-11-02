@@ -92,7 +92,7 @@ export default function ChangePasswordPage() {
   
   setIsLoading(true);
   
-  const username = localStorage.getItem('username');
+  const username = localStorage.getItem('username'); // change sessionStorage to localStorage
   
   if (!username) {
     setErrorMessage('Please log in to change password');
@@ -100,10 +100,19 @@ export default function ChangePasswordPage() {
     return;
   }
   
-  try {
-    // First verify current password by attempting login
-    
-    
+  try {   
+    // First, verify the current password by attempting to login
+    const verifyResponse = await fetch('http://localhost:8080/login', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        email: localStorage.getItem('email'), // You'll need to store email in localStorage during login
+        password: currentPassword
+      })
+    });
+     
     // Now update the password
     const response = await fetch('http://localhost:8080/account/security', {
       method: 'POST',
@@ -113,7 +122,7 @@ export default function ChangePasswordPage() {
       body: JSON.stringify({
         field: 'password',      // ← REQUIRED: tells backend which field to update
         username: username,     // ← REQUIRED: the user to update
-        newValue: newPassword   // ← REQUIRED: the new password value
+        newValue: newPassword   // ← REQUIRED: the new password value  
       })
     });
     
@@ -139,7 +148,6 @@ export default function ChangePasswordPage() {
     setIsLoading(false);
   }
 };
-
 
   return (
     <div className="changePasswordPage">

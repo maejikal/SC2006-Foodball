@@ -13,7 +13,7 @@ export default function AccountPage() {
   const [error, setError] = useState('');
 
   const handleLogout = () => {
-    sessionStorage.removeItem('username');
+    sessionStorage.clear();
     navigate('/');
     window.location.reload(); // Force page refresh to update navbar
   };
@@ -39,6 +39,8 @@ export default function AccountPage() {
         navigate('/login');
         return;
       }
+
+      console.log('AccountPage: Loading data for username:', username); // Debug log
 
       try {
         const response = await fetch(

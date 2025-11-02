@@ -73,12 +73,21 @@ export default function LoginPage() {
       if (!response.ok) {
         throw new Error(data.error || 'Login failed');
       }
+
+      console.log('Login response:', data);
+      console.log('Username from backend:', data.username);
+    
+      // CRITICAL: Clear any existing session data first
+      sessionStorage.clear();
       
-      console.log('Login successful:', data);
+      //console.log('Login successful:', data);
       
       if (data.username) {
         sessionStorage.setItem('username', data.username);
+        console.log('Stored username in sessionStorage:', data.username);
       }
+      // Verify what was stored
+      console.log('Verification - sessionStorage username:', sessionStorage.getItem('username'));
       
       navigate('/');
     } catch (error) {

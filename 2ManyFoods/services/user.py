@@ -72,6 +72,12 @@ def leave_group(username:str, group_id:int):
 
 def update_user(field: str, username: str, new_data: str):
     current_user = get_user_by_username(username)
+
+    print(f"\n=== UPDATE_USER DEBUG ===")
+    print(f"Field: {field}")
+    print(f"Username: {username}")
+    print(f"User exists: {current_user is not None}")
+
     match field:
         case "username":
             existing_user = get_user_by_username(new_data)
@@ -88,12 +94,36 @@ def update_user(field: str, username: str, new_data: str):
                 raise ValueError("Email already registered")
 
             return run(updatedb(COL, "Username", username, "Email", new_data))
-        
+
         case "password":
             if not current_user:
                 raise ValueError("User not found")
-
-            return run(updatedb(COL, "Username", username, "Password", hash_password(new_data)))
+            
+            hashed_password = hash_password(new_data)
+            print(f"Hashing new password...")
+            print(f"Plain password length: {len(new_data)}")
+            print(f"Hashed password length: {len(hashed_password)}")
+            print(f"Old hashed password: {current_user.get('Password', 'N/A')[:30]}...")
+            print(f"New hashed password: {hashed_password[:30]}...")
+            
+            result = run(updatedb(COL, "Username", username, "Password", hashed_password))
+            
+            print(f"Update result type: {type(result)}")
+            print(f"Update completed")
+            
+            # CRITICAL: Verify the password was actually updated
+            verification_user = get_user_by_username(username)
+            if verification_user:
+                new_pass_in_db = verification_user.get('Password', '')
+                print(f"Password in DB after update: {new_pass_in_db[:30]}...")
+                print(f"Does new hash match DB: {new_pass_in_db == hashed_password}")
+                
+                if new_pass_in_db != hashed_password:
+                    print("❌ ERROR: Password was NOT updated in database!")
+                else:
+                    print("✓ Password successfully updated in database")
+            
+            return result
 
         case "profile_photo":
             return run(updatedb(COL, "Username", username, "ProfilePhoto", new_data))
