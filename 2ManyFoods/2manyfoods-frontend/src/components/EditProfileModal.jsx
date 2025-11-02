@@ -23,7 +23,14 @@ export default function EditProfileModal({ isOpen, onClose, field, currentValue,
 
   if (!isOpen) return null;
 
-  const handleSendVerification = () => {
+  const handleOverlayClick = (e) => {
+    // Only close if clicking directly on the overlay, not on any child elements
+    if (e.target === e.currentTarget) {
+      onClose();
+    }
+  };
+
+  const handleSendVerification = async () => {
     setError('');
 
     // Skip validation if already in email verification mode (signup)
@@ -58,9 +65,26 @@ export default function EditProfileModal({ isOpen, onClose, field, currentValue,
         setError('Please enter a valid email address');
         return;
       }
-      // For email, show verification step
-      setShowVerification(true);
-      console.log('Verification code sent to:', newValue);
+      
+      // Send verification code to the new email
+      try {
+        const response = await fetch('http://localhost:8080/send-verification', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: newValue })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.error || 'Failed to send verification code');
+        }
+
+        // Show verification step
+        setShowVerification(true);
+      } catch (error) {
+        setError(error.message || 'Failed to send verification code. Please try again.');
+      }
     } else {
       // For name, save directly without verification
       onSave(field, newValue);
@@ -77,12 +101,34 @@ export default function EditProfileModal({ isOpen, onClose, field, currentValue,
     }
 
     try {
-      // For email verification (signup), pass verification code
-      // For profile edit, pass new value
-      await onSave(field, isEmailVerification ? verificationCode : newValue);
+      if (isEmailVerification) {
+        // For signup flow - verify the code
+        await onSave(field, verificationCode);
+      } else {
+        // For profile edit flow - verify code then update email
+        const response = await fetch('http://localhost:8080/verify-email', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            email: newValue,
+            code: verificationCode
+          })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.error || 'Invalid verification code');
+        }
+
+        // Verification successful, now update the email
+        await onSave(field, newValue);
+      }
+      
       onClose();
     } catch (error) {
       setError(error.message || 'Verification failed. Please try again.');
+      setVerificationCode(''); // Clear the input when verification fails
     }
   };
 
@@ -97,7 +143,7 @@ export default function EditProfileModal({ isOpen, onClose, field, currentValue,
   };
 
   return (
-    <div className="modalOverlay" onClick={onClose}>
+    <div className="modalOverlay" onClick={handleOverlayClick}>
       <div className="modalContent" onClick={(e) => e.stopPropagation()}>
         <h3>{getModalTitle()}</h3>
         
@@ -116,6 +162,8 @@ export default function EditProfileModal({ isOpen, onClose, field, currentValue,
                   value={newValue}
                   onChange={(e) => setNewValue(e.target.value)}
                   placeholder={`Enter new ${field}`}
+                  onMouseDown={(e) => e.stopPropagation()}
+                  onTouchStart={(e) => e.stopPropagation()}
                 />
               </div>
 
@@ -126,6 +174,8 @@ export default function EditProfileModal({ isOpen, onClose, field, currentValue,
                   value={confirmValue}
                   onChange={(e) => setConfirmValue(e.target.value)}
                   placeholder={`Confirm new ${field}`}
+                  onMouseDown={(e) => e.stopPropagation()}
+                  onTouchStart={(e) => e.stopPropagation()}
                 />
               </div>
 
@@ -147,7 +197,7 @@ export default function EditProfileModal({ isOpen, onClose, field, currentValue,
           <>
             <div className="modalBody">
               <p style={{ textAlign: 'center', marginBottom: '1rem', color: '#ddd' }}>
-                A verification code has been sent to <strong>{currentValue}</strong>
+                A verification code has been sent to <strong>{isEmailVerification ? currentValue : newValue}</strong>
               </p>
               <div className="formGroup">
                 <label>Verification Code</label>
@@ -157,6 +207,9 @@ export default function EditProfileModal({ isOpen, onClose, field, currentValue,
                   onChange={(e) => setVerificationCode(e.target.value)}
                   placeholder="Enter verification code"
                   maxLength="6"
+                  onMouseDown={(e) => e.stopPropagation()}
+                  onTouchStart={(e) => e.stopPropagation()}
+                  autoFocus
                 />
               </div>
 

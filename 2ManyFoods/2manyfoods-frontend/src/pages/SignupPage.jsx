@@ -160,11 +160,8 @@ export default function SignupPage() {
       newErrors.email = 'Email is required';
     } else if (!isValidEmail(form.email)) {
       newErrors.email = 'Please enter a valid email address';
-    }
-
-    if (!isEmailVerified) {
-      // newErrors.email = 'Please verify your email first';
-      setIsEmailVerified(true);
+    } else if (!isEmailVerified) {
+      newErrors.email = 'Please verify your email first';
     }
 
     if (!form.password) {
@@ -203,6 +200,12 @@ export default function SignupPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setAuthError('');
+
+    // If email is not verified, trigger verification instead of signup
+    if (!isEmailVerified) {
+      handleSendVerification();
+      return;
+    }
 
     if (!validateForm()) {
       return;
