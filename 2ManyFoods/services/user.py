@@ -128,7 +128,7 @@ def update_user(field: str, username: str, new_data: str):
         case "profile_photo":
             return run(updatedb(COL, "Username", username, "ProfilePhoto", new_data))
 
-        case "dietary_requirements":
+        case "DietaryRequirements":
             return run(updatedb(COL, "Username", username, "DietaryRequirements", new_data))
 
         case "preferences":
