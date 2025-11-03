@@ -87,7 +87,8 @@ export default function SecurityPage() {
             },
             body: JSON.stringify({
               username: username,
-              new_profile_photo: newAvatar
+              field:"profile_photo",
+              newValue: newAvatar
             })
           });
 
