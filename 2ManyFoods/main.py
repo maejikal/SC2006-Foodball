@@ -10,6 +10,8 @@ from controllers import group as group_cons
 from controllers import eatery as eatery_cons
 from bson.objectid import ObjectId
 from services import user as user_services
+from services import review as review_services
+from asyncio import run
 
 from utils import verification
 app = Flask(__name__)
@@ -329,40 +331,37 @@ def update_review():
 
 @app.route('/api/review/get', methods=['GET'])
 def get_review():
-    """Get user's reviews"""
+    """Get user's review for a specific restaurant"""
     try:
         username = request.args.get('username')
         restaurant_id = request.args.get('restaurant_id')
-
+        
         if not username or not restaurant_id:
-            return jsonify({"error": "Missing parameters"}), 400
-
-        from services import review as review_services
-        reviews = review_services.get_user_reviews(username)
-
-        restaurant_review = None
-        for review in reviews:
-            if review.get("EateryID") == restaurant_id:
-                restaurant_review = review
-                break
-
-        if not restaurant_review:
-            return jsonify({"error": "Review not found"}), 404
-
+            return jsonify({"error": "Missing parameters", "success": False}), 400
+        
+        query_dict = {
+            "Username": username,
+            "Eatery": restaurant_id
+        }
+        
+        review = run(searchdb("Reviews", query_dict))
+        
+        if not review:
+            return jsonify({"success": False, "message": "No review yet"}), 404
+        
         return jsonify({
             "success": True,
             "review": {
-                "rating": restaurant_review.get("Rating"),
-                "comment": restaurant_review.get("Comment"),
-                "photo": restaurant_review.get("Photo"),
-                "date": restaurant_review.get("Date")
+                "rating": review.get("Rating", 0),
+                "comment": review.get("Comment", ""),
+                "photo": review.get("Photo", ""),
+                "date": review.get("Date", "")
             }
         }), 200
-
+        
     except Exception as e:
         print(f"Error getting review: {e}")
-        return jsonify({"error": str(e)}), 500
-
+        return jsonify({"error": str(e), "success": False}), 500
 
 # Get group status (for polling)
 @app.route('/api/group/<group_id>/status', methods=['GET'])

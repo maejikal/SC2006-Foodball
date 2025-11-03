@@ -9,16 +9,41 @@
   max-width: 800px;
   margin: 2rem auto;
   padding: 0 2rem;
+  max-height: calc(100vh - 200px);
+  display: flex;
+  flex-direction: column;
 }
 
 .historySection h1 {
   font-size: 1.5rem;
   margin-bottom: 2rem;
+  flex-shrink: 0;
 }
 
 .historyList {
   list-style: none;
   padding: 0;
+  overflow-y: auto;
+  max-height: calc(100vh - 300px);
+  padding-right: 8px;
+}
+
+.historyList::-webkit-scrollbar {
+  width: 8px;
+}
+
+.historyList::-webkit-scrollbar-track {
+  background: #2d3e52;
+  border-radius: 10px;
+}
+
+.historyList::-webkit-scrollbar-thumb {
+  background: #41e0ff;
+  border-radius: 10px;
+}
+
+.historyList::-webkit-scrollbar-thumb:hover {
+  background: #5dd3ff;
 }
 
 .historyList li {

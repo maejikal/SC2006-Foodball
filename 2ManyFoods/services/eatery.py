@@ -12,8 +12,14 @@ def get_eatery_by_id(eatery_id:int):
     return run(searchdb("COL", "_id", eatery_id))
 
 def store_review(eatery_id:int, review_id:int): # logic needs to be updated. avg rating etc. 
-    eateryreviews = run(searchdb(COL, "_id", eatery_id))
-    return run(updatedb(COL, "_id", eatery_id, "Reviews", eateryreviews + [review_id]))
+    eatery = run(searchdb(COL, "_id", eatery_id))
+    
+    if eatery is None:
+        eateryreviews = [review_id]
+    else:
+        eateryreviews = (eatery.get("Reviews") or []) + [review_id]
+    
+    return run(updatedb(COL, "_id", eatery_id, "Reviews", eateryreviews))
     #return eatery_collection.update_one({"EateryID": eatery_id}, {"$push": {"Reviews": review_id}})
 
 def delete_review(eatery_id:int, review_id:int):

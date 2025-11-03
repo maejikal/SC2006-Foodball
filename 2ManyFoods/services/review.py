@@ -8,9 +8,10 @@ def get_user_reviews(username:str):
     cursor = run(searchdb(COL, "Username", username))
     return cursor.to_list(length=100)
     
-def create_review(username:str, eatery_id:int, rating:int, comment:str, date:str, photo:str):
-    reviews = run(searchdb("Users", "Username", username))['Reviews']
-    if eatery_id in reviews:
+def create_review(username:str, eatery_id:str, rating:int, comment:str, date:str, photo:str):
+    existing_review = run(searchdb(COL, {"Username": username, "Eatery": eatery_id}))
+    
+    if existing_review:
         raise ValueError("This user already has 1 review for this restaurant. Either edit or delete this review to add a new one.")
     review_doc = {
         "Username": username,
@@ -20,20 +21,14 @@ def create_review(username:str, eatery_id:int, rating:int, comment:str, date:str
         "Date": date,
         "Photo": photo
     }
-    newreviewid = run(insertdb(COL,[review_doc])).inserted_ids[0]
-    # if eateryreviews is None:
-    #     eatery = {
-    #         "_id": eatery_id,
-    #         "Reviews": [newreviewid]
-    #     }
-    #     run(insertdb("Eateries",[eatery]))
-    # else:    
-    #     run(updatedb("Eateries", "EateryID", eatery_id, "Reviews", eateryreviews['Reviews'] + [newreviewid]))
+    
+    newreviewid = run(insertdb(COL, [review_doc])).inserted_ids[0]
     return newreviewid
 
-def update_review(username:str, eatery_id:int, rating:int, comment:str, date:str, photo:str):
+def update_review(username:str, eatery_id:str, rating:int, comment:str, date:str, photo:str):
     review = run(searchdb(COL, {"Username": username, "Eatery": eatery_id}))
-    if not review: 
+    
+    if not review:
         raise ValueError("No review to edit found")
     review_doc = {
         "Rating": rating,
@@ -42,7 +37,8 @@ def update_review(username:str, eatery_id:int, rating:int, comment:str, date:str
         "Photo": photo
     }
     for field, data in review_doc.items():
-        run(updatedb("Reviews","_id", review["_id"], field, data))
+        run(updatedb("Reviews", "_id", review["_id"], field, data))
+    
     return ""
 
 def delete_review(username:str, eatery_id:int):

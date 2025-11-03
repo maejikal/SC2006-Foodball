@@ -1,0 +1,19 @@
+.starRating {
+  display: flex;
+  gap: 6px;
+  padding-top: 8px;
+}
+
+.star {
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.star.filled {
+  filter: invert(80%) sepia(100%) saturate(1200%) hue-rotate(5deg) brightness(150%) contrast(110%);
+}
+
+.star.empty {
+  opacity: 0.3;
+  filter: brightness(0.5);
+}
