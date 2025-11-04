@@ -55,6 +55,17 @@ async def searchdb(collection: str,field: str, data=None):
     result = await coll.find_one(query)
     return result
 
+async def searchdb_all(collection: str, field: str, data=None):
+    client = pymongo.AsyncMongoClient('127.0.0.1', 27017) 
+    db = client["2ManyFoods_db"]
+    coll = db[collection]
+    if isinstance(field, dict):
+        query = field
+    else:
+        query = {field: data}
+    result = await coll.find(query).to_list(None)  # Returns ALL documents
+    return result
+
 # async def searchdb_dict(collection: str,field: str, data: dict):
 #     client = pymongo.AsyncMongoClient('127.0.0.1', 27017) 
 #     db = client["2ManyFoods_db"]
