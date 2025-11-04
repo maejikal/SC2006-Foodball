@@ -78,7 +78,6 @@ class User:
     def setHunger(self, hunger):
         self.Hunger = hunger
 
-
 class Group:
 
     def __init__(self, GroupName: str, users: dict, GroupPhoto: str, GroupID: int):
@@ -129,7 +128,11 @@ class Group:
     
     def getRequirements(self):
         return []
-
+    
+    def getHistories(self):
+        hungers = [(user["FoodHistory"], user["Hunger"]) for user in self.Users.values()]
+        return [i[0] for i in sorted(hungers, key=lambda x: x[1])]
+    
 class Location:
     def __init__(self, latitude: float, longitude: float):
         self.latitude = latitude
