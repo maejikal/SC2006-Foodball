@@ -597,40 +597,43 @@ export default function SearchPage() {
         </div>
 
         {filteredRestaurants.length > 0 ? (
-          <div className="restaurantList">
-            {filteredRestaurants.map((restaurant, index) => {
-              const isSelected = selectedRestaurant?.id === restaurant.id;
+          <>
+            <div className="restaurantList">
+              {filteredRestaurants.map((restaurant, index) => {
+                const isSelected = selectedRestaurant?.id === restaurant.id;
 
-              return (
-                <div
-                  key={restaurant.id || index}
-                  className={`restaurantCard ${isSelected ? 'selected' : ''}`}
-                  onClick={() => handleRestaurantClick(restaurant)}
-                >
-                  <div className="restaurantInfo">
-                    <div className="restaurantHeader">
-                      <h3>{restaurant.displayName?.text}</h3>
-                      <p className="status">
-                        {!isIndividual && !hasVoted ? 'Click to vote' : 
-                        !isIndividual && hasVoted ? 'Voting closed' :
-                        'Click to choose'}
-                      </p>
+                return (
+                  <div
+                    key={restaurant.id || index}
+                    className={`restaurantCard ${isSelected ? 'selected' : ''}`}
+                    onClick={() => handleRestaurantClick(restaurant)}
+                  >
+                    <div className="restaurantInfo">
+                      <div className="restaurantHeader">
+                        <h3>{restaurant.displayName?.text}</h3>
+                        <p className="status">
+                          {!isIndividual && !hasVoted ? 'Click to vote' : 
+                          !isIndividual && hasVoted ? 'Voting closed' :
+                          'Click to choose'}
+                        </p>
+                      </div>
+                      <p className="address">{restaurant.shortFormattedAddress || 'Address not available'}</p>
                     </div>
-                    <p className="address">{restaurant.shortFormattedAddress || 'Address not available'}</p>
                   </div>
-                </div>
-              );
-            })}
+                );
+              })}
+            </div>
             
             {selectedRestaurant && (isIndividual || !hasVoted) && (
               <button 
                 onClick={handleConfirmRestaurant}
                 className="confirmBtn"
+                style={{ marginTop: '1.5rem' }}
               >
                 {isIndividual ? 'add to history' : 'confirm vote'}
               </button>
             )}
-          </div>
+          </>
         ) : (
           <div className="restaurantList">
             <p>No recommendations found. Try adjusting your preferences!</p>

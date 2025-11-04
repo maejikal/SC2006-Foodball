@@ -263,7 +263,8 @@
   cursor: pointer;
   transition: all 0.3s;
   text-transform: lowercase;
-  align-self: center;
+  display: block;
+  margin: 0 auto;
 }
 
 .confirmBtn:hover:not(:disabled) {
@@ -432,7 +433,7 @@
     font-size: 0.95rem;
   }
 
-.modalContent {
+  .modalContent {
     padding: 1.5rem;
     max-width: 90%;
     border-radius: 15px;
@@ -544,7 +545,7 @@
     max-width: 300px;
   }
 
-.modalOverlay {
+  .modalOverlay {
     padding: 0.75rem;
   }
 
