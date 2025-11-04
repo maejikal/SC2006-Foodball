@@ -1,11 +1,9 @@
 from flask import request, jsonify
 from services import user as user_services, group as group_services
-from bson import ObjectId
-import math
 
 ## fetching user's profile, updating settings, getting lists associated with logged in users
 
-def update_user_profile(data):
+def update_user_profile(data):                                                            #Call front end if error, else call user_service to update
     if not data:
         return jsonify({"error":"Missing or invalid JSON input"}), 400
     
@@ -17,7 +15,7 @@ def update_user_profile(data):
     
     return jsonify({"message":f"Profile updated successfully"}), 200
 
-def get_user_profile(username):
+def get_user_profile(username):                                                            #Same as above, but for getting user data instead
     if not username:
         return jsonify({"error": "Username is required"}), 400
     
@@ -31,7 +29,6 @@ def get_user_profile(username):
             "profilePhoto": user.get("ProfilePhoto", ""),
             "dietaryRequirements": user.get("DietaryRequirements", {}),
             "preferences": user.get("Preferences", {}),
-            "budget": user.get("Budget", 50),
             "groups": user.get("Groups", []),
             "foodHistory": user.get("FoodHistory", [])
         }), 200

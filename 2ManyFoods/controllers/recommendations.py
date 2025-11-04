@@ -7,10 +7,10 @@ from services import eatery as eatery_services
 from flask import request, jsonify
 
 class RecommendationController:
-    def __init__(self, group: Group, location: Location, radius: int = 500):
+    def __init__(self, group: Group, location: Location, radius: int = 800):
         self._group = group
         self.location = location
-        self.radius = 800
+        self.radius = radius
         self.recommendations = self.FilterRecommendations()
         self.done = [user["Username"] for user in self._group.Users.values()]
         self.final = ""
@@ -24,6 +24,7 @@ class RecommendationController:
         if len(weights) == 1:
             weights = [1]
         preferences = self._group.getPreferences()
+        requirements = self._group.getRequirements()
         groupPreferences = {}
         for preference in preferences:
             try:
@@ -46,6 +47,10 @@ class RecommendationController:
                 if category in eatery['types']:
                     out.append(eatery)
                     results.remove(eatery)
+        for req in requirements:
+            for eatery in out:
+                if req not in eatery['types']:
+                    out.remove(eatery)
         # https://developers.google.com/maps/documentation/places/web-service/reference/rest/v1/places
         # https://developers.google.com/maps/documentation/places/web-service/place-types
         self.recommendations = out

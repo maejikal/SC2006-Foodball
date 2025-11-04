@@ -1,13 +1,31 @@
 ## 2006-SCSB-35 
 
 # SETUP
+
+Install Node and the javascript dependencies
 https://nodejs.org/en/download/
+```bash
 npm install react-router-dom vite node npx
+```
+Install python and its dependencies
+https://www.python.org/downloads/
+```bash
 pip install -r requirements.txt
+```
+Install mongodb Community edition
+https://www.mongodb.com/try/download/community
 
-vite to build and run, served at http://localhost:5173/
-npx vite
-
-need to run both vite and flask at the same time for the api calls to work, vite only just to see the ui
-cd 'C:\Program Files\MongoDB\Server\8.2\bin'
-.\mongod --port 27017 --dbpath "\path\to\db\2006-SCSB-35\2ManyFoods\db" (replace this with the path to the db folder) 
+# RUNNING
+Navigate to /path/to/2006-SCSB-35/2ManyFoods/2manyfoods-frontend, and run
+```bash
+npm run dev
+```
+In a separate console start the mongodb server
+```bash
+cd 'C:/Program Files/MongoDB/Server/8.2/bin'
+./mongod --port 27017 --dbpath "/path/to/db/2006-SCSB-35/2ManyFoods/db" (replace this with the path to the db folder)
+```
+In a third console, run the flask server
+```bash
+python -u /path/to/folder/2006-SCSB-35/2ManyFoods/main.py
+```
