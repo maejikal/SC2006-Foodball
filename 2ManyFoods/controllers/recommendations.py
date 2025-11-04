@@ -1,10 +1,6 @@
 from models import *
 import random
-import api
-from services import eatery as eatery_services
-from controllers import group as group_controller
-from services import eatery as eatery_services
-from flask import request, jsonify
+import services.eatery as eatery_services
 
 class RecommendationController:
     def __init__(self, group: Group, location: Location, radius: int = 800):
@@ -16,53 +12,31 @@ class RecommendationController:
         self.final = ""
 
     def FilterRecommendations(self) -> list[Eatery]:
-        query_result = api.search(
-                lat_lng={'lat': self.location.getlatitude(), 'long': self.location.getlongitude()},
-                radius=self.radius, type=['restaurant'])
-        results = query_result['places']
+        
         weights = [user["Hunger"] for user in self._group.Users.values()]
         if len(weights) == 1:
             weights = [1]
         preferences = self._group.getPreferences()
         requirements = self._group.getRequirements()
+
         groupPreferences = {}
         for preference in preferences:
-            try:
-                groupPreferences[preference["rank1"]] += 0.5
-            except:
-                groupPreferences[preference["rank1"]] = 0.5
-            try:
-                groupPreferences[preference["rank2"]] += 0.3
-            except:
-                groupPreferences[preference["rank2"]] = 0.3
-            try:
-                groupPreferences[preference["rank3"]] += 0.2
-            except:
-                groupPreferences[preference["rank3"]] = 0.2
+            groupPreferences[preference["rank1"]] = groupPreferences.get(preference["rank1"], 0.5) + 0.5
+            groupPreferences[preference["rank2"]] = groupPreferences.get(preference["rank2"], 0.3) + 0.3
+            groupPreferences[preference["rank3"]] = groupPreferences.get(preference["rank3"], 0.2) + 0.2
+        
         groupHistory = self._group.getHistories()
         groupPreferences = list(reversed(sorted(groupPreferences, key=groupPreferences.get)))
-        out = []
-        for category in groupPreferences:
-            for eatery in results:
-                if category in eatery['types']:
-                    out.append(eatery)
-                    results.remove(eatery)
-
+        results, others = eatery_services.search_eateries(location={'lat': self.location.getlatitude(), 'long': self.location.getlongitude()},
+                radius=self.radius, selected_cuisines=groupPreferences)
+        
         # Filter based on dietary requirements
         for req in requirements:
-            for eatery in out:
+            for eatery in results:
                 if req not in eatery['types']:
-                    out.remove(eatery)
+                    results.remove(eatery)
 
         # Rearrange results based on food history and hunger
-        for user in groupHistory:
-            for place in user:
-                for recc in out:
-                    if place["restaurant_id"] == recc["id"]:
-                        out.remove(recc)
-                        out.append(recc)
-                        break
-
         for user in groupHistory:
             for place in user:
                 for recc in results:
@@ -70,11 +44,20 @@ class RecommendationController:
                         results.remove(recc)
                         results.append(recc)
                         break
-        out += results[:5]
+        
+        # Rearrange the rest
+        for user in groupHistory:
+            for place in user:
+                for recc in others:
+                    if place["restaurant_id"] == recc["id"]:
+                        others.remove(recc)
+                        others.append(recc)
+                        break
+        results += others[:5]
         # https://developers.google.com/maps/documentation/places/web-service/reference/rest/v1/places
         # https://developers.google.com/maps/documentation/places/web-service/place-types
-        self.recommendations = out
-        return out
+        self.recommendations = results
+        return results
 
     def finishVoting(self) -> int:
         votes = {i['id']: 0 for i in self.recommendations}

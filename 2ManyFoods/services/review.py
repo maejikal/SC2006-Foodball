@@ -1,5 +1,4 @@
 from db import searchdb, insertdb, updatedb, deletedb
-from services import user as user_services, eatery as eatery_services
 from asyncio import run
 
 COL = "Reviews"

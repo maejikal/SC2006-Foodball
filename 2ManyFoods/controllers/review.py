@@ -1,5 +1,5 @@
 from services import review as review_services, user as user_services, eatery as eatery_services
-from flask import request, jsonify
+from flask import jsonify
 
 def handle_create_review(data):
     required_fields = ["Username", "Eatery_id", "Rating", "Date"] # the rest can be blank

@@ -1,10 +1,8 @@
 from db import searchdb, insertdb, updatedb, deletedb
-from services import user as user_services
 from bson.objectid import ObjectId
 from asyncio import run
 import random
 import string
-import pymongo
 
 COL = "Groups"
 

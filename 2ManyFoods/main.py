@@ -4,14 +4,11 @@ from flask_mail import Mail
 from __init__ import *
 from db import *
 from models import *
-from controllers import recommendations as recommendations_controller
 from datetime import datetime, timedelta
 from controllers import group as group_cons
-from controllers import eatery as eatery_cons
-from bson.objectid import ObjectId
 from services import user as user_services
-from services import review as review_services
-from asyncio import run
+import asyncio
+import traceback
 
 from utils import verification
 app = Flask(__name__)
@@ -53,7 +50,6 @@ def send_verification():
             return jsonify({"error": "Email is required"}), 400
 
         # Check if email already exists in database
-        from services import user as user_services
         existing_user = user_services.get_user_by_email(email)
         if existing_user:
             return jsonify({"error": "Email already registered"}), 400
@@ -182,7 +178,7 @@ def group_voting(groupName):
 
     except Exception as e:
         print(f"Vote error: {e}")
-        import traceback
+        
         traceback.print_exc()
         return jsonify({"error": str(e)}), 400
 
@@ -292,7 +288,7 @@ def get_food_history():
             return jsonify({"error": "Username is required"}), 400
 
         # Use existing service to get user
-        from services import user as user_services
+        
         user_doc = user_services.get_user_by_username(username)
 
         if not user_doc:
@@ -336,7 +332,7 @@ def get_review():
             "Eatery": restaurant_id
         }
         
-        review = run(searchdb("Reviews", query_dict))
+        review = asyncio.run(searchdb("Reviews", query_dict))
         
         if not review:
             return jsonify({"success": False, "message": "No review yet"}), 404
@@ -359,7 +355,7 @@ def get_review():
 def get_restaurant_reviews(restaurant_id):
    # Get all reviews for a specific restaurant
     try:
-        reviews = run(searchdb_all("Reviews", "Eatery", restaurant_id))
+        reviews = asyncio.run(searchdb_all("Reviews", "Eatery", restaurant_id))
         
         if not reviews:
             return jsonify({

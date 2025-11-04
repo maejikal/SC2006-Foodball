@@ -2,7 +2,6 @@ from db import insertdb, searchdb, updatedb, deletedb
 from models import *
 from utils.security import hash_password, verify_password
 from asyncio import run
-from services.group import get_user_groups
 
 COL = "Users" # only interacts with User collection
 

@@ -1,11 +1,10 @@
 from db import *
 from services import group as group_services, user as user_services
-from flask import request, jsonify
+from flask import jsonify
 from bson.objectid import ObjectId
-from datetime import datetime
 from asyncio import run
 import pymongo
-
+import traceback
 def handle_create_group(data):
     if not data:
         return jsonify({"error": "Missing input"}), 400
@@ -75,7 +74,6 @@ def handle_join_by_invite_code(data):
         return jsonify({"error": str(e)}), 400
     except Exception as e:
         print(f"Error in handle_join_by_invite_code: {str(e)}")
-        import traceback
         traceback.print_exc()
         return jsonify({"error": f"Server error: {str(e)}"}), 500
 

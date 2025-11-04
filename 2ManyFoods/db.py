@@ -1,6 +1,4 @@
 import pymongo
-import asyncio
-
 
 async def makedb():                                                                                     #DO NOT RUN UNLESS YOU NEED TO REDO THE DB, drops all existing collections and remakes them!
     client = pymongo.AsyncMongoClient('127.0.0.1', 27017) 
@@ -119,7 +117,3 @@ async def deletedb(collection: str, identifierfield: str, identifier): #added to
     result = await coll.delete_one({identifierfield: identifier})
     await client.close()
     return result
-
-
-# asyncio.run(viewdb())
-# user_collection, group_collection, eatery_collection, review_collection = asyncio.run(getdb())   

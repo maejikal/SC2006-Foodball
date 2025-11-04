@@ -1,6 +1,5 @@
-from flask import request, jsonify
+from flask import jsonify
 from services import user as user_services
-from utils import verification
 
 def signup(app, data):
     if not data:
@@ -20,9 +19,6 @@ def signup(app, data):
         verified = False
         if result is None:
             return jsonify({"error":"Email already registered"}), 400
-        # while not verified:
-        #    code = verification.send_email(app, email)
-        #    verified = True
     except ValueError as ve:
         return jsonify({"error":str(ve)}), 400
     except Exception as e:

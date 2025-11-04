@@ -1,6 +1,4 @@
 from datetime import datetime
-from random import randint
-from hashlib import md5
 import db
 
 class User:
@@ -86,8 +84,6 @@ class Group:
         self.GroupPhoto = GroupPhoto
         self.NoOfUsers = len(users)
         self.GroupID = GroupID #auto generate by mongo
-        # randomisation = randint(0,122)
-        # self.GroupID = md5(str(datetime.now()).encode())[randomisation:randomisation+6]
         for user in users.keys():
             users[user]["vote"] = None
 
@@ -225,57 +221,3 @@ class Eatery:
         for i in self.Reviews:
             total += i.getRating()
         return round(total/len(self.Reviews), 2)
-    
-
-
-
-
-        
-class Review:
-    def __init__(self, user:User, Eatery:Eatery, Rating:int, Comment:str, Date:datetime, Photo:str):
-        self.ReviewID = None #autoincrement
-        self.User = user
-        self.Eatery = Eatery
-        self.Rating = Rating #1-5
-        self.Comment = Comment
-        self.Date = Date
-        self.Photo = Photo #filename/path?
-    
-    def getReviewID(self):
-        return self.ReviewID
-
-    def getUser(self):
-        return self.User
-
-    def getEatery(self):
-        return self.Eatery
-
-    def getRating(self):
-        return self.Rating
-
-    def getComment(self):
-        return self.Comment
-
-    def getDate(self):
-        return self.Date
-
-    def getPhoto(self):
-        return self.Photo
-
-    def setUser(self, user: User):
-        self.User = user
-
-    def setEatery(self, eatery: Eatery):
-        self.Eatery = eatery
-
-    def setRating(self, rating: int):
-        self.Rating = rating
-
-    def setComment(self, comment: str):
-        self.Comment = comment
-
-    def setDate(self, date: datetime):
-        self.Date = date
-
-    def setPhoto(self, photo: str):
-        self.Photo = photo
