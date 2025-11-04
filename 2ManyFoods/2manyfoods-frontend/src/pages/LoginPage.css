@@ -41,6 +41,9 @@
   padding: 1.5rem;
   border-radius: 12px;
   box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
 }
 
 .loginContainer form input {
@@ -49,7 +52,6 @@
   padding: 0.75rem;
   border-radius: 8px;
   width: 100%;
-  margin-bottom: 0.5rem;
   border: 1px solid #ccc;
   font-size: 1rem;
   box-sizing: border-box;
@@ -63,6 +65,13 @@
   outline: none;
   border-color: #7b6bae;
   background-color: #f9f9f9;
+}
+
+.loginContainer form .error {
+  color: #ff6b6b;
+  font-size: 0.85rem;
+  margin-top: -0.75rem;
+  margin-bottom: -0.5rem;
 }
 
 .loginBtn {
@@ -94,20 +103,18 @@
 .passwordInputWrapper {
   position: relative;
   width: 100%;
-  margin-bottom: 0.5rem;
+  display: flex;
+  align-items: center;
 }
 
 .passwordInputWrapper input {
   width: 100%;
   padding-right: 3rem;
-  margin-bottom: 0;
 }
 
 .togglePassword {
   position: absolute;
-  right: 0.75rem;
-  top: 50%;
-  transform: translateY(-50%);
+  right: 1rem;
   background: none;
   border: none;
   cursor: pointer;
@@ -115,8 +122,8 @@
   align-items: center;
   justify-content: center;
   padding: 0;
-  width: 25px;
-  height: 25px;
+  width: 24px;
+  height: 24px;
   transition: opacity 0.2s;
 }
 
@@ -125,8 +132,8 @@
 }
 
 .togglePassword img {
-  width: 20px;
-  height: 20px;
+  width: 24px;
+  height: 24px;
   display: block;
 }
 
@@ -134,7 +141,22 @@
   text-align: right;
   font-size: 0.9rem;
   margin-bottom: 1.5rem;
+  margin-top: 1rem;
 }
+
+.forgotLink a {
+  color: #fff;
+  text-decoration: underline;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.forgotLink a:hover {
+  opacity: 0.8;
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
 
 .forgotLink a {
   color: #fff;
@@ -293,15 +315,12 @@
   opacity: 0.9;
 }
 
-.errorText {
-  color: #ff6b6b;
-  font-size: 0.85rem;
-  margin-top: 0.25rem;
-  margin-bottom: 0.5rem;
+.forgotLink {
+  text-align: right;
+  font-size: 0.9rem;
+  margin-bottom: 1.5rem;
+  margin-top: 1rem;
 }
-
-/* Responsive styles */
-@media (max-width: 768px) {
   .loginContainer {
     padding: 1.5rem 1rem;
   }
@@ -326,17 +345,12 @@
   .loginContainer form input {
     padding: 0.7rem;
     font-size: 0.95rem;
-    margin-bottom: 0.4rem;
   }
 
   .loginBtn {
     padding: 0.8rem;
     font-size: 0.95rem;
     margin-top: 0.8rem;
-  }
-
-  .passwordInputWrapper {
-    margin-bottom: 0.4rem;
   }
 
   .togglePassword {
@@ -425,7 +439,6 @@
   .loginContainer form input {
     padding: 0.65rem;
     font-size: 0.9rem;
-    margin-bottom: 0.3rem;
     border-radius: 6px;
   }
 
@@ -434,10 +447,6 @@
     font-size: 0.9rem;
     margin-top: 0.7rem;
     border-radius: 6px;
-  }
-
-  .passwordInputWrapper {
-    margin-bottom: 0.3rem;
   }
 
   .togglePassword {

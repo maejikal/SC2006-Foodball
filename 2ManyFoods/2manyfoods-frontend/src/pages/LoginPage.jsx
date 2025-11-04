@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Button from '../components/Button';
-import FormInput from '../components/FormInput';
 import './LoginPage.css';
 
 export default function LoginPage() {
@@ -116,7 +115,6 @@ export default function LoginPage() {
     }
 
     try {
-      // TODO: Replace with actual API call to send reset link
       const response = await fetch('http://localhost:8080/forgot-password', {
         method: 'POST',
         headers: {
@@ -152,16 +150,16 @@ export default function LoginPage() {
         <img src="/assets/2manyfoods-logo.png" alt="2manyfoods" />
         
         <form onSubmit={handleSubmit}>
-          {authError && <div className="errorText">{authError}</div>}
+          {authError && <div className="error">{authError}</div>}
           
-          <FormInput
+          <input
             type="text"
             name="usernameOrEmail"
             placeholder="Email"
             value={form.usernameOrEmail}
             onChange={handleChange}
-            error={errors.usernameOrEmail}
           />
+          {errors.usernameOrEmail && <div className="error">{errors.usernameOrEmail}</div>}
           
           <div className="passwordInputWrapper">
             <input
@@ -182,7 +180,7 @@ export default function LoginPage() {
               />
             </button>
           </div>
-          {errors.password && <div className="errorText">{errors.password}</div>}
+          {errors.password && <div className="error">{errors.password}</div>}
           
           <div className="forgotLink">
             <a href="#" onClick={(e) => { e.preventDefault(); handleForgotPassword(); }}>
