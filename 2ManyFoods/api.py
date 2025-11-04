@@ -1,10 +1,7 @@
 import os
 from dotenv import load_dotenv
-import db
 import json
 import requests
-import asyncio
-
 load_dotenv()
 
 API_KEY = os.getenv('GMAPS_API_KEY')

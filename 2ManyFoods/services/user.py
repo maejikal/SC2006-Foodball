@@ -33,7 +33,6 @@ def create_user(username:str, password:str, email:str):
         "Reviews":[],
         "DietaryRequirements":{},
         "ProfilePhoto":"",
-        "Budget":0,
         "Preferences": {},
         "Hunger":1
     }
@@ -61,14 +60,12 @@ def join_group(username:str, group_id:int):
     user = get_user_by_username(username)
     groups = user["Groups"]
     return run(updatedb(COL, "Username", username, "Groups", groups + [group_id]))
-    #return user_collection.update_one({"Username": username}, {"$push": {"Groups": group_id}})
 
 def leave_group(username:str, group_id:int):
     user = get_user_by_username(username)
     groups = user["Groups"]
     groups.remove(group_id)
     return run(updatedb(COL, "Username", username, "Groups", groups))
-    #return user_collection.update_one({"Username": username}, {"$pull": {"Groups": group_id}})
 
 def update_user(field: str, username: str, new_data: str):
     current_user = get_user_by_username(username)
