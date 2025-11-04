@@ -39,16 +39,10 @@ export default function MapPage() {
     const map = new google.maps.Map(mapRef.current, {
       zoom: 15,
       center: latlang,
+      clickableIcons: false
     });
-
-    let infoWindow = new google.maps.InfoWindow({
-      content: "Click the map to get Lat/Lng!",
-      position: latlang,
-    });
-    infoWindow.open(map);
 
     map.addListener("click", (mapsMouseEvent) => {
-      infoWindow.close();
       
       if (currentCircleRef.current) {
         currentCircleRef.current.setMap(null);
@@ -68,13 +62,6 @@ export default function MapPage() {
       const latLng = mapsMouseEvent.latLng.toJSON();
       setSelectedLocation(latLng);
 
-      infoWindow = new google.maps.InfoWindow({
-        position: mapsMouseEvent.latLng,
-      });
-      infoWindow.setContent(
-        JSON.stringify(latLng, null, 2)
-      );
-      infoWindow.open(map);
     });
   }, [isLoaded]);
 
