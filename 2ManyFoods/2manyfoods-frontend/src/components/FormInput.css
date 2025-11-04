@@ -1,5 +1,4 @@
 .formInput {
-  margin-bottom: 1.5rem;
   display: flex;
   flex-direction: column;
   width: 100%;
@@ -8,23 +7,27 @@
 
 .formInput input {
   padding: 0.75rem 1rem;
-  border: 1px solid #444;
+  border: 1px solid #ccc;
   border-radius: 8px;
   background: white;
-  color: var(--color-white);
+  color: black;
   width: 100%;
   box-sizing: border-box;
   font-size: 1rem;
-  transition: border-color var(--transition-fast);
+  transition: border-color 0.2s;
+  margin-bottom: 0;
 }
 
 .formInput input:focus {
   outline: none;
-  border-color: var(--color-primary);
+  border-color: #7b6bae;
+  background-color: #f9f9f9;
 }
 
 .formInput .errorText {
   color: #ff6b6b;
   font-size: 0.85rem;
   margin-top: 0.25rem;
+  text-align: left;
+  display: block;
 }

@@ -2,7 +2,7 @@ import pymongo
 import asyncio
 
 
-async def makedb():                                                                                     #DO NOT RUN UNLESS YOU NEED TO REDO THE DB
+async def makedb():                                                                                     #DO NOT RUN UNLESS YOU NEED TO REDO THE DB, drops all existing collections and remakes them!
     client = pymongo.AsyncMongoClient('127.0.0.1', 27017) 
     db = client["2ManyFoods_db"]                                          
     #clearing database
@@ -19,7 +19,7 @@ async def makedb():                                                             
     await client.close()
     return (user_collection, group_collection, eatery_collection, review_collection)
 
-async def insertdb(field: str, data: list):
+async def insertdb(field: str, data: list):                                                             #Function to add data (List<Dict>) into collections
     client = pymongo.AsyncMongoClient('127.0.0.1', 27017) 
     db = client["2ManyFoods_db"]
     result = None
@@ -43,7 +43,7 @@ async def insertdb(field: str, data: list):
     await client.close()
     return result
 
-async def searchdb(collection: str,field: str, data=None):
+async def searchdb(collection: str,field: str, data=None):                                              #Search for specific item
     client = pymongo.AsyncMongoClient('127.0.0.1', 27017) 
     db = client["2ManyFoods_db"]
     coll = db[collection]
@@ -55,70 +55,38 @@ async def searchdb(collection: str,field: str, data=None):
     result = await coll.find_one(query)
     return result
 
-async def searchdb_all(collection: str, field: str, data=None):
+async def searchdb_all(collection: str, field: str, data=None):                                          #Search for multiple valid items
     client = pymongo.AsyncMongoClient('127.0.0.1', 27017) 
     db = client["2ManyFoods_db"]
     coll = db[collection]
-    if isinstance(field, dict):
+    if isinstance(field, dict):                                                                          
         query = field
     else:
         query = {field: data}
-    result = await coll.find(query).to_list(None)  # Returns ALL documents
+    result = await coll.find(query).to_list(None)  #returns ALL documents
     return result
 
-# async def searchdb_dict(collection: str,field: str, data: dict):
-#     client = pymongo.AsyncMongoClient('127.0.0.1', 27017) 
-#     db = client["2ManyFoods_db"]
-#     coll = db[collection]
-#     result = await coll.find_one({field:data})
-#     return result
-'''
-async def updatedb(collection: str, identifierfield: str, identifier: str, field: str, data):
-    client = pymongo.AsyncMongoClient('127.0.0.1', 27017) 
-    db = client["2ManyFoods_db"]
-    coll = db[collection]
-    result = await coll.update_one({identifierfield:identifier},{'$set': {field: data}})
-    await client.close()
-    return result
-'''
-async def updatedb(collection: str, identifierfield: str, identifier: str, field: str, data):
+async def updatedb(collection: str, identifierfield: str, identifier: str, field: str, data):            #Update field
     client = pymongo.AsyncMongoClient('127.0.0.1', 27017) 
     db = client["2ManyFoods_db"]
     coll = db[collection]
     
-    print(f"\n=== UPDATEDB DEBUG ===")
-    print(f"Collection: {collection}")
-    print(f"Identifier field: {identifierfield}")
-    print(f"Identifier value: {identifier}")
-    print(f"Field to update: {field}")
-    print(f"New data (first 50 chars): {str(data)[:50]}...")
+    #Check if document exists before update
+    existing = await coll.find_one({identifierfield: identifier})                           
     
-    # Check if document exists before update
-    existing = await coll.find_one({identifierfield: identifier})
-    print(f"Document exists: {existing is not None}")
-    if existing:
-        print(f"Current value of {field}: {str(existing.get(field, 'N/A'))[:50]}...")
-    
-    # Perform update
+    #Perform update
     result = await coll.update_one(
         {identifierfield: identifier},
         {'$set': {field: data}}
     )
     
-    print(f"Matched count: {result.matched_count}")
-    print(f"Modified count: {result.modified_count}")
-    
-    # Verify update
+    #Verify update
     updated = await coll.find_one({identifierfield: identifier})
-    if updated:
-        print(f"New value of {field}: {str(updated.get(field, 'N/A'))[:50]}...")
     
     await client.close()
-    print(f"=== END UPDATEDB DEBUG ===\n")
-    
     return result
 
-async def viewdb():
+async def viewdb():                                                                                     #View db in console printed format
     client = pymongo.AsyncMongoClient('127.0.0.1', 27017) 
     db = client["2ManyFoods_db"]
     user_collection = db["Users"]
@@ -134,7 +102,7 @@ async def viewdb():
     async for i in review_collection.find():
         print(i)
 
-async def getdb():
+async def getdb():                                                      #retrieve db user
     client = pymongo.AsyncMongoClient('127.0.0.1', 27017) 
     db = client["2ManyFoods_db"]                                               
 
@@ -154,4 +122,4 @@ async def deletedb(collection: str, identifierfield: str, identifier): #added to
 
 
 # asyncio.run(viewdb())
-user_collection, group_collection, eatery_collection, review_collection = asyncio.run(getdb())   
+# user_collection, group_collection, eatery_collection, review_collection = asyncio.run(getdb())   

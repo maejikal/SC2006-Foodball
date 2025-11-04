@@ -6,28 +6,27 @@ from services.group import get_user_groups
 
 COL = "Users" # only interacts with User collection
 
-def get_user_by_email(email:str):
+def get_user_by_email(email:str):                                        #Find specific user by email
     return run(searchdb(COL, "Email", email))
 
-def get_user_by_username(username:str):
+def get_user_by_username(username:str):                                  #Find specific user by username
     return run(searchdb(COL,"Username",username))
 
-def create_user(username:str, password:str, email:str):
-    if run(searchdb(COL, "Email", email)):
+def create_user(username:str, password:str, email:str):                  #Create user in database
+    if run(searchdb(COL, "Email", email)):                               #Check if email is already used
         print("This email has already been registered.")
         raise ValueError("This email has already been registered.")
         
-    if run(searchdb(COL, "Username", username)):
+    if run(searchdb(COL, "Username", username)):                         #Check if username is taken
         print("This username is already taken.")
         raise ValueError("This username is already taken.")
     
-    hashed_password = hash_password(password)
+    hashed_password = hash_password(password)                            #Hash password
 
     user_doc = {
         "Username":username,
         "Password":hashed_password,
         "Email":email,
-        "Verified":False,
         "Groups": [],
         "FoodHistory":[],
         "Reviews":[],
@@ -38,43 +37,37 @@ def create_user(username:str, password:str, email:str):
     }
     return run(insertdb(COL, [user_doc]))
 
-def login_user(email:str, password:str):
+def login_user(email:str, password:str):                                 #Login password
     user = get_user_by_email(email)
     if not user or not verify_password(password, user["Password"]):
         print("Invalid Email or Password.")
         return
     return user
 
-def store_review(username:str, review_id:int): 
+def store_review(username:str, review_id:int):                           #Create new review
     user = get_user_by_username(username)
     reviews = user["Reviews"]
     return run(updatedb(COL, "Username", username, "Reviews", reviews + [review_id]))
 
-def delete_review(username:str, review_id:int):
+def delete_review(username:str, review_id:int):                          #Delete existing review
     user = get_user_by_username(username)
     reviews = user["Reviews"]
     reviews.remove(review_id)
     return run(updatedb(COL, "Username", username, "Reviews", reviews))
 
-def join_group(username:str, group_id:int):
+def join_group(username:str, group_id:int):                              #Join existing group
     user = get_user_by_username(username)
     groups = user["Groups"]
     return run(updatedb(COL, "Username", username, "Groups", groups + [group_id]))
 
-def leave_group(username:str, group_id:int):
+def leave_group(username:str, group_id:int):                             #Leave group
     user = get_user_by_username(username)
     groups = user["Groups"]
     groups.remove(group_id)
     return run(updatedb(COL, "Username", username, "Groups", groups))
 
-def update_user(field: str, username: str, new_data: str):
+def update_user(field: str, username: str, new_data: str):                          #Update user fields
     current_user = get_user_by_username(username)
-
-    print(f"\n=== UPDATE_USER DEBUG ===")
-    print(f"Field: {field}")
-    print(f"Username: {username}")
-    print(f"User exists: {current_user is not None}")
-
     match field:
         case "username":
             existing_user = get_user_by_username(new_data)
@@ -97,28 +90,18 @@ def update_user(field: str, username: str, new_data: str):
                 raise ValueError("User not found")
             
             hashed_password = hash_password(new_data)
-            print(f"Hashing new password...")
-            print(f"Plain password length: {len(new_data)}")
-            print(f"Hashed password length: {len(hashed_password)}")
-            print(f"Old hashed password: {current_user.get('Password', 'N/A')[:30]}...")
-            print(f"New hashed password: {hashed_password[:30]}...")
             
             result = run(updatedb(COL, "Username", username, "Password", hashed_password))
             
-            print(f"Update result type: {type(result)}")
-            print(f"Update completed")
-            
             # CRITICAL: Verify the password was actually updated
-            verification_user = get_user_by_username(username)
-            if verification_user:
-                new_pass_in_db = verification_user.get('Password', '')
-                print(f"Password in DB after update: {new_pass_in_db[:30]}...")
-                print(f"Does new hash match DB: {new_pass_in_db == hashed_password}")
+            # verification_user = get_user_by_username(username)
+            # if verification_user:
+            #     new_pass_in_db = verification_user.get('Password', '')
                 
-                if new_pass_in_db != hashed_password:
-                    print("❌ ERROR: Password was NOT updated in database!")
-                else:
-                    print("✓ Password successfully updated in database")
+            #     if new_pass_in_db != hashed_password:
+            #         print("❌ ERROR: Password was NOT updated in database!")
+            #     else:
+            #         print("✓ Password successfully updated in database")
             
             return result
 
@@ -134,7 +117,7 @@ def update_user(field: str, username: str, new_data: str):
         case "budget":
             return run(updatedb(COL, "Username", username, "Budget", new_data))
 
-def update_foodhistory(username: str, eatery):
+def update_foodhistory(username: str, eatery):                                       #Update food history
     user = get_user_by_username(username)
     if not user:
         print("User not found.")
@@ -142,13 +125,13 @@ def update_foodhistory(username: str, eatery):
     
     current_history = user.get("FoodHistory", [])
     
-    if len(current_history) >= 10:
+    if len(current_history) >= 10:                                                   #Store up to 10 past eateries
         current_history = current_history[1:]
     
     current_history.append(eatery)
     
     return run(updatedb(COL, "Username", username, "FoodHistory", current_history))
 
-def delete_user(username: str):
+def delete_user(username: str):                                                      #Delete existing user
     return run(deletedb(COL, "Username", username))
     

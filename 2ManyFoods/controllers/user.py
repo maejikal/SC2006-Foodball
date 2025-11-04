@@ -3,7 +3,7 @@ from services import user as user_services, group as group_services
 
 ## fetching user's profile, updating settings, getting lists associated with logged in users
 
-def update_user_profile(data):
+def update_user_profile(data):                                                            #Call front end if error, else call user_service to update
     if not data:
         return jsonify({"error":"Missing or invalid JSON input"}), 400
     
@@ -15,7 +15,7 @@ def update_user_profile(data):
     
     return jsonify({"message":f"Profile updated successfully"}), 200
 
-def get_user_profile(username):
+def get_user_profile(username):                                                            #Same as above, but for getting user data instead
     if not username:
         return jsonify({"error": "Username is required"}), 400
     
