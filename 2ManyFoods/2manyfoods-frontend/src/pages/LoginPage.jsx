@@ -80,8 +80,6 @@ export default function LoginPage() {
       // CRITICAL: Clear any existing session data first
       sessionStorage.clear();
       
-      //console.log('Login successful:', data);
-      
       if (data.username) {
         sessionStorage.setItem('username', data.username);
         console.log('Stored username in sessionStorage:', data.username);

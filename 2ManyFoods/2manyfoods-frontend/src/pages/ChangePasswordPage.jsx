@@ -92,7 +92,7 @@ export default function ChangePasswordPage() {
   
   setIsLoading(true);
   
-  const username = localStorage.getItem('username'); // change sessionStorage to localStorage
+  const username = sessionStorage.getItem('username'); // change sessionStorage to localStorage
   
   if (!username) {
     setErrorMessage('Please log in to change password');
@@ -101,17 +101,35 @@ export default function ChangePasswordPage() {
   }
   
   try {   
-    // First, verify the current password by attempting to login
-    const verifyResponse = await fetch('http://localhost:8080/login', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        email: localStorage.getItem('email'), // You'll need to store email in localStorage during login
-        password: currentPassword
-      })
-    });
+    // First, get user's email from the profile
+      const profileResponse = await fetch(`http://localhost:8080/account/${username}`, {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' }
+      });
+      
+      const profileData = await profileResponse.json();
+      
+      if (!profileResponse.ok) {
+        throw new Error('Failed to get user profile');
+      }
+      
+      const userEmail = profileData.email;
+      
+      // Verify the current password by attempting to login
+      const verifyResponse = await fetch('http://localhost:8080/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: userEmail,
+          password: currentPassword
+        })
+      });
+      
+      if (!verifyResponse.ok) {
+        throw new Error('Current password is incorrect');
+      }
      
     // Now update the password
     const response = await fetch('http://localhost:8080/account/security', {
