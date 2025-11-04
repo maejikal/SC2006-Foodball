@@ -39,7 +39,7 @@ class RecommendationController:
                 groupPreferences[preference["rank3"]] += 0.2
             except:
                 groupPreferences[preference["rank3"]] = 0.2
-
+        groupHistory = self._group.getHistories()
         groupPreferences = list(reversed(sorted(groupPreferences, key=groupPreferences.get)))
         out = []
         for category in groupPreferences:
@@ -47,10 +47,30 @@ class RecommendationController:
                 if category in eatery['types']:
                     out.append(eatery)
                     results.remove(eatery)
+
+        # Filter based on dietary requirements
         for req in requirements:
             for eatery in out:
                 if req not in eatery['types']:
                     out.remove(eatery)
+
+        # Rearrange results based on food history and hunger
+        for user in groupHistory:
+            for place in user:
+                for recc in out:
+                    if place["restaurant_id"] == recc["id"]:
+                        out.remove(recc)
+                        out.append(recc)
+                        break
+        extra = results[:5]
+        for user in groupHistory:
+            for place in user:
+                for recc in extra:
+                    if place["restaurant_id"] == recc["id"]:
+                        extra.remove(recc)
+                        extra.append(recc)
+                        break
+        out += extra
         # https://developers.google.com/maps/documentation/places/web-service/reference/rest/v1/places
         # https://developers.google.com/maps/documentation/places/web-service/place-types
         self.recommendations = out
