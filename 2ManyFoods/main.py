@@ -363,6 +363,45 @@ def get_review():
         print(f"Error getting review: {e}")
         return jsonify({"error": str(e), "success": False}), 500
 
+@app.route('/api/review/restaurant/<restaurant_id>', methods=['GET'])
+def get_restaurant_reviews(restaurant_id):
+    """Get all reviews for a specific restaurant"""
+    try:
+        reviews = run(searchdb_all("Reviews", "Eatery", restaurant_id))
+        
+        if not reviews:
+            return jsonify({
+                "success": True,
+                "reviews": [],
+                "average_rating": 0,
+                "total_reviews": 0
+            }), 200
+        
+        # Calculate average rating
+        total_rating = sum(r.get("Rating", 0) for r in reviews)
+        average_rating = round(total_rating / len(reviews), 1)
+        
+        formatted_reviews = []
+        for review in reviews:
+            formatted_reviews.append({
+                "username": review.get("Username", "Anonymous"),
+                "rating": review.get("Rating", 0),
+                "comment": review.get("Comment", ""),
+                "date": review.get("Date", ""),
+                "photo": review.get("Photo", "")
+            })
+        
+        return jsonify({
+            "success": True,
+            "reviews": formatted_reviews,
+            "average_rating": average_rating,
+            "total_reviews": len(reviews)
+        }), 200
+        
+    except Exception as e:
+        print(f"Error getting restaurant reviews: {e}")
+        return jsonify({"error": str(e), "success": False}), 500
+
 # Get group status (for polling)
 @app.route('/api/group/<group_id>/status', methods=['GET'])
 def get_group_status(group_id):
