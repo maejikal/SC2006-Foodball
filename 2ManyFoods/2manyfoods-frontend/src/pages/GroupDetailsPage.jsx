@@ -234,7 +234,7 @@ export default function GroupDetailsPage() {
             </div>
 
             <div className="membersSection">
-              <h2>members ({group.membersCount}/{group.maxMembers})</h2>
+              <h2>Members ({group.membersCount}/{group.maxMembers})</h2>
               <div className="membersList">
                 {members.map((member) => (
                   <div key={member.id} className="memberCard">

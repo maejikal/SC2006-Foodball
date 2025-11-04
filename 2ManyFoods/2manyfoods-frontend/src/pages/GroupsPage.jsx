@@ -135,7 +135,7 @@ export default function GroupsPage() {
         
         <p>
           {yourGroups.length === 0 
-            ? "You are not in any group, create one to begin" 
+            ? "No groups yet. Create your first group to get started!" 
             : "View and manage your groups"}
         </p>
 
@@ -154,7 +154,7 @@ export default function GroupsPage() {
             <p>Loading groups...</p>
           ) : yourGroups.length === 0 ? (
             <div className="emptyState">
-              <p>No groups yet. Create your first group to get started!</p>
+              {/*<p>No groups yet. Create your first group to get started!</p>*/}
             </div>
           ) : (
             <div className="groupList">

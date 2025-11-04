@@ -22,7 +22,7 @@ export default function LandingPage() {
       
       <section className="hero">
         <div className="heroText">
-          <h1>having trouble deciding what to eat?</h1>
+          <h1>Having trouble deciding what to eat?</h1>
           <p>
             Choosing what to eat shouldn't be stressful. 2manyfoods helps you discover, compare, and decide on meals quickly, whether you're eating alone or with a group. one of the key features is foodball (magic 8Ball but for food!)—your group food recommendation engine.
           </p>
@@ -41,28 +41,28 @@ export default function LandingPage() {
       <section className="foodball">
         <h2>Foodball</h2>
         <p>
-          instead of endless "i don't know, you choose," <br /> foodball balances preferences, budgets, and hunger levels to suggest a fair option for the whole group.
+          Instead of endless "i don't know, you choose," <br /> Foodball balances preferences, budgets, and hunger levels to suggest a fair option for the whole group.
         </p>
-        <h3>how it works</h3>
+        <h3>How it works</h3>
         <ol>
-          <li>create a group – add friends via invite link</li>
-          <li>set your preferences</li>
-          <li>search nearby eateries</li>
-          <li>get recommendations – best options suggestions, balancing everyone's inputs</li>
-          <li>vote & finalize - group members can quickly vote, making decisions seamless</li>
+          <li>Create a group – add friends via invite link</li>
+          <li>Set your preferences</li>
+          <li>Search nearby eateries</li>
+          <li>Get recommendations – best options suggestions, balancing everyone's inputs</li>
+          <li>Vote & finalize - group members can quickly vote, making decisions seamless</li>
         </ol>
       </section>
 
       <section className="features">
         <div className="featuresContent">
           <p>
-            while foodball helps groups decide, 2manyfoods goes further:
+            While foodball helps groups decide, 2manyfoods goes further:
           </p>
           <ul>
-            <li>personalized recommendations for solo diners</li>
-            <li>smart filters for health, price, and cuisine type</li>
-            <li>mobile-friendly design for on-the-go food discovery</li>
-            <li>keeps food consumption history so foodball can be even more personalised</li>
+            <li>Personalized recommendations for solo diners</li>
+            <li>Smart filters for health, price, and cuisine type</li>
+            <li>Mobile-friendly design for on-the-go food discovery</li>
+            <li>Keeps food consumption history so foodball can be even more personalised</li>
           </ul>
         </div>
         <div className="spinningWheel">

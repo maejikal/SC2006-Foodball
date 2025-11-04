@@ -199,7 +199,7 @@ export default function LoginPage() {
         </form>
         
         <p>
-          don't have an account?{' '}
+          Don't have an account?{' '}
           <a href="/signup">sign up</a>
         </p>
       </div>

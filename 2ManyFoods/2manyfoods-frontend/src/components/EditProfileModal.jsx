@@ -13,7 +13,7 @@ export default function EditProfileModal({ isOpen, onClose, field, currentValue,
 
   useEffect(() => {
     if (isOpen) {
-      setNewValue(currentValue || '');
+      setNewValue(isEmailVerification ? (currentValue || '') : '');
       setConfirmValue('');
       setVerificationCode('');
       setShowVerification(isEmailVerification); // Auto-show verification for signup
@@ -161,6 +161,7 @@ export default function EditProfileModal({ isOpen, onClose, field, currentValue,
                   type={field === 'email' ? 'email' : 'text'}
                   value={newValue}
                   onChange={(e) => setNewValue(e.target.value)}
+                  onFocus={(e) => !isEmailVerification && e.target.select()} // added
                   placeholder={`Enter new ${field}`}
                   onMouseDown={(e) => e.stopPropagation()}
                   onTouchStart={(e) => e.stopPropagation()}
