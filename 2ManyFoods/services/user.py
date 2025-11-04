@@ -114,9 +114,6 @@ def update_user(field: str, username: str, new_data: str):                      
         case "preferences":
             return run(updatedb(COL, "Username", username, "Preferences", new_data))
 
-        case "budget":
-            return run(updatedb(COL, "Username", username, "Budget", new_data))
-
 def update_foodhistory(username: str, eatery):                                       #Update food history
     user = get_user_by_username(username)
     if not user:
