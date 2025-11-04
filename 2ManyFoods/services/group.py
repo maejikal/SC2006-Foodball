@@ -64,7 +64,7 @@ def create_group(owner: str, grp_name: str, photo: str):
 
 
 def remove_usr(username: str, grp_id: str):
-    """Remove user from group. If owner leaves, transfer ownership or delete group."""
+   # Remove user from group. If owner leaves, transfer ownership or delete group.
     async def _remove_user_async():
         group = await searchdb("Groups", "_id", ObjectId(grp_id))
         

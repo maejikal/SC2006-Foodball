@@ -46,9 +46,8 @@ def create_eatery(name:str, dietary_req:dict, cuisine:dict, price_range:tuple, l
     #return user_collection.insert_one(eatery_doc)
 
 def search_eateries(username: str, selected_cuisines: list, price_range: int, dietary_filters: list):
-    """
-    Search for eateries using Google Places API based on user preferences
-    """
+   # Search for eateries using Google Places API based on user preferences
+
     user = user_services.get_user_by_username(username)
     if not user:
         return []

@@ -162,14 +162,14 @@ def handle_get_group_details(grp_id):
         return jsonify({"error": str(e)}), 500
 
 def get_group_by_id(group_id):
-    """Get group using async pattern"""
+   # Get group using async pattern
     async def _get_async():
         result = await searchdb("Groups", "_id", ObjectId(group_id))
         return result
     return run(_get_async())
 
 def update_member_preferences(group_id, username, cuisines, price_range, hunger_level):
-    """Update member preferences using async pattern"""
+   # Update member preferences using async pattern
     async def _update_async():
         client = pymongo.AsyncMongoClient('127.0.0.1', 27017)
         try:
@@ -189,7 +189,7 @@ def update_member_preferences(group_id, username, cuisines, price_range, hunger_
     return run(_update_async())
 
 def start_voting(group_id, restaurants):
-    """Start voting using async pattern"""
+   # Start voting using async pattern
     async def _start_async():
         client = pymongo.AsyncMongoClient('127.0.0.1', 27017)
         try:
@@ -204,7 +204,7 @@ def start_voting(group_id, restaurants):
     return run(_start_async())
 
 def add_vote(group_id, username, restaurant_ids):
-    """Add vote using async pattern"""
+   # Add vote using async pattern
     async def _vote_async():
         client = pymongo.AsyncMongoClient('127.0.0.1', 27017)
         try:
@@ -223,7 +223,7 @@ def add_vote(group_id, username, restaurant_ids):
     return run(_vote_async())
 
 def calculate_winner(group_id):
-    """Calculate winner and return FULL restaurant object"""
+   # Calculate winner and return FULL restaurant object
     async def calc_async():
         group = await searchdb("Groups", "_id", ObjectId(group_id))
         

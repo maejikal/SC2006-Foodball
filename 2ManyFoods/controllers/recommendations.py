@@ -17,8 +17,8 @@ class RecommendationController:
 
     def FilterRecommendations(self) -> list[Eatery]:
         query_result = api.search(
-            lat_lng={'lat': self.location.getlatitude(), 'long': self.location.getlongitude()},
-            radius=self.radius, type=['restaurant'])
+                lat_lng={'lat': self.location.getlatitude(), 'long': self.location.getlongitude()},
+                radius=self.radius, type=['restaurant'])
         results = query_result['places']
         weights = [user["Hunger"] for user in self._group.Users.values()]
         if len(weights) == 1:
@@ -62,15 +62,15 @@ class RecommendationController:
                         out.remove(recc)
                         out.append(recc)
                         break
-        extra = results[:5]
+
         for user in groupHistory:
             for place in user:
-                for recc in extra:
+                for recc in results:
                     if place["restaurant_id"] == recc["id"]:
-                        extra.remove(recc)
-                        extra.append(recc)
+                        results.remove(recc)
+                        results.append(recc)
                         break
-        out += extra
+        out += results[:5]
         # https://developers.google.com/maps/documentation/places/web-service/reference/rest/v1/places
         # https://developers.google.com/maps/documentation/places/web-service/place-types
         self.recommendations = out

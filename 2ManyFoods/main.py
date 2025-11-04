@@ -44,7 +44,7 @@ mail = Mail(app)
 
 @app.route('/send-verification', methods=['POST'])
 def send_verification():
-    """Send verification code to email"""
+   # Send verification code to email
     try:
         data = request.get_json()
         email = data.get('email')
@@ -58,20 +58,12 @@ def send_verification():
         if existing_user:
             return jsonify({"error": "Email already registered"}), 400
 
-        # Generate 6-digit verification code
-        # code = ''.join(random.choices(string.digits, k=6))
-
         code = verification.mail(app, email)
         # Store code with expiration (10 minutes)
         verification_codes[email] = {
             'code': code,
             'expires_at': datetime.now() + timedelta(minutes=10)
         }
-
-        # TODO: Send email with verification code
-        # For now, just print it (in production, use email service)
-        # verification.mail(app, email)
-        # print(f"Verification code for {email}: {code}")
 
         return jsonify({
             "message": "Verification code sent successfully",
@@ -85,7 +77,7 @@ def send_verification():
 
 @app.route('/verify-email', methods=['POST'])
 def verify_email():
-    """Verify email with code"""
+    # Verify email with code
     try:
         data = request.get_json()
         email = data.get('email')
@@ -254,7 +246,7 @@ def leave_group():
 
 @app.route('/api/history/add', methods=['POST'])
 def add_to_history():
-    """Add restaurant to user's food history"""
+   # Add restaurant to user's food history
     try:
         data = request.get_json()
         username = data.get('username')
@@ -292,7 +284,7 @@ def add_to_history():
 
 @app.route('/api/history/get', methods=['GET'])
 def get_food_history():
-    """Get user's food history"""
+   # Get user's food history
     try:
         username = request.args.get('username')
 
@@ -331,7 +323,7 @@ def update_review():
 
 @app.route('/api/review/get', methods=['GET'])
 def get_review():
-    """Get user's review for a specific restaurant"""
+   # Get user's review for a specific restaurant
     try:
         username = request.args.get('username')
         restaurant_id = request.args.get('restaurant_id')
@@ -365,7 +357,7 @@ def get_review():
 
 @app.route('/api/review/restaurant/<restaurant_id>', methods=['GET'])
 def get_restaurant_reviews(restaurant_id):
-    """Get all reviews for a specific restaurant"""
+   # Get all reviews for a specific restaurant
     try:
         reviews = run(searchdb_all("Reviews", "Eatery", restaurant_id))
         
@@ -445,7 +437,7 @@ def update_group_preferences(group_id):
 # Members poll for session status
 @app.route('/api/foodball/status/<groupName>', methods=['GET'])
 def get_foodball_status(groupName):
-    """Check if Foodball session has started and location is set"""
+   # Check if Foodball session has started and location is set
     global rec_cons
 
     try:
