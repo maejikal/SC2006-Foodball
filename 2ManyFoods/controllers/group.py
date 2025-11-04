@@ -80,7 +80,7 @@ def handle_join_by_invite_code(data):
         return jsonify({"error": f"Server error: {str(e)}"}), 500
 
 
-def handle_join_grp(data: dict, groupID: int=None): #dont quite know how to handle joining by link
+def handle_join_grp(data: dict, groupID: int=None):
 
     username = data.get("username")
     grp_id = groupID
@@ -187,83 +187,3 @@ def update_member_preferences(group_id, username, cuisines, price_range, hunger_
             await client.close()
     
     return run(_update_async())
-
-def start_voting(group_id, restaurants):
-   # Start voting using async pattern
-    async def _start_async():
-        client = pymongo.AsyncMongoClient('127.0.0.1', 27017)
-        try:
-            db = client["2ManyFoods_db"]
-            await db["Groups"].update_one(
-                {"_id": ObjectId(group_id)},
-                {"$set": {"voting_started": True, "restaurants": restaurants}}
-            )
-        finally:
-            await client.close()
-    
-    return run(_start_async())
-
-def add_vote(group_id, username, restaurant_ids):
-   # Add vote using async pattern
-    async def _vote_async():
-        client = pymongo.AsyncMongoClient('127.0.0.1', 27017)
-        try:
-            db = client["2ManyFoods_db"]
-            await db["Groups"].update_one(
-                {"_id": ObjectId(group_id), "members.username": username},
-                {"$set": {"members.$.has_voted": True}}
-            )
-            await db["Groups"].update_one(
-                {"_id": ObjectId(group_id)},
-                {"$push": {"votes": {"username": username, "restaurant_ids": restaurant_ids}}}
-            )
-        finally:
-            await client.close()
-    
-    return run(_vote_async())
-
-def calculate_winner(group_id):
-   # Calculate winner and return FULL restaurant object
-    async def calc_async():
-        group = await searchdb("Groups", "_id", ObjectId(group_id))
-        
-        print(f"Group: {group.get('grp_name')}")
-        
-        if not group:
-            print("Group not found")
-            return None
-        
-        votes = group.get('votes', [])
-        restaurants = group.get('restaurants', [])
-        
-        if not votes or not restaurants:
-            print("No votes or no restaurants")
-            return None
-        
-        # Count votes for each restaurant ID
-        vote_counts = {}
-        for vote in votes:
-            restaurant_ids = vote.get('restaurant_ids', [])
-            for rid in restaurant_ids:
-                vote_counts[rid] = vote_counts.get(rid, 0) + 1
-        
-        if not vote_counts:
-            print("No valid votes cast")
-            return None
-        
-        # Find the restaurant ID with most votes
-        winner_id = max(vote_counts, key=vote_counts.get)
-        
-        # Find the restaurant with matching _id
-        for restaurant in restaurants:
-            restaurant_id = str(restaurant.get('_id'))  # Convert ObjectId to string
-            if restaurant_id == winner_id:
-                return restaurant
-        
-        print("Winner not found in restaurants!")
-        return None
-    
-    return run(calc_async())
-
-
-
