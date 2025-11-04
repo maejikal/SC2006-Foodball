@@ -126,6 +126,9 @@ class Group:
 
     def getPreferences(self):
         return [user["Preferences"] for user in self.Users.values()]
+    
+    def getRequirements(self):
+        return []
 
 class Location:
     def __init__(self, latitude: float, longitude: float):

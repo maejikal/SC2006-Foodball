@@ -1,7 +1,5 @@
 from flask import request, jsonify
 from services import user as user_services, group as group_services
-from bson import ObjectId
-import math
 
 ## fetching user's profile, updating settings, getting lists associated with logged in users
 
@@ -31,7 +29,6 @@ def get_user_profile(username):                                                 
             "profilePhoto": user.get("ProfilePhoto", ""),
             "dietaryRequirements": user.get("DietaryRequirements", {}),
             "preferences": user.get("Preferences", {}),
-            "budget": user.get("Budget", 50),
             "groups": user.get("Groups", []),
             "foodHistory": user.get("FoodHistory", [])
         }), 200
