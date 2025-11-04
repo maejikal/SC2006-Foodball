@@ -29,3 +29,12 @@ In a third console, run the flask server
 ```bash
 python -u /path/to/folder/2006-SCSB-35/2ManyFoods/main.py
 ```
+
+TEAM:
+-Tan Jun Jie Terence (Frontend/Backend)
+-Tan Zhong Liang (Frontend)
+-Yan Hanxuan (Frontend/Diagrams)
+-Shahrel Chua Zong Yuan (Backend)
+-Kee Jun Xi, Ansel (Backend)
+-Taing Meyling (Backend/UI Design)
+-Zhan Yi Yun (Backend/Technical Designer/Diagrams)
