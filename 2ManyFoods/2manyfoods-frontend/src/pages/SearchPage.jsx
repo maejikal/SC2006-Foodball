@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import Navbar from '../components/AuthenticatedNavbar';
+import StarRating from '../components/StarRating';
 import './SearchPage.css';
 
 export default function SearchPage() {
@@ -13,13 +14,8 @@ export default function SearchPage() {
   const groupId = location.state?.groupId;
   const selectedLocation = location.state?.location;
   const isIndividual = location.state?.isIndividual || false;
-
-  console.log("DEBUG: groupName =", groupName);
-  console.log("DEBUG: isIndividual =", isIndividual);
-  console.log("DEBUG: selectedLocation =", selectedLocation);
   
   const [selectedCuisines, setSelectedCuisines] = useState([]);
-  const [priceRange, setPriceRange] = useState(50);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [restaurants, setRestaurants] = useState([]);
@@ -30,6 +26,7 @@ export default function SearchPage() {
   
   const [preferencesModified, setPreferencesModified] = useState(false);
   const [hasVoted, setHasVoted] = useState(false);
+  const [restaurantRatings, setRestaurantRatings] = useState({});
 
   const mealCuisines = ['western', 'italian', 'chinese', 'indonesian', 'indian', 'japanese', 'korean'];
 
@@ -75,15 +72,12 @@ export default function SearchPage() {
             ];
             setSelectedCuisines(cuisines);
             
-            const budget = data.budget || 50;
-            setPriceRange(budget);
-            
             if (isIndividual) {
-              await submitUserPreferencesToGroup(cuisines, budget);
-              await fetchRestaurants(cuisines, budget);
+              await submitUserPreferencesToGroup(cuisines);
+              await fetchRestaurants(cuisines);
             } else {
-              await submitUserPreferencesToGroup(cuisines, budget);
-              await fetchRestaurants(cuisines, budget);
+              await submitUserPreferencesToGroup(cuisines);
+              await fetchRestaurants(cuisines);
             }
           }
         }
@@ -98,7 +92,7 @@ export default function SearchPage() {
     loadPreferencesAndFetch();
   }, [groupName, isIndividual, selectedLocation]);
 
-  const submitUserPreferencesToGroup = async (cuisines, budget) => {
+  const submitUserPreferencesToGroup = async (cuisines) => {
   try {
     if (!selectedLocation) {
       console.error('No location selected');
@@ -137,7 +131,7 @@ export default function SearchPage() {
 };
 
 
-  const fetchRestaurants = async (cuisines = selectedCuisines, price = priceRange) => {
+  const fetchRestaurants = async (cuisines = selectedCuisines) => {
   try {
     if (!selectedLocation) {
       console.error('No location selected');
@@ -175,6 +169,11 @@ export default function SearchPage() {
     if (response.ok) {
       const recs = Array.isArray(data) ? data : data.recommendations || [];
       setRestaurants(recs);
+      
+      // Fetch ratings for all restaurants
+      recs.forEach(restaurant => {
+        fetchRestaurantRating(restaurant.id);
+      });
     } else {
       console.error('Failed to get recommendations');
     }
@@ -182,6 +181,25 @@ export default function SearchPage() {
     console.error('Error fetching restaurants:', error);
   }
 };
+
+  const fetchRestaurantRating = async (restaurantId) => {
+    try {
+      const response = await fetch(`http://localhost:8080/api/review/restaurant/${restaurantId}`);
+      const data = await response.json();
+      
+      if (data.success) {
+        setRestaurantRatings(prev => ({
+          ...prev,
+          [restaurantId]: {
+            average: data.average_rating,
+            count: data.total_reviews
+          }
+        }));
+      }
+    } catch (error) {
+      console.error('Error fetching rating:', error);
+    }
+  };
 
   // POLLING LOGIC - Navigate when finalVote exists
   useEffect(() => {
@@ -277,14 +295,6 @@ export default function SearchPage() {
     }
   };
 
-  const handlePriceChange = (e) => {
-    setPriceRange(Number(e.target.value));
-    
-    if (isIndividual) {
-      setPreferencesModified(true);
-    }
-  };
-
   const handleUpdateRecommendations = async () => {
     if (selectedCuisines.length !== 3) {
       alert('Please select exactly 3 cuisines');
@@ -295,7 +305,7 @@ export default function SearchPage() {
     
     try {
       // Fetch new restaurants
-      await fetchRestaurants(selectedCuisines, priceRange);
+      await fetchRestaurants(selectedCuisines);
       
       // Save preferences to database for individual mode
       if (isIndividual && preferencesModified) {
@@ -597,40 +607,62 @@ export default function SearchPage() {
         </div>
 
         {filteredRestaurants.length > 0 ? (
-          <div className="restaurantList">
-            {filteredRestaurants.map((restaurant, index) => {
-              const isSelected = selectedRestaurant?.id === restaurant.id;
+          <>
+            <div className="restaurantList">
+              {filteredRestaurants.map((restaurant, index) => {
+                const isSelected = selectedRestaurant?.id === restaurant.id;
+                const rating = restaurantRatings[restaurant.id];
 
-              return (
-                <div
-                  key={restaurant.id || index}
-                  className={`restaurantCard ${isSelected ? 'selected' : ''}`}
-                  onClick={() => handleRestaurantClick(restaurant)}
-                >
-                  <div className="restaurantInfo">
-                    <div className="restaurantHeader">
-                      <h3>{restaurant.displayName?.text}</h3>
-                      <p className="status">
-                        {!isIndividual && !hasVoted ? 'Click to vote' : 
-                        !isIndividual && hasVoted ? 'Voting closed' :
-                        'Click to choose'}
-                      </p>
+                return (
+                  <div
+                    key={restaurant.id || index}
+                    className={`restaurantCard ${isSelected ? 'selected' : ''}`}
+                    onClick={() => handleRestaurantClick(restaurant)}
+                  >
+                    <div className="restaurantInfo">
+                      <div className="restaurantHeader">
+                        <h3>{restaurant.displayName?.text}</h3>
+                        <p className="status">
+                          {!isIndividual && !hasVoted ? 'Click to vote' : 
+                          !isIndividual && hasVoted ? 'Voting closed' :
+                          'Click to choose'}
+                        </p>
+                      </div>
+                      <p className="address">{restaurant.shortFormattedAddress || 'Address not available'}</p>
                     </div>
-                    <p className="address">{restaurant.shortFormattedAddress || 'Address not available'}</p>
+                    
+                    {rating && (
+                      <div className="ratingTooltip">
+                        <div className="ratingStarsContainer">
+                          <StarRating 
+                            rating={restaurantRatings[restaurant.id]?.average || 0}
+                            disabled={true}
+                            size={16}
+                          />
+                        </div>
+                        <div className="ratingNumber">
+                          {(restaurantRatings[restaurant.id]?.average || 0).toFixed(1)}
+                        </div>
+                        <div className="ratingText">
+                          ({restaurantRatings[restaurant.id]?.count || 0} reviews)
+                        </div>
+                      </div>
+                    )}
                   </div>
-                </div>
-              );
-            })}
+                );
+              })}
+            </div>
             
             {selectedRestaurant && (isIndividual || !hasVoted) && (
               <button 
                 onClick={handleConfirmRestaurant}
                 className="confirmBtn"
+                style={{ marginTop: '1.5rem' }}
               >
                 {isIndividual ? 'add to history' : 'confirm vote'}
               </button>
             )}
-          </div>
+          </>
         ) : (
           <div className="restaurantList">
             <p>No recommendations found. Try adjusting your preferences!</p>
