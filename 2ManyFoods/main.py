@@ -166,11 +166,11 @@ def group_voting(groupName):
     data = request.get_json()
     username = data.get('username')
     restaurant_id = data.get('restaurant_id', "")
-
+    hunger = data.get('hunger')
     try:
 
         con = rec_cons[groupName]
-        con._group.Users[username]["vote"] = restaurant_id
+        con._group.Users[username]["vote"] = [restaurant_id, hunger]
         done = None not in [user["vote"] for user in rec_cons[groupName]._group.Users.values()]
         if done:
             return jsonify({"finalVote": rec_cons[groupName].finishVoting()})

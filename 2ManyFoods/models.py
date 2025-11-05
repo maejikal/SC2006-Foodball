@@ -15,7 +15,7 @@ class User:
         self.DietaryRequirements = DietaryRequirements
         self.ProfilePhoto = ProfilePhoto
         self.Budget = Budget
-        self.Hunger = Hunger
+        self.Hunger = ['', Hunger]
         self.preferences = preferences
         self.Reviews = []
         self.Groups = []
@@ -109,7 +109,7 @@ class Group:
         self.GroupName = groupname
 
     def addUser(self, userID: int):
-        self.Users.append(user)
+        self.Users.append(userID)
         self.NoOfUsers = len(self.Users)
 
     def updateGroupPhoto(self, photo:str):

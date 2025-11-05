@@ -13,9 +13,6 @@ class RecommendationController:
 
     def FilterRecommendations(self) -> list[Eatery]:
         
-        weights = [user["Hunger"] for user in self._group.Users.values()]
-        if len(weights) == 1:
-            weights = [1]
         preferences = self._group.getPreferences()
         requirements = self._group.getRequirements()
 
@@ -63,11 +60,12 @@ class RecommendationController:
         votes = {i['id']: 0 for i in self.recommendations}
         for user, info in self._group.Users.items():
             try:
-                votes[info['vote']] += info['Hunger']
+                votes[info['vote'][0]] += info['vote'][1]
             except:
-                votes[info['vote']] = info['Hunger']
+                votes[info['vote'][0]] = info['vote'][1]
     
         highest = max(votes.values())
+        print(votes)
         self.final = random.choice([i for i in votes if votes[i] == highest])
         return self.final
 
