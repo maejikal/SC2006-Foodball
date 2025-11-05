@@ -92,7 +92,7 @@ export default function ChangePasswordPage() {
   
   setIsLoading(true);
   
-  const username = sessionStorage.getItem('username'); // change sessionStorage to localStorage
+  const username = sessionStorage.getItem('username');
   
   if (!username) {
     setErrorMessage('Please log in to change password');
@@ -138,9 +138,9 @@ export default function ChangePasswordPage() {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        field: 'password',      // ← REQUIRED: tells backend which field to update
-        username: username,     // ← REQUIRED: the user to update
-        newValue: newPassword   // ← REQUIRED: the new password value  
+        field: 'password',
+        username: username, 
+        newValue: newPassword 
       })
     });
     

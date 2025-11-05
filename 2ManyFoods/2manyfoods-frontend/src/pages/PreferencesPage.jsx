@@ -14,7 +14,6 @@ export default function PreferencesPage() {
   const [rank1, setRank1] = useState('');
   const [rank2, setRank2] = useState('');
   const [rank3, setRank3] = useState('');
-  //const [budget, setBudget] = useState(50);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState('');
@@ -230,23 +229,6 @@ export default function PreferencesPage() {
             ))}
           </select>
         </label>
-
-      {/* <div className="budgetSliderSection">
-          <label>Budget per meal: ${budget}</label>
-          <input
-            type="range"
-            min="5"
-            max="100"
-            step="5"
-            value={budget}
-            onChange={(e) => setBudget(Number(e.target.value))}
-            className="budgetSlider"
-          />
-          <div className="budgetLabels">
-            <span>$5</span>
-            <span>$100</span>
-          </div>
-        </div> */}
 
         <button 
           className="saveBtn"

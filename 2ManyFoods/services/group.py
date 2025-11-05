@@ -45,16 +45,9 @@ def create_group(owner: str, grp_name: str, photo: str):
         "members": [
             {
                 "username": owner,
-                "is_leader": True,
-                "preferences_set": False,
-                "cuisines": [],
-                "price_range": 50,
-                "hunger_level": 5,
+                "is_leader": True
             }
         ],
-        "voting_started": False,
-        "restaurants": [],
-        "votes": []
     }
     
     inserted_docs = run(insertdb("Groups", [grp_doc]))
@@ -70,6 +63,7 @@ def remove_usr(username: str, grp_id: str):
             raise ValueError("Group does not exist.")
         
         remaining_users = [u for u in group["users"] if u != username]
+        remaining_members = [m for m in group.get("members", []) if m["username"] != username]
         
         # Check if the user leaving is the owner
         if group.get("owner") == username:
@@ -83,11 +77,13 @@ def remove_usr(username: str, grp_id: str):
                 new_owner = remaining_users[0]
                 await updatedb("Groups", "_id", ObjectId(grp_id), "owner", new_owner)
                 await updatedb("Groups", "_id", ObjectId(grp_id), "users", remaining_users)
+                await updatedb("Groups", "_id", ObjectId(grp_id), "members", remaining_members)
                 await updatedb("Groups", "_id", ObjectId(grp_id), "total_users", len(remaining_users))
                 return True
         else:
             # Regular user leaving
             await updatedb("Groups", "_id", ObjectId(grp_id), "users", remaining_users)
+            await updatedb("Groups", "_id", ObjectId(grp_id), "members", remaining_members)
             await updatedb("Groups", "_id", ObjectId(grp_id), "total_users", len(remaining_users))
             return True
     
@@ -109,11 +105,7 @@ def add_usr(username: str, grp_id: str):
     # Add member with their details
     new_member = {
         "username": username,
-        "is_leader": False,
-        "preferences_set": False,
-        "cuisines": [],
-        "price_range": 50,
-        "hunger_level": 5,
+        "is_leader": False
     }
     updated_members = group.get("members", []) + [new_member]
     run(updatedb("Groups", "_id", ObjectId(grp_id), "members", updated_members))

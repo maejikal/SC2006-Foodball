@@ -72,23 +72,16 @@ export default function LoginPage() {
       if (!response.ok) {
         throw new Error(data.error || 'Login failed');
       }
-
-      console.log('Login response:', data);
-      console.log('Username from backend:', data.username);
     
       // CRITICAL: Clear any existing session data first
       sessionStorage.clear();
       
       if (data.username) {
         sessionStorage.setItem('username', data.username);
-        console.log('Stored username in sessionStorage:', data.username);
       }
-      // Verify what was stored
-      console.log('Verification - sessionStorage username:', sessionStorage.getItem('username'));
       
       navigate('/');
     } catch (error) {
-      console.error('Login error:', error);
       setAuthError(error.message || 'Invalid email or password. Please try again.');
     } finally {
       setIsLoading(false);
@@ -131,7 +124,6 @@ export default function LoginPage() {
         setResetMessage(data.error || 'Failed to send reset link. Please try again.');
       }
     } catch (error) {
-      console.error('Password reset error:', error);
       setResetMessage('An error occurred. Please try again later.');
     }
   };

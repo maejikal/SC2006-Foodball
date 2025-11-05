@@ -458,6 +458,11 @@ export default function SearchPage() {
         if (response.ok) {
           setHasVoted(true);
           setShowConfirmModal(false);
+
+          if (selectedCuisines.length === 3)
+          {
+            await savePreferencesToProfile();
+          }
           
           if (data.finalVote) {
             const winningRestaurant = restaurants.find(r => r.id === data.finalVote);

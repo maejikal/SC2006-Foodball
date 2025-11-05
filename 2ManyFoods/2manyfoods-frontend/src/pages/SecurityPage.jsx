@@ -98,10 +98,7 @@ export default function SecurityPage() {
             throw new Error(data.error || 'Failed to update profile photo');
           }
 
-          console.log('Profile photo updated successfully!');
-
         } catch (error) {
-          console.error('Error updating profile photo:', error);
           setError('Failed to update profile photo. Please try again.');
         }
       };

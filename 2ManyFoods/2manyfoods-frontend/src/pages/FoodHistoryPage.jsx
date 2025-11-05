@@ -58,10 +58,8 @@ export default function FoodHistoryPage() {
                 const response = await fetch(
                   `http://localhost:8080/api/review/get?username=${username}&restaurant_id=${item.restaurantId}`
                 );
-                console.log(`Checking review for ${item.name}:`, response.status, response.ok);
                 
                 const data = await response.json();
-                console.log(`Response data for ${item.name}:`, data);
                 
                 // If response is 200 AND data.success is true, mark as reviewed
                 if (response.status === 200 && data.success) {
@@ -80,31 +78,26 @@ export default function FoodHistoryPage() {
                 // For any other status, treat as not reviewed
                 return { ...item, reviewed: false, rating: 0 };
               } catch (error) {
-                console.error(`Error checking review for ${item.name}:`, error);
                 return { ...item, reviewed: false, rating: 0 };
               }
             })
           );
           
-          console.log('Final history:', updatedHistory);
           setHistory(updatedHistory);
         } else {
           throw new Error(data.error || 'Failed to load history');
         }
         setIsLoading(false);
       } catch (error) {
-        console.error('Error loading food history:', error);
         setError('Network error. Please try again.');
         setIsLoading(false);
       }
     };
 
-
     loadFoodHistory();
     
     const handleVisibilityChange = () => {
       if (document.visibilityState === 'visible') {
-        console.log('Page became visible, reloading history');
         loadFoodHistory();
       }
     };

@@ -16,7 +16,6 @@ import GroupsPage from './pages/GroupsPage';
 import CreateGroupPage from './pages/CreateGroupPage';
 import GroupDetailsPage from './pages/GroupDetailsPage';
 import MapPage from './pages/MapPage';
-import WaitingForLeaderPage from './pages/WaitingForLeaderPage';
 import ResultsPage from './pages/ResultsPage';
 import Faqpage from './pages/FaqPage';
 
@@ -41,9 +40,6 @@ function App() {
         
         {/* MapPage used by BOTH individual and group leader */}
         <Route path="/location" element={<MapPage />} />
-        
-        {/* WaitingForLeaderPage for group members */}
-        <Route path="/foodball/waiting" element={<WaitingForLeaderPage />} />
         
         <Route path="/result" element={<ResultsPage />} />
         <Route path="/foodball/results" element={<ResultsPage />} />

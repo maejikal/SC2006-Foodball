@@ -40,8 +40,6 @@ export default function AccountPage() {
         return;
       }
 
-      console.log('AccountPage: Loading data for username:', username); // Debug log
-
       try {
         const response = await fetch(
           `http://localhost:8080/account/${username}`,
