@@ -92,7 +92,7 @@ export default function GroupDetailsPage() {
 
   // Members auto-navigate when leader starts (polls for rec_cons)
   useEffect(() => {
-    if (!group || isLeader) return;
+    if (!group || isLeader !== false) return;
 
     const checkLeaderStarted = async () => {
       try {
@@ -100,7 +100,7 @@ export default function GroupDetailsPage() {
         const data = await response.json();
 
         if (data.status === 'ready') {
-          navigate('/foodball/waiting', {
+          navigate('/search', {
             state: {
               groupName: group.name,
               groupId: group.id,
