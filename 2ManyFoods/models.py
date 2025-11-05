@@ -109,7 +109,6 @@ class Group:
         self.GroupName = groupname
 
     def addUser(self, userID: int):
-        user = db.group_collection.add_user(userID)
         self.Users.append(user)
         self.NoOfUsers = len(self.Users)
 

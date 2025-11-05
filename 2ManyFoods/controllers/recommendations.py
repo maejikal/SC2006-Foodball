@@ -88,4 +88,3 @@ class RecommendationController:
             self.FilterRecommendations()
             return True
         return False
-    
