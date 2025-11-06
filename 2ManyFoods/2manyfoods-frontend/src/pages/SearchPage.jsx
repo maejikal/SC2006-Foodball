@@ -670,7 +670,7 @@ export default function SearchPage() {
           </>
         ) : (
           <div className="restaurantList">
-            <p>No recommendations found. Try adjusting your preferences!</p>
+            <p>No eateries nearby. Try searching for another location!</p>
           </div>
         )}
       </div>
