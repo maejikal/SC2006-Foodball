@@ -183,7 +183,7 @@ export default function PreferencesPage() {
     <div className="preferencePage">
       <Navbar />
       <div className="preferenceContent">
-        <h1>{isOnboarding ? 'Select your top 3 favorite cuisines and budget (Step 2 of 2)' : 'Select your top 3 favorite cuisines'}</h1>
+        <h1>{isOnboarding ? 'Select your top 3 favorite cuisines (Step 2 of 2)' : 'Select your top 3 favorite cuisines'}</h1>
         
         {/* Error Message */}
         {error && <div className="error-message">{error}</div>}

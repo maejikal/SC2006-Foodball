@@ -47,27 +47,29 @@ def create_eatery(name:str, dietary_req:dict, cuisine:dict, price_range:tuple, l
 def search_eateries(selected_cuisines, location, radius):
    # Search for eateries using Google Places API based on user preferences
 
-    try:
-        query_result = api.search(
-                lat_lng={'lat': location['lat'], 'long': location['long']},
-                radius=radius, type=['restaurant'])
-        
-        # Extract and filter places
-        if 'places' in query_result:
-            places = query_result['places']
-            
-            # Filter by cuisine if provided
-            filtered_places = []
-            for place in places:
-                for cuisine in selected_cuisines:
-                    if cuisine in place["types"]:
-                        filtered_places.append(place)
-                        places.remove(place)
-                        break
+    query_result = api.search(
+        lat_lng={'lat': location['lat'], 'long': location['long']},
+        radius=radius, type=['restaurant'])
+
+    # Extract and filter places
+    if 'places' in query_result:
+        places = query_result['places']
+
+        # Filter by cuisine if provided
+        filtered_places = []
+        others = []
+        print(places)
+        for place in places:
+            found = False
+            for cuisine in selected_cuisines:
+                if cuisine in place["types"]:
+
+                    filtered_places.append(place)
+                    found = True
                     
-            return filtered_places, places
-        return [], []
-        
-    except Exception as e:
-        print(f"Google Places API error: {e}")
-        return [], []
+                    break
+            if not found:
+                others.append(place)
+            print()
+        return filtered_places, others
+    return [], []
