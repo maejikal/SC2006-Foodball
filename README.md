@@ -30,11 +30,11 @@ In a third console, run the flask server
 python -u /path/to/folder/2006-SCSB-35/2ManyFoods/main.py
 ```
 
-TEAM:
--Tan Jun Jie Terence (Frontend/Backend)
--Tan Zhong Liang (Frontend)
--Yan Hanxuan (Frontend/Diagrams)
--Shahrel Chua Zong Yuan (Backend)
--Kee Jun Xi, Ansel (Backend)
--Taing Meyling (Backend/UI Design)
--Zhan Yi Yun (Backend/Technical Designer/Diagrams)
+TEAM: <br>
+-Tan Jun Jie Terence (Frontend/Backend) <br>
+-Tan Zhong Liang (Frontend)<br>
+-Yan Hanxuan (Frontend/Diagrams)<br>
+-Shahrel Chua Zong Yuan (Backend)<br>
+-Kee Jun Xi, Ansel (Backend)<br>
+-Taing Meyling (Backend/UI Design)<br>
+-Zhan Yi Yun (Backend/Technical Designer/Diagrams)<br>
