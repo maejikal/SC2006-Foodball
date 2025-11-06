@@ -58,7 +58,6 @@ def search_eateries(selected_cuisines, location, radius):
         # Filter by cuisine if provided
         filtered_places = []
         others = []
-        print(places)
         for place in places:
             found = False
             for cuisine in selected_cuisines:
@@ -70,6 +69,5 @@ def search_eateries(selected_cuisines, location, radius):
                     break
             if not found:
                 others.append(place)
-            print()
         return filtered_places, others
     return [], []

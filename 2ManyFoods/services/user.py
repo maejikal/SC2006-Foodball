@@ -98,9 +98,9 @@ def update_user(field: str, username: str, new_data: str):                      
             #     new_pass_in_db = verification_user.get('Password', '')
                 
             #     if new_pass_in_db != hashed_password:
-            #         print("❌ ERROR: Password was NOT updated in database!")
+            #         print("ERROR: Password was NOT updated in database!")
             #     else:
-            #         print("✓ Password successfully updated in database")
+            #         print("Password successfully updated in database")
             
             return result
 
