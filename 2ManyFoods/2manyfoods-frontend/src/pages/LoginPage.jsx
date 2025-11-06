@@ -18,6 +18,11 @@ export default function LoginPage() {
   const [showForgotPasswordModal, setShowForgotPasswordModal] = useState(false);
   const [resetEmail, setResetEmail] = useState('');
   const [resetMessage, setResetMessage] = useState('');
+  const [resetStep, setResetStep] = useState(1);
+  const [tempEmail, setTempEmail] = useState('');
+  const [resetCode, setResetCode] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -92,45 +97,86 @@ export default function LoginPage() {
     setShowForgotPasswordModal(true);
     setResetEmail('');
     setResetMessage('');
+    setResetStep(1);
   };
 
   const handleResetPassword = async () => {
-    if (!resetEmail.trim()) {
-      setResetMessage('Please enter your email address');
-      return;
-    }
-
-    // Email validation
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(resetEmail)) {
-      setResetMessage('Please enter a valid email address');
-      return;
-    }
-
-    try {
-      const response = await fetch('http://localhost:8080/forgot-password', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email: resetEmail })
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        setResetMessage('Password reset link sent! Please check your email.');
-      } else {
-        setResetMessage(data.error || 'Failed to send reset link. Please try again.');
+    if (resetStep === 1) {
+      // Step 1: Send code
+      if (!resetEmail.trim()) {
+        setResetMessage('Email required');
+        return;
       }
-    } catch (error) {
-      setResetMessage('An error occurred. Please try again later.');
+      try {
+        const response = await fetch('http://localhost:8080/forgot-password', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: resetEmail })
+        });
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.error);
+        setTempEmail(resetEmail);
+        setResetStep(2);
+        setResetMessage('');
+      } catch (error) {
+        setResetMessage(error.message);
+      }
+    } else if (resetStep === 2) {
+      // Step 2: Verify code
+      if (!resetCode.trim()) {
+        setResetMessage('Enter code');
+        return;
+      }
+      try {
+        const response = await fetch('http://localhost:8080/verify-email', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: tempEmail, code: resetCode })
+        });
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.error);
+        setResetStep(3);
+        setResetMessage('');
+      } catch (error) {
+        setResetMessage(error.message);
+      }
+    } else if (resetStep === 3) {
+      // Step 3: Reset password
+      if (!newPassword || !confirmPassword) {
+        setResetMessage('Enter both passwords');
+        return;
+      }
+      if (newPassword !== confirmPassword) {
+        setResetMessage('Passwords must match');
+        return;
+      }
+      if (newPassword.length < 14) {
+        setResetMessage('Password must be 14+ characters');
+        return;
+      }
+      try {
+        const response = await fetch('http://localhost:8080/reset-password', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: tempEmail, newPassword })
+        });
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.error);
+        setResetMessage('Password reset successfully!');
+        setTimeout(() => handleCloseModal(), 1500);
+      } catch (error) {
+        setResetMessage(error.message);
+      }
     }
   };
 
   const handleCloseModal = () => {
     setShowForgotPasswordModal(false);
+    setResetStep(1);
     setResetEmail('');
+    setResetCode('');
+    setNewPassword('');
+    setConfirmPassword('');
     setResetMessage('');
   };
 
@@ -196,38 +242,57 @@ export default function LoginPage() {
 
       {/* Forgot Password Modal */}
       {showForgotPasswordModal && (
-        <div className="modalOverlay" onClick={handleCloseModal}>
-          <div className="modalContent" onClick={(e) => e.stopPropagation()}>
-            <h2>Reset Password</h2>
-            <p className="modalInstructions">
-              Please enter your email in the box below. We will send you a link to access further instructions.
-            </p>
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <button className="close-btn" onClick={handleCloseModal}>×</button>
             
-            <input
-              type="email"
-              className="resetEmailInput"
-              placeholder="Enter your email"
-              value={resetEmail}
-              onChange={(e) => {
-                setResetEmail(e.target.value);
-                setResetMessage('');
-              }}
-            />
-            
-            {resetMessage && (
-              <p className={`resetMessage ${resetMessage.includes('sent') ? 'success' : 'error'}`}>
-                {resetMessage}
-              </p>
+            {resetStep === 1 && (
+              <>
+                <h2>Reset Password</h2>
+                <input 
+                  type="email" 
+                  placeholder="Enter email"
+                  value={resetEmail}
+                  onChange={(e) => setResetEmail(e.target.value)}
+                />
+                <Button onClick={handleResetPassword} text="Send Code" />
+              </>
             )}
             
-            <div className="modalButtons">
-              <button className="backBtn" onClick={handleCloseModal}>
-                back to login
-              </button>
-              <button className="resetBtn" onClick={handleResetPassword}>
-                reset password
-              </button>
-            </div>
+            {resetStep === 2 && (
+              <>
+                <h2>Enter Code</h2>
+                <p>Code sent to {tempEmail}</p>
+                <input 
+                  type="text" 
+                  placeholder="Enter code"
+                  value={resetCode}
+                  onChange={(e) => setResetCode(e.target.value)}
+                />
+                <Button onClick={handleResetPassword} text="Verify" />
+              </>
+            )}
+            
+            {resetStep === 3 && (
+              <>
+                <h2>New Password</h2>
+                <input 
+                  type="password" 
+                  placeholder="New password"
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                />
+                <input 
+                  type="password" 
+                  placeholder="Confirm password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                />
+                <Button onClick={handleResetPassword} text="Reset" />
+              </>
+            )}
+            
+            {resetMessage && <p className="error">{resetMessage}</p>}
           </div>
         </div>
       )}

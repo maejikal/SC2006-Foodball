@@ -54,6 +54,14 @@ def delete_review(username:str, review_id:int):                          #Delete
     reviews.remove(review_id)
     return run(updatedb(COL, "Username", username, "Reviews", reviews))
 
+def update_user_password(email: str, hashed_password):                  #Update user password by email
+    user = run(searchdb(COL, "Email", email))
+    if not user:
+        raise ValueError("User not found")
+    
+    username = user.get("Username")
+    return run(updatedb(COL, "Username", username, "Password", hashed_password))
+
 def join_group(username:str, group_id:int):                              #Join existing group
     user = get_user_by_username(username)
     groups = user["Groups"]

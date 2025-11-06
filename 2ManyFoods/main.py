@@ -8,6 +8,7 @@ from datetime import datetime, timedelta
 from controllers import group as group_cons
 from services import user as user_services
 import asyncio
+from utils.security import hash_password
 
 from utils import verification
 app = Flask(__name__)
@@ -108,6 +109,39 @@ def verify_email():
         print(f"Error verifying email: {e}")
         return jsonify({"error": str(e)}), 500
 
+@app.route('/forgot-password', methods=['POST'])
+def forgot_password():
+    try:
+        email = request.get_json().get('email')
+        if not email or not user_services.get_user_by_email(email):
+            return jsonify({"error": "Email not found"}), 404
+        
+        code = verification.mail(app, email)
+        verification_codes[email] = {
+            'code': code,
+            'expires_at': datetime.now() + timedelta(minutes=10)  # Add this line
+        }
+        return jsonify({"message": "Code sent"}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/reset-password', methods=['POST'])
+def reset_password():
+    try:
+        data = request.get_json()
+        email, pwd = data.get('email'), data.get('newPassword')
+        
+        if not email or not pwd or len(pwd) < 14:
+            return jsonify({"error": "Invalid"}), 400
+        
+        if not user_services.get_user_by_email(email):
+            return jsonify({"error": "User not found"}), 404
+        
+        hashed = hash_password(pwd)
+        user_services.update_user_password(email, hashed)
+        return jsonify({"message": "Password reset"}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 @app.route('/login', methods=['POST'])
 def login_route():
