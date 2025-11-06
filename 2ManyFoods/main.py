@@ -8,7 +8,6 @@ from datetime import datetime, timedelta
 from controllers import group as group_cons
 from services import user as user_services
 import asyncio
-import traceback
 
 from utils import verification
 app = Flask(__name__)
@@ -178,8 +177,6 @@ def group_voting(groupName):
 
     except Exception as e:
         print(f"Vote error: {e}")
-        
-        traceback.print_exc()
         return jsonify({"error": str(e)}), 400
 
 @app.route('/refresh/<groupName>', methods=['GET'])
